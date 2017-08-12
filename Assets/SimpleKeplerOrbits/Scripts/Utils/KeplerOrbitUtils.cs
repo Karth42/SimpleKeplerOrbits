@@ -295,6 +295,10 @@ namespace SimpleKeplerOrbits
         /// <returns>Eccentric anomaly in radians.</returns>
         public static double ConvertTrueToEccentricAnomaly(double trueAnomaly, double eccentricity)
         {
+            if (double.IsNaN(eccentricity) || double.IsInfinity(eccentricity))
+            {
+                return trueAnomaly;
+            }
             trueAnomaly = trueAnomaly % PI_2;
             if (eccentricity < 1d)
             {
@@ -313,6 +317,10 @@ namespace SimpleKeplerOrbits
             else
             {
                 var cosT = Math.Cos(trueAnomaly);
+                if (double.IsNaN(trueAnomaly))
+                {
+                    Debug.Log("Ec " + eccentricity);
+                }
                 var eccAnom = Acosh((eccentricity + cosT) / (1d + eccentricity * cosT)) * System.Math.Sign(trueAnomaly);
                 return eccAnom;
             }

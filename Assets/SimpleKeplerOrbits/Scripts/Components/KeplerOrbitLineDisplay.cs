@@ -2,18 +2,36 @@
 
 namespace SimpleKeplerOrbits
 {
+    /// <summary>
+    /// Component for displaying current orbit curve in editor and in game.
+    /// </summary>
+    /// <seealso cref="UnityEngine.MonoBehaviour" />
     [RequireComponent(typeof(KeplerOrbitMover))]
     [ExecuteInEditMode]
     public class KeplerOrbitLineDisplay : MonoBehaviour
     {
-        public int orbitPointsCount = 50;
+        /// <summary>
+        /// The orbit curve precision.
+        /// </summary>
+        public int OrbitPointsCount = 50;
 
-        public float MaxOrbitWorkUnitsDistance = 1000f;
-        public LineRenderer linerend;
+        /// <summary>
+        /// The maximum orbit distance of orbit display in world units.
+        /// </summary>
+        public float MaxOrbitWorldUnitsDistance = 1000f;
+
+        /// <summary>
+        /// The line renderer reference.
+        /// </summary>
+        public LineRenderer LineRendererReference;
+
+        [Header("Gizmo display options:")]
+        public bool ShowOrbitGizmoInEditor = true;
+        public bool ShowOrbitGizmoWhileInPlayMode = true;
 
         private KeplerOrbitMover _moverReference;
 
-        void OnEnable()
+        private void OnEnable()
         {
             if (_moverReference == null)
             {
@@ -21,40 +39,55 @@ namespace SimpleKeplerOrbits
             }
         }
 
-        private void Update()
+        private void LateUpdate()
         {
-            if (linerend != null)
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
             {
-                var points = _moverReference.OrbitData.GetOrbitPoints(orbitPointsCount, MaxOrbitWorkUnitsDistance);
-                linerend.positionCount = points.Length;
+                return;
+            }
+#endif
+            if (LineRendererReference != null)
+            {
+                var points = _moverReference.OrbitData.GetOrbitPoints(OrbitPointsCount, MaxOrbitWorldUnitsDistance);
+                LineRendererReference.positionCount = points.Length;
                 for (int i = 0; i < points.Length; i++)
                 {
-                    linerend.SetPosition(i, _moverReference.AttractorSettings.AttractorObject.position + (Vector3)points[i]);
+                    LineRendererReference.SetPosition(i, _moverReference.AttractorSettings.AttractorObject.position + (Vector3)points[i]);
                 }
+                LineRendererReference.loop = _moverReference.OrbitData.Eccentricity < 1.0;
             }
         }
-        void OnDrawGizmos()
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
         {
-            if (_moverReference.VelocityHandle != null)
+            if (ShowOrbitGizmoInEditor && _moverReference != null)
             {
-                if (!Application.isPlaying)
+                if (!Application.isPlaying || ShowOrbitGizmoWhileInPlayMode)
                 {
-                    _moverReference.UpdateOrbitData();
+                    //if (!Application.isPlaying)
+                    //{
+                    //    _moverReference.ForceUpdateOrbitData();
+                    //}
+                    if (_moverReference.AttractorSettings != null && _moverReference.AttractorSettings.AttractorObject != null)
+                    {
+                        ShowVelocity();
+                        ShowOrbit();
+                        ShowNodes();
+                    }
                 }
-                ShowVelocity();
-                ShowOrbit();
-                ShowNodes();
             }
         }
 
-        void ShowVelocity()
+        private void ShowVelocity()
         {
-            Gizmos.DrawLine(transform.position, transform.position + (Vector3)_moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.eccentricAnomaly));
+            Gizmos.DrawLine(transform.position, transform.position + (Vector3)_moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.EccentricAnomaly));
         }
 
-        void ShowOrbit()
+        private void ShowOrbit()
         {
-            var points = _moverReference.OrbitData.GetOrbitPoints(orbitPointsCount, (double)MaxOrbitWorkUnitsDistance);
+            var points = _moverReference.OrbitData.GetOrbitPoints(OrbitPointsCount, (double)MaxOrbitWorldUnitsDistance);
             Gizmos.color = new Color(1, 1, 1, 0.3f);
             for (int i = 0; i < points.Length - 1; i++)
             {
@@ -62,7 +95,7 @@ namespace SimpleKeplerOrbits
             }
         }
 
-        void ShowNodes()
+        private void ShowNodes()
         {
             Vector3 asc;
             if (_moverReference.OrbitData.GetAscendingNode(out asc))
@@ -77,5 +110,15 @@ namespace SimpleKeplerOrbits
                 Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, _moverReference.AttractorSettings.AttractorObject.position + desc);
             }
         }
+
+        [ContextMenu("AutoFind LineRenderer")]
+        private void AutoFindLineRenderer()
+        {
+            if (LineRendererReference == null)
+            {
+                LineRendererReference = GetComponent<LineRenderer>();
+            }
+        }
+#endif
     }
 }
