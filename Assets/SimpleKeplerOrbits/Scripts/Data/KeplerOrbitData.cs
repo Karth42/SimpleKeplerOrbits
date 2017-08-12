@@ -494,7 +494,7 @@ namespace SimpleKeplerOrbits
                 }
                 if (double.IsNaN(MeanAnomaly) || double.IsInfinity(MeanAnomaly))
                 {
-                    Debug.Log("KeplerOrbitData: NaN(INF) MEAN ANOMALY"); //litle paranoya
+                    Debug.Log("KeplerOrbitData: NaN(INF) MEAN ANOMALY"); //little paranoya
                     Debug.Break();
                 }
                 if (double.IsNaN(EccentricAnomaly) || double.IsInfinity(EccentricAnomaly))
@@ -510,7 +510,7 @@ namespace SimpleKeplerOrbits
             }
             else
             {
-                double n = Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3)) * Math.Sign(OrbitNormalDotEclipticNormal);
+                double n = Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3));// * Math.Sign(OrbitNormalDotEclipticNormal);
                 MeanAnomaly = MeanAnomaly + n * deltaTime;
                 EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
                 TrueAnomaly = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1.0) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
