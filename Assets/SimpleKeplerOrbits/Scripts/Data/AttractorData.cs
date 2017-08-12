@@ -1,4 +1,12 @@
-﻿using UnityEngine;
+﻿#region Copyright
+/// Copyright © 2017 Vlad Kirpichenko
+/// 
+/// Author: Vlad Kirpichenko 'itanksp@gmail.com'
+/// Licensed under the MIT License.
+/// License: http://opensource.org/licenses/MIT
+#endregion
+
+using UnityEngine;
 
 namespace SimpleKeplerOrbits
 {
