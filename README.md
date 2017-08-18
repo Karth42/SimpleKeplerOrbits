@@ -4,3 +4,7 @@ Curves settings set by attractor parameters (mass, GConst) and velocity vector o
 which makes this system useful in simulation of celestial mechanics in games.
 
 This system doesn't support N-body simulation, only 2-body analytic solution for simplisity.
+
+# Published version
+Asset store link: https://www.assetstore.unity3d.com/en/#!/content/97048
+
