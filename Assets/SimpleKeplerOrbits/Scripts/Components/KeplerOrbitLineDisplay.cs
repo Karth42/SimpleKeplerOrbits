@@ -38,6 +38,7 @@ namespace SimpleKeplerOrbits
         public bool ShowOrbitGizmoWhileInPlayMode = true;
 
         private KeplerOrbitMover _moverReference;
+        private Vector3[] _orbitPoints;
 
         private void OnEnable()
         {
@@ -57,11 +58,11 @@ namespace SimpleKeplerOrbits
 #endif
             if (LineRendererReference != null)
             {
-                var points = _moverReference.OrbitData.GetOrbitPoints(OrbitPointsCount, MaxOrbitWorldUnitsDistance);
-                LineRendererReference.positionCount = points.Length;
-                for (int i = 0; i < points.Length; i++)
+                _moverReference.OrbitData.GetOrbitPointsNoAlloc(ref _orbitPoints, OrbitPointsCount, _moverReference.AttractorSettings.AttractorObject.position, MaxOrbitWorldUnitsDistance);
+                LineRendererReference.positionCount = _orbitPoints.Length;
+                for (int i = 0; i < _orbitPoints.Length; i++)
                 {
-                    LineRendererReference.SetPosition(i, _moverReference.AttractorSettings.AttractorObject.position + (Vector3)points[i]);
+                    LineRendererReference.SetPosition(i, _orbitPoints[i]);
                 }
                 LineRendererReference.loop = _moverReference.OrbitData.Eccentricity < 1.0;
             }
@@ -95,11 +96,11 @@ namespace SimpleKeplerOrbits
 
         private void ShowOrbit()
         {
-            var points = _moverReference.OrbitData.GetOrbitPoints(OrbitPointsCount, (double)MaxOrbitWorldUnitsDistance);
+            _moverReference.OrbitData.GetOrbitPointsNoAlloc(ref _orbitPoints, OrbitPointsCount, _moverReference.AttractorSettings.AttractorObject.position, MaxOrbitWorldUnitsDistance);
             Gizmos.color = new Color(1, 1, 1, 0.3f);
-            for (int i = 0; i < points.Length - 1; i++)
+            for (int i = 0; i < _orbitPoints.Length - 1; i++)
             {
-                Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position + (Vector3)points[i], _moverReference.AttractorSettings.AttractorObject.position + (Vector3)points[i + 1]);
+                Gizmos.DrawLine(_orbitPoints[i], _orbitPoints[i + 1]);
             }
         }
 

@@ -16,7 +16,6 @@ namespace SimpleKeplerOrbits
     /// </summary>
     /// <seealso cref="UnityEngine.MonoBehaviour" />
     [ExecuteInEditMode]
-    [DisallowMultipleComponent]
     public class KeplerOrbitMover : MonoBehaviour
     {
         /// <summary>
@@ -114,11 +113,11 @@ namespace SimpleKeplerOrbits
                         _debugErrorDisplayed = true;
                         if (Application.isPlaying)
                         {
-                            Debug.LogError("KeplerMover: Attractor reference not asigned");
+                            Debug.LogError("KeplerMover: Attractor reference not asigned", context: gameObject);
                         }
                         else
                         {
-                            Debug.Log("KeplerMover: Attractor reference not asigned");
+                            Debug.Log("KeplerMover: Attractor reference not asigned", context: gameObject);
                         }
                     }
                 }

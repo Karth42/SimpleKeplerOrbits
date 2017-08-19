@@ -349,6 +349,63 @@ namespace SimpleKeplerOrbits
         }
 
         /// <summary>
+        /// Gets the orbit points without unnecessary memory alloc for resulting array.
+        /// However, memory allocation may occur if resulting array has not correct lenght.
+        /// </summary>
+        /// <param name="orbitPoints">The orbit points.</param>
+        /// <param name="pointsCount">The points count.</param>
+        /// <param name="origin">The origin.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        public void GetOrbitPointsNoAlloc(ref Vector3[] orbitPoints, int pointsCount, Vector3 origin, float maxDistance = 1000f)
+        {
+            if (pointsCount < 2)
+            {
+                orbitPoints = new Vector3[0];
+                return;
+            }
+            if (Eccentricity < 1)
+            {
+                if (orbitPoints == null || orbitPoints.Length != pointsCount)
+                {
+                    orbitPoints = new Vector3[pointsCount];
+                }
+                if (ApoapsisDistance < maxDistance)
+                {
+                    for (var i = 0; i < pointsCount; i++)
+                    {
+                        orbitPoints[i] = (Vector3)GetFocalPositionAtEccentricAnomaly(i * KeplerOrbitUtils.PI_2 / (pointsCount - 1d)) + origin;
+                    }
+                }
+                else
+                {
+                    var maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
+                    for (int i = 0; i < pointsCount; i++)
+                    {
+                        orbitPoints[i] = (Vector3)GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
+                    }
+                }
+            }
+            else
+            {
+                if (maxDistance < PeriapsisDistance)
+                {
+                    orbitPoints = new Vector3[0];
+                    return;
+                }
+                if (orbitPoints == null || orbitPoints.Length != pointsCount)
+                {
+                    orbitPoints = new Vector3[pointsCount];
+                }
+                var maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
+
+                for (int i = 0; i < pointsCount; i++)
+                {
+                    orbitPoints[i] = (Vector3)GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the ascending node of orbit.
         /// </summary>
         /// <param name="asc">The asc.</param>
