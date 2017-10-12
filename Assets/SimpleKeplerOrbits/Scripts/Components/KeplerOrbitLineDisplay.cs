@@ -107,16 +107,18 @@ namespace SimpleKeplerOrbits
         private void ShowNodes()
         {
             Vector3 asc;
-            if (_moverReference.OrbitData.GetAscendingNode(out asc))
+            if (_moverReference.OrbitData.IsValidOrbit)
             {
-                Gizmos.color = new Color(0.9f, 0.4f, 0.2f, 0.5f);
-                Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, _moverReference.AttractorSettings.AttractorObject.position + asc);
-            }
-            Vector3 desc;
-            if (_moverReference.OrbitData.GetDescendingNode(out desc))
-            {
-                Gizmos.color = new Color(0.2f, 0.4f, 0.78f, 0.5f);
-                Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, _moverReference.AttractorSettings.AttractorObject.position + desc);
+                Gizmos.color = new Color(0.9f, 0.4f, 0.2f, 0.3f);
+                var point = _moverReference.AttractorSettings.AttractorObject.position + (Vector3)_moverReference.OrbitData.Periapsis;
+                Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, point);
+
+                if (_moverReference.OrbitData.Eccentricity < 1)
+                {
+                    Gizmos.color = new Color(0.2f, 0.4f, 0.78f, 0.3f);
+                    point = _moverReference.AttractorSettings.AttractorObject.position + (Vector3)_moverReference.OrbitData.Apoapsis;
+                    Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, point);
+                }
             }
         }
 

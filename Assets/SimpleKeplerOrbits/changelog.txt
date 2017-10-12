@@ -1,2 +1,7 @@
+version 1.0.1
+- Circularize orbit tool now doesn't invert the velocity.
+- KeplerOrbitLineDisplay now draws periapsi-apoapsis line instead of ascending-descending nodes, because ecliptic plane is static and not helpful.
+- Added second example scene with layered hierarchy of orbiting objects.
+
 version 1.0:
 - Initial release.

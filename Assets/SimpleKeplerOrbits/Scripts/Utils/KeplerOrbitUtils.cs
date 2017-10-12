@@ -171,7 +171,7 @@ namespace SimpleKeplerOrbits
             var dist = distanceVector.magnitude;
             var MG = attractorMass * gConst;
             var vScalar = System.Math.Sqrt(MG / dist);
-            return CrossProduct(distanceVector, orbitNormal).normalized * (float)vScalar;
+            return CrossProduct(distanceVector, -orbitNormal).normalized * (float)vScalar;
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace SimpleKeplerOrbits
             var dist = distanceVector.magnitude;
             var MG = attractorMass * gConst;
             var vScalar = System.Math.Sqrt(MG / dist);
-            return CrossProduct(distanceVector, orbitNormal).normalized * vScalar;
+            return CrossProduct(distanceVector, -orbitNormal).normalized * vScalar;
         }
 
         /// <summary>
