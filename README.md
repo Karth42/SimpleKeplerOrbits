@@ -30,4 +30,4 @@ Asset store [link]
 
 ## License
 
-[MIT](License)
+[MIT](LICENSE)
