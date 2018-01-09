@@ -1,5 +1,5 @@
 ﻿#region Copyright
-/// Copyright © 2017 Vlad Kirpichenko
+/// Copyright © 2017-2018 Vlad Kirpichenko
 /// 
 /// Author: Vlad Kirpichenko 'itanksp@gmail.com'
 /// Licensed under the MIT License.
@@ -63,17 +63,17 @@ namespace SimpleKeplerOrbits
         }
         
         /// <summary>
-        /// Rotate vector around another vector
+        /// Rotate vector around another vector.
         /// </summary>
-        /// <param name="v">Vector to rotate</param>
-        /// <param name="angleRad">angle in radians</param>
-        /// <param name="n">normalized vector to rotate around, or normal of rotation plane</param>
+        /// <param name="v">Vector to rotate.</param>
+        /// <param name="angleRad">angle in radians.</param>
+        /// <param name="n">normalized vector to rotate around, or normal of rotation plane.</param>
         public static Vector3 RotateVectorByAngle(Vector3 v, float angleRad, Vector3 n)
         {
             float cosT = Mathf.Cos(angleRad);
             float sinT = Mathf.Sin(angleRad);
             float oneMinusCos = 1f - cosT;
-            //rotation matrix:
+            // Rotation matrix:
             float a11 = oneMinusCos * n.x * n.x + cosT;
             float a12 = oneMinusCos * n.x * n.y - n.z * sinT;
             float a13 = oneMinusCos * n.x * n.z + n.y * sinT;
@@ -91,17 +91,17 @@ namespace SimpleKeplerOrbits
         }
 
         /// <summary>
-        /// Rotate vector around another vector (double)
+        /// Rotate vector around another vector (double).
         /// </summary>
-        /// <param name="v">Vector to rotate</param>
-        /// <param name="angleRad">angle in radians</param>
-        /// <param name="n">normalized vector to rotate around, or normal of rotation plane</param>
+        /// <param name="v">Vector to rotate.</param>
+        /// <param name="angleRad">angle in radians.</param>
+        /// <param name="n">normalized vector to rotate around, or normal of rotation plane.</param>
         public static Vector3d RotateVectorByAngle(Vector3d v, double angleRad, Vector3d n)
         {
             double cosT = Math.Cos(angleRad);
             double sinT = Math.Sin(angleRad);
             double oneMinusCos = 1f - cosT;
-            //rotation matrix:
+            // Rotation matrix:
             double a11 = oneMinusCos * n.x * n.x + cosT;
             double a12 = oneMinusCos * n.x * n.y - n.z * sinT;
             double a13 = oneMinusCos * n.x * n.z + n.y * sinT;
@@ -397,7 +397,7 @@ namespace SimpleKeplerOrbits
         /// <returns>Eccentric anomaly in radians.</returns>
         public static double KeplerSolver(double meanAnomaly, double eccentricity)
         {
-            //one stable method
+            // One stable method.
             int iterations = eccentricity < 0.4d ? 2 : 4;
             double E = meanAnomaly;
             for (int i = 0; i < iterations; i++)
@@ -421,7 +421,8 @@ namespace SimpleKeplerOrbits
         {
             double epsilon = 1e-005d;
             double delta = 1d;
-            double F = System.Math.Log(2d * System.Math.Abs(meanAnomaly) / eccentricity + 1.8d);//danby guess
+            // Danby guess.
+            double F = System.Math.Log(2d * System.Math.Abs(meanAnomaly) / eccentricity + 1.8d);
             if (double.IsNaN(F) || double.IsInfinity(F))
             {
                 return meanAnomaly;

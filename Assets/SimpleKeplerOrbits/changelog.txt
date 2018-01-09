@@ -1,3 +1,6 @@
+version 1.0.2
+- Added Velocuty Handler Scale slider parameter.
+
 version 1.0.1
 - Circularize orbit tool now doesn't invert the velocity.
 - KeplerOrbitLineDisplay now draws periapsi-apoapsis line instead of ascending-descending nodes, because ecliptic plane is static and not helpful.

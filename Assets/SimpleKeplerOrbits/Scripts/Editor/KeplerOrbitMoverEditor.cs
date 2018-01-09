@@ -1,5 +1,5 @@
 ﻿#region Copyright
-/// Copyright © 2017 Vlad Kirpichenko
+/// Copyright © 2017-2018 Vlad Kirpichenko
 /// 
 /// Author: Vlad Kirpichenko 'itanksp@gmail.com'
 /// Licensed under the MIT License.
@@ -34,10 +34,12 @@ namespace SimpleKeplerOrbits
             {
                 _target.SetAutoCircleOrbit();
             }
+
             if (_target.OrbitData.Eccentricity >= 1.0)
             {
                 GUI.enabled = false;
             }
+
             if (_target.OrbitData.Eccentricity < 1.0)
             {
                 var meanAnomaly = EditorGUILayout.Slider("Mean anomaly", (float)_target.OrbitData.MeanAnomaly, 0, (float)KeplerOrbitUtils.PI_2);
@@ -52,20 +54,24 @@ namespace SimpleKeplerOrbits
             {
                 EditorGUILayout.LabelField("Mean anomaly", _target.OrbitData.MeanAnomaly.ToString());
             }
+
             if (!GUI.enabled)
             {
                 GUI.enabled = true;
             }
+
             if (_target.AttractorSettings != null && _target.AttractorSettings.AttractorObject == _target.gameObject)
             {
                 _target.AttractorSettings.AttractorObject = null;
                 EditorUtility.SetDirty(_target);
             }
+
             if (_target.AttractorSettings.GravityConstant < 0)
             {
                 _target.AttractorSettings.GravityConstant = 0;
                 EditorUtility.SetDirty(_target);
             }
+
             if (_target.OrbitData.GravConst < 0)
             {
                 _target.OrbitData.GravConst = 0;

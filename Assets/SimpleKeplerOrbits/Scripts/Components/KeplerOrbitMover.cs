@@ -1,5 +1,5 @@
 ﻿#region Copyright
-/// Copyright © 2017 Vlad Kirpichenko
+/// Copyright © 2017-2018 Vlad Kirpichenko
 /// 
 /// Author: Vlad Kirpichenko 'itanksp@gmail.com'
 /// Licensed under the MIT License.
@@ -32,8 +32,16 @@ namespace SimpleKeplerOrbits
         public Transform VelocityHandle;
 
         /// <summary>
+        /// The velocity handle lenght scale parameter.
+        /// </summary>
+        [Range(0f, 10f)]
+        [Tooltip("Velocity handle scale parameter.")]
+        public float VelocityHandleLenghtScale = 0f;
+
+        /// <summary>
         /// The time scale multiplier.
         /// </summary>
+        [Tooltip("The time scale multiplier.")]
         public float TimeScale = 1f;
 
         /// <summary>
@@ -41,11 +49,19 @@ namespace SimpleKeplerOrbits
         /// Internal state of orbit.
         /// </summary>
         [Header("Orbit state details:")]
+        [Tooltip("Internal state of orbit.")]
         public KeplerOrbitData OrbitData = new KeplerOrbitData();
 
         /// <summary>
         /// Disable continious editing orbit in update loop, if you don't need it.
+        /// It is also very useful in cases, when orbit is not stable due to float precision limits.
         /// </summary>
+        /// <remarks>
+        /// Internal orbit data uses double prevision vectors, but every update it is compared with unity scene vectors, which are float precision.
+        /// In result, if unity vectors precision is not enough for current values, then orbit become unstable (this effect also called Kraken).
+        /// To avoid this issue, you can disable comparison, and then orbit motion will be nice and stable, but you will no longer be able to change orbit by moving objects in editor.
+        /// </remarks>
+        [Tooltip("Disable continious editing orbit in update loop, if you don't need it, or you need to fix Kraken issue on large scale orbits.")]
         public bool LockOrbitEditing = false;
 
 #if UNITY_EDITOR        
@@ -93,9 +109,17 @@ namespace SimpleKeplerOrbits
                 {
                     var position = new Vector3d(transform.position - AttractorSettings.AttractorObject.position);
 
-                    var velocity = VelocityHandle == null ? new Vector3d() : new Vector3d(VelocityHandle.position - transform.position);
+                    bool velocityHandleChanged = false;
+                    if (VelocityHandle != null)
+                    {
+                        var velocity = GetVelocityHandleDisplayedVelocity();
+                        if (velocity != (Vector3)OrbitData.Velocity)
+                        {
+                            velocityHandleChanged = true;
+                        }
+                    }
                     if ((Vector3)position != (Vector3)OrbitData.Position ||
-                        (VelocityHandle != null && (Vector3)velocity != (Vector3)OrbitData.Velocity) ||
+                        velocityHandleChanged ||
                         OrbitData.GravConst != AttractorSettings.GravityConstant ||
                         OrbitData.AttractorMass != AttractorSettings.AttractorMass)
                     {
@@ -128,7 +152,7 @@ namespace SimpleKeplerOrbits
 #endif
             }
         }
-        
+
 
         /// <summary>
         /// Progress orbit path motion.
@@ -154,12 +178,7 @@ namespace SimpleKeplerOrbits
                     if (OrbitData.IsValidOrbit)
                     {
                         OrbitData.UpdateOrbitDataByTime(Time.deltaTime * TimeScale);
-
-                        transform.position = AttractorSettings.AttractorObject.position + (Vector3)OrbitData.Position;
-                        if (VelocityHandle != null)
-                        {
-                            VelocityHandle.position = transform.position + (Vector3)OrbitData.Velocity;
-                        }
+                        ForceUpdateViewFromInternalState();
                     }
                 }
                 yield return null;
@@ -193,10 +212,42 @@ namespace SimpleKeplerOrbits
         public void ForceUpdateViewFromInternalState()
         {
             transform.position = AttractorSettings.AttractorObject.position + (Vector3)OrbitData.Position;
+            ForceUpdateVelocityHandleFromInternalState();
+        }
+
+        /// <summary>
+        /// Forces the refresh of position of velocity handle object from actual orbit state.
+        /// </summary>
+        public void ForceUpdateVelocityHandleFromInternalState()
+        {
             if (VelocityHandle != null)
             {
-                VelocityHandle.position = transform.position + (Vector3)OrbitData.Velocity;
+                var velocityRelativePosition = (Vector3)OrbitData.Velocity;
+                if (VelocityHandleLenghtScale > 0 && !float.IsNaN(VelocityHandleLenghtScale) && !float.IsInfinity(VelocityHandleLenghtScale))
+                {
+                    velocityRelativePosition *= VelocityHandleLenghtScale;
+                }
+                VelocityHandle.position = transform.position + velocityRelativePosition;
             }
+        }
+
+        /// <summary>
+        /// Gets the displayed velocity vector from Velocity Handle object position if Handle reference is not null.
+        /// NOTE: Displayed velocity may not be equal to actual orbit velocity!
+        /// </summary>
+        /// <returns>Displayed velocity if Handle is not null, otherwise - zero vector.</returns>
+        public Vector3 GetVelocityHandleDisplayedVelocity()
+        {
+            if (VelocityHandle != null)
+            {
+                var velocity = VelocityHandle.position - transform.position;
+                if (VelocityHandleLenghtScale > 0 && !float.IsNaN(VelocityHandleLenghtScale) && !float.IsInfinity(VelocityHandleLenghtScale))
+                {
+                    velocity /= VelocityHandleLenghtScale;
+                }
+                return velocity;
+            }
+            return new Vector3();
         }
 
         /// <summary>
@@ -215,7 +266,8 @@ namespace SimpleKeplerOrbits
                 OrbitData.Position = new Vector3d(transform.position - AttractorSettings.AttractorObject.position);
                 if (VelocityHandle != null)
                 {
-                    OrbitData.Velocity = new Vector3d((VelocityHandle.position - transform.position));
+                    var velocity = GetVelocityHandleDisplayedVelocity();
+                    OrbitData.Velocity = new Vector3d(velocity);
                 }
                 OrbitData.CalculateNewOrbitData();
             }
@@ -224,17 +276,14 @@ namespace SimpleKeplerOrbits
         /// <summary>
         /// Change orbit velocity vector to match circular orbit.
         /// </summary>
-        [ContextMenu("Circulize orbit")]
+        [ContextMenu("Circularize orbit")]
         public void SetAutoCircleOrbit()
         {
             if (IsReferencesAsigned)
             {
                 OrbitData.Velocity = KeplerOrbitUtils.CalcCircleOrbitVelocity(Vector3d.zero, OrbitData.Position, OrbitData.AttractorMass, 1f, OrbitData.OrbitNormal, OrbitData.GravConst);
                 OrbitData.CalculateNewOrbitData();
-                if (VelocityHandle != null)
-                {
-                    VelocityHandle.position = transform.position + (Vector3)OrbitData.Velocity;
-                }
+                ForceUpdateVelocityHandleFromInternalState();
             }
         }
     }

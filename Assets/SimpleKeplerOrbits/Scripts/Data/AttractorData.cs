@@ -1,5 +1,5 @@
 ﻿#region Copyright
-/// Copyright © 2017 Vlad Kirpichenko
+/// Copyright © 2017-2018 Vlad Kirpichenko
 /// 
 /// Author: Vlad Kirpichenko 'itanksp@gmail.com'
 /// Licensed under the MIT License.
@@ -18,7 +18,6 @@ namespace SimpleKeplerOrbits
     {
         public Transform AttractorObject;
         public float AttractorMass = 1000;
-        public float MaxDistForHyperbolicCase = 100f;
         public float GravityConstant = 0.1f;
     }
 }

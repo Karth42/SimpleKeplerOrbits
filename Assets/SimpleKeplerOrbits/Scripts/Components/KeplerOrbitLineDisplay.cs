@@ -1,5 +1,5 @@
 ﻿#region Copyright
-/// Copyright © 2017 Vlad Kirpichenko
+/// Copyright © 2017-2018 Vlad Kirpichenko
 /// 
 /// Author: Vlad Kirpichenko 'itanksp@gmail.com'
 /// Licensed under the MIT License.
@@ -75,10 +75,6 @@ namespace SimpleKeplerOrbits
             {
                 if (!Application.isPlaying || ShowOrbitGizmoWhileInPlayMode)
                 {
-                    //if (!Application.isPlaying)
-                    //{
-                    //    _moverReference.ForceUpdateOrbitData();
-                    //}
                     if (_moverReference.AttractorSettings != null && _moverReference.AttractorSettings.AttractorObject != null)
                     {
                         ShowVelocity();
@@ -91,7 +87,12 @@ namespace SimpleKeplerOrbits
 
         private void ShowVelocity()
         {
-            Gizmos.DrawLine(transform.position, transform.position + (Vector3)_moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.EccentricAnomaly));
+            var velocity = (Vector3)_moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.EccentricAnomaly);
+            if (_moverReference.VelocityHandleLenghtScale > 0)
+            {
+                velocity *= _moverReference.VelocityHandleLenghtScale;
+            }
+            Gizmos.DrawLine(transform.position, transform.position + velocity);
         }
 
         private void ShowOrbit()
@@ -106,7 +107,6 @@ namespace SimpleKeplerOrbits
 
         private void ShowNodes()
         {
-            Vector3 asc;
             if (_moverReference.OrbitData.IsValidOrbit)
             {
                 Gizmos.color = new Color(0.9f, 0.4f, 0.2f, 0.3f);

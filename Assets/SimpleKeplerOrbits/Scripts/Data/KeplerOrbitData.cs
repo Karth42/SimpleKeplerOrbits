@@ -1,5 +1,5 @@
 ﻿#region Copyright
-/// Copyright © 2017 Vlad Kirpichenko
+/// Copyright © 2017-2018 Vlad Kirpichenko
 /// 
 /// Author: Vlad Kirpichenko 'itanksp@gmail.com'
 /// Licensed under the MIT License.
@@ -20,7 +20,10 @@ namespace SimpleKeplerOrbits
     {
         public double GravConst = 1;
         public Vector3d EclipticNormal = new Vector3d(0, 0, 1);
-        public Vector3d EclipticUp = new Vector3d(0, 1, 0);//up direction on ecliptic plane
+        /// <summary>
+        /// Up direction on ecliptic plane.
+        /// </summary>
+        public Vector3d EclipticUp = new Vector3d(0, 1, 0);
 
         public Vector3d Position;
         public double AttractorDistance;
@@ -81,14 +84,19 @@ namespace SimpleKeplerOrbits
             var angularMomentumVector = KeplerOrbitUtils.CrossProduct(Position, Velocity);
             OrbitNormal = angularMomentumVector.normalized;
             Vector3d eccVector;
-            if (OrbitNormal.sqrMagnitude < 0.9 || OrbitNormal.sqrMagnitude > 1.1)
-            {//check if zero lenght
+            if (OrbitNormal.sqrMagnitude < 0.5f)
+            {
+                // If normalized vector len is not one, then it's zero.
                 OrbitNormal = KeplerOrbitUtils.CrossProduct(Position, EclipticUp).normalized;
                 eccVector = new Vector3d();
             }
             else
             {
                 eccVector = KeplerOrbitUtils.CrossProduct(Velocity, angularMomentumVector) / MG - Position / AttractorDistance;
+            }
+            if (eccVector.magnitude < 1e-4)
+            {
+                eccVector = new Vector3d();
             }
             OrbitNormalDotEclipticNormal = KeplerOrbitUtils.DotProduct(OrbitNormal, EclipticNormal);
             FocalParameter = angularMomentumVector.sqrMagnitude / MG;
@@ -583,7 +591,7 @@ namespace SimpleKeplerOrbits
         }
 
         /// <summary>
-        /// Sets velocity by current anomaly.
+        /// Sets orbit velocity, calculated by current anomaly.
         /// </summary>
         public void SetVelocityByCurrentAnomaly()
         {
