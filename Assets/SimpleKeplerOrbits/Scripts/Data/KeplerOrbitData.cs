@@ -737,5 +737,10 @@ namespace SimpleKeplerOrbits
             Velocity = new Vector3d(rotation * ((Vector3)Velocity));
             CalculateNewOrbitData();
         }
+
+		public KeplerOrbitData Clone()
+		{
+			return (KeplerOrbitData)MemberwiseClone();
+		}
     }
 }

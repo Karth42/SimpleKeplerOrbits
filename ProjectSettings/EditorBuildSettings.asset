@@ -6,5 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SimpleKeplerOrbits/Scenes/ExampleScene.unity
-    guid: 87fa2632687f288439698fc24df81f4b
+    path: Assets/ECS_playground/Scenes/ECS_benchmark.unity
+    guid: a545e89767d73e249ad9e01a7bde97a2
+  m_configObjects: {}
