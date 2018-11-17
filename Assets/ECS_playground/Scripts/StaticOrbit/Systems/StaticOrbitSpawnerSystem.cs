@@ -72,6 +72,7 @@ namespace ECS_Sandbox
 			int t = 50;
 			while (startList.Count > 0 && t > 0)
 			{
+				bool addRend = UnityEngine.Random.value <= Config.BodyRenderingProbability;
 				t--;
 				currentList.Clear();
 				for (int i = 0; i < startList.Count; i++)
@@ -97,26 +98,26 @@ namespace ECS_Sandbox
 						{
 							for (int i = 0; i < config.EntitiesPerSpawn; i++)
 							{
-								var entity = CreateEntity();
+								var entity = CreateEntity(addRend);
 								_totalCount++;
 								entityIteration.Add(entity);
-								AssignOrbitDataToEntity(entity, ModifyOrbitDataRandomly(item.OrbitData, Config));
+								AssignOrbitDataToEntity(entity, ModifyOrbitDataRandomly(item.OrbitData, Config), addRend);
 							}
 						}
 						else
 						{
-							var entity = CreateEntity();
+							var entity = CreateEntity(addRend);
 							_totalCount++;
 							entityIteration.Add(entity);
-							AssignOrbitDataToEntity(entity, item.OrbitData);
+							AssignOrbitDataToEntity(entity, item.OrbitData, addRend);
 						}
 					}
 					else
 					{
-						var entity = CreateEntity();
+						var entity = CreateEntity(addRend);
 						_totalCount++;
 						entityIteration.Add(entity);
-						AssignOrbitDataToEntity(entity, ModifyOrbitDataRandomly(item.OrbitData, Config));
+						AssignOrbitDataToEntity(entity, ModifyOrbitDataRandomly(item.OrbitData, Config), addRend);
 					}
 					_cachedSpawnings[item] = entityIteration;
 					if (parent != null)
@@ -132,13 +133,9 @@ namespace ECS_Sandbox
 			_cachedSpawnings.Clear();
 		}
 
-		private Entity CreateEntity()
+		private Entity CreateEntity(bool addRend)
 		{
 			var componentsTypes = new ComponentType[]{
-					//Rendering components
-					typeof(ECS_SpaceShooterDemo.EntityInstanceRenderData),
-					typeof(EntityInstanceRendererTransform),
-					typeof(EntityInstanceRenderer),
 					//Orbital state components
 					typeof(EccentricityData),
 					typeof(AnomalyData),
@@ -147,6 +144,18 @@ namespace ECS_Sandbox
 					typeof(SemiMinorMajorAxisData),
 					typeof(OrbitalPositionData)
 			};
+			if (addRend)
+			{
+				var arr = new ComponentType[componentsTypes.Length + 3];
+				for (int i = 0; i < componentsTypes.Length; i++)
+				{
+					arr[i] = componentsTypes[i];
+				}
+				arr[arr.Length - 3] = typeof(ECS_SpaceShooterDemo.EntityInstanceRenderData);
+				arr[arr.Length - 2] = typeof(EntityInstanceRendererTransform);
+				arr[arr.Length - 1] = typeof(EntityInstanceRenderer);
+				componentsTypes = arr;
+			}
 			return _entityManager.CreateEntity(componentsTypes);
 		}
 
@@ -164,14 +173,8 @@ namespace ECS_Sandbox
 			_entityManager.SetComponentData<Parent>(entity, new Parent() { Value = parent });
 		}
 
-		private void AssignOrbitDataToEntity(Entity entity, KeplerOrbitData orbitData)
+		private void AssignOrbitDataToEntity(Entity entity, KeplerOrbitData orbitData, bool addRend)
 		{
-			_entityManager.SetComponentData<ECS_SpaceShooterDemo.EntityInstanceRenderData>(entity, new ECS_SpaceShooterDemo.EntityInstanceRenderData()
-			{
-				position = new float3((float)orbitData.Position.x, (float)orbitData.Position.y, (float)orbitData.Position.z),
-				forward = math.forward(quaternion.identity),
-				up = math.up()
-			});
 			_entityManager.SetComponentData<EccentricityData>(entity, new EccentricityData()
 			{
 				Eccentricity = orbitData.Eccentricity
@@ -203,7 +206,16 @@ namespace ECS_Sandbox
 			{
 				Position = new double3(orbitData.Position.x, orbitData.Position.y, orbitData.Position.z)
 			});
-			_entityManager.SetSharedComponentData<EntityInstanceRenderer>(entity, _sharedRendererData);
+			if (addRend)
+			{
+				_entityManager.SetComponentData<ECS_SpaceShooterDemo.EntityInstanceRenderData>(entity, new ECS_SpaceShooterDemo.EntityInstanceRenderData()
+				{
+					position = new float3((float)orbitData.Position.x, (float)orbitData.Position.y, (float)orbitData.Position.z),
+					forward = math.forward(quaternion.identity),
+					up = math.up()
+				});
+				_entityManager.SetSharedComponentData<EntityInstanceRenderer>(entity, _sharedRendererData);
+			}
 		}
 
 		private static KeplerOrbitData ModifyOrbitDataRandomly(KeplerOrbitData orbitData, StaticOrbitConfig config)
