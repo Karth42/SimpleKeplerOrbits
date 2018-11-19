@@ -26,8 +26,11 @@ namespace SimpleKeplerOrbits
 		public Vector3d EclipticUp = new Vector3d(0, 1, 0);
 
 		/// <summary>
-		/// Body position relatve to attractor.
+		/// Body position relatve to attractor or Focal Position.
 		/// </summary>
+		/// <remarks>
+		/// Attractor (focus) is local center of orbit system.
+		/// </remarks>
 		public Vector3d Position;
 
 		/// <summary>
@@ -44,6 +47,11 @@ namespace SimpleKeplerOrbits
 		/// Body velocity vector relative to attractor.
 		/// </summary>
 		public Vector3d Velocity;
+
+		/// <summary>
+		/// Gravitational parameter of system.
+		/// </summary>
+		public double MG;
 
 		public double SemiMinorAxis;
 		public double SemiMajorAxis;
@@ -66,14 +74,57 @@ namespace SimpleKeplerOrbits
 		public Vector3d SemiMajorAxisBasis;
 
 		/// <summary>
-		/// The orbit inclination in radians relative to ecliptic plane.
-		/// </summary>
-		public double Inclination;
-
-		/// <summary>
 		/// if > 0, then orbit motion is clockwise
 		/// </summary>
 		public double OrbitNormalDotEclipticNormal;
+
+		/// <summary>
+		/// The orbit inclination in radians relative to ecliptic plane.
+		/// </summary>
+		public double Inclination
+		{
+			get
+			{
+				var worldNormal = EclipticNormal;
+				var orbitAxis = OrbitNormal;
+				return Vector3d.Angle(orbitAxis, worldNormal) * KeplerOrbitUtils.Deg2Rad;
+			}
+		}
+
+		/// <summary>
+		/// Angle between main orbit axis and ecliptic 0 axis in radians.
+		/// </summary>
+		public double ArgumentOfPeriapsis
+		{
+			get
+			{
+				var axis = KeplerOrbitUtils.CrossProduct(EclipticNormal, OrbitNormal).normalized;
+				//var dot = KeplerOrbitUtils.DotProduct(EclipticNormal, OrbitNormal) > 0 ? -1 : 1;
+				//if (axis.sqrMagnitude < 0.99)
+				//{
+				//	axis = EclipticUp;
+				//}
+				int sign = KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(axis, SemiMajorAxisBasis), OrbitNormal) > 0 ? 1 : -1;
+				return Vector3d.Angle(axis, SemiMajorAxisBasis) * sign * KeplerOrbitUtils.Deg2Rad;
+			}
+		}
+
+		/// <summary>
+		/// Ascending node longitude in radians.
+		/// </summary>
+		public double AscendingNodeLongitude
+		{
+			get
+			{
+				var axis = KeplerOrbitUtils.CrossProduct(EclipticNormal, OrbitNormal).normalized;
+				//if (axis.sqrMagnitude < 0.99)
+				//{
+				//	axis = EclipticUp;
+				//}
+				int sign = KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(axis, EclipticUp), EclipticNormal) > 0 ? 1 : -1;
+				return Vector3d.Angle(axis, EclipticUp) * sign * KeplerOrbitUtils.Deg2Rad;
+			}
+		}
 
 		/// <summary>
 		/// Is orbit state valid and error-free.
@@ -85,21 +136,128 @@ namespace SimpleKeplerOrbits
 		{
 			get
 			{
-				return Eccentricity >= 0 && Period > KeplerOrbitUtils.Epsilon && AttractorDistance > KeplerOrbitUtils.Epsilon && AttractorMass > KeplerOrbitUtils.Epsilon;
+				return Eccentricity >= 0 
+					&& Period > KeplerOrbitUtils.Epsilon 
+					&& AttractorDistance > KeplerOrbitUtils.Epsilon 
+					&& AttractorMass > KeplerOrbitUtils.Epsilon;
 			}
 		}
 
 		/// <summary>
-		/// Calculates the full state of orbit from current body position, attractor position, attractor mass, velocity, and gravConstant.
+		/// Create new orbit state without initialization. Manual orbit initialization is required.
+		/// </summary>
+		/// <remarks>
+		/// To manually initialize orbit, fill known orbital elements and then call CalculateOrbitStateFrom... method.
+		/// </remarks>
+		public KeplerOrbitData()
+		{
+		}
+
+		/// <summary>
+		/// Create and initialize new orbit state.
+		/// </summary>
+		/// <param name="position">Body local position, relative to attractor.</param>
+		/// <param name="velocity">Body local velocity.</param>
+		/// <param name="attractorMass">Attractor mass.</param>
+		/// <param name="gConst">Gravitational Constant.</param>
+		public KeplerOrbitData(Vector3d position, Vector3d velocity, double attractorMass, double gConst)
+		{
+			this.Position = position;
+			this.Velocity = velocity;
+			this.AttractorMass = attractorMass;
+			this.GravConst = gConst;
+			CalculateOrbitStateFromOrbitalVectors();
+		}
+
+		/// <summary>
+		/// Create and initialize new orbit state from orbital elements.
+		/// </summary>
+		/// <param name="eccentricity">Eccentricity.</param>
+		/// <param name="semiMajorAxis">Main axis semi width.</param>
+		/// <param name="meanAnomalyDeg">Mean anomaly in degrees.</param>
+		/// <param name="inclinationDeg">Orbit inclination in degrees.</param>
+		/// <param name="argOfPeriapsisDeg">Orbit argument of periapsis in degrees.</param>
+		/// <param name="ascendingNodeDeg">Longitude of ascending node in degrees.</param>
+		/// <param name="attractorMass">Attractor mass.</param>
+		/// <param name="gConst">Gravitational constant.</param>
+		public KeplerOrbitData(double eccentricity, double semiMajorAxis, double meanAnomalyDeg, double inclinationDeg, double argOfPeriapsisDeg, double ascendingNodeDeg, double attractorMass, double gConst)
+		{
+			this.Eccentricity = eccentricity;
+			this.SemiMajorAxis = semiMajorAxis;
+			if (eccentricity < 1.0)
+			{
+				this.SemiMinorAxis = SemiMajorAxis * Math.Sqrt(1 - Eccentricity * Eccentricity);
+			}
+			else
+			{
+				this.SemiMinorAxis = SemiMajorAxis * Math.Sqrt(Eccentricity * Eccentricity - 1);
+			}
+			
+			var normal = EclipticNormal.normalized;
+			var ascendingNode = EclipticUp.normalized;
+
+			ascendingNode = KeplerOrbitUtils.RotateVectorByAngle(ascendingNode, ascendingNodeDeg * KeplerOrbitUtils.Deg2Rad, -normal);
+			normal = KeplerOrbitUtils.RotateVectorByAngle(normal, inclinationDeg * KeplerOrbitUtils.Deg2Rad, ascendingNode);
+			var periapsis = ascendingNode;
+			periapsis = KeplerOrbitUtils.RotateVectorByAngle(periapsis, argOfPeriapsisDeg * KeplerOrbitUtils.Deg2Rad, normal);
+
+			this.SemiMajorAxisBasis = periapsis.normalized;
+			this.SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(periapsis, normal).normalized;
+
+			//var rotation = Quaternion.Euler((float)ascendingNodeDeg, (float)inclinationDeg, (float)argOfPeriapsisDeg);
+			//SemiMajorAxisBasis = new Vector3d(rotation * (Vector3)SemiMajorAxisBasis);
+			//SemiMinorAxisBasis = new Vector3d(rotation * (Vector3)SemiMinorAxisBasis);
+
+			this.MeanAnomaly = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
+			this.EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(this.MeanAnomaly, this.Eccentricity);
+			this.TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(this.EccentricAnomaly, this.Eccentricity);
+			this.AttractorMass = attractorMass;
+			this.GravConst = gConst;
+			CalculateOrbitStateFromOrbitalElements();
+		}
+
+		/// <summary>
+		/// Create and initialize new orbit state from orbital elements and main axis vectors.
+		/// </summary>
+		/// <param name="eccentricity">Eccentricity.</param>
+		/// <param name="semiMajorAxis">Semi major axis vector.</param>
+		/// <param name="semiMinorAxis">Semi minor axis vector.</param>
+		/// <param name="meanAnomalyDeg">Mean anomaly in degrees.</param>
+		/// <param name="attractorMass">Attractor mass.</param>
+		/// <param name="gConst">Gravitational constant.</param>
+		public KeplerOrbitData(double eccentricity, Vector3d semiMajorAxis, Vector3d semiMinorAxis, double meanAnomalyDeg, double attractorMass, double gConst)
+		{
+			this.Eccentricity = eccentricity;
+			this.SemiMajorAxisBasis = semiMajorAxis.normalized;
+			this.SemiMinorAxisBasis = semiMinorAxis.normalized;
+			this.SemiMajorAxis = semiMajorAxis.magnitude;
+			this.SemiMinorAxis = semiMinorAxis.magnitude;
+
+			this.MeanAnomaly = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
+			this.EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(this.MeanAnomaly, this.Eccentricity);
+			this.TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(this.EccentricAnomaly, this.Eccentricity);
+			this.AttractorMass = attractorMass;
+			this.GravConst = gConst;
+			CalculateOrbitStateFromOrbitalElements();
+		}
+
+		[Obsolete("Use CalculateOrbitStateFromOrbitalVectors() instead.", error: true)]
+		public void CalculateNewOrbitData()
+		{
+			CalculateOrbitStateFromOrbitalVectors();
+		}
+
+		/// <summary>
+		/// Calculates full orbit state from current body position, attractor mass, velocity, and gravConstant.
 		/// </summary>
 		public void CalculateOrbitStateFromOrbitalVectors()
 		{
-			double MG = AttractorMass * GravConst;
+			MG = AttractorMass * GravConst;
 			AttractorDistance = Position.magnitude;
 			Vector3d angularMomentumVector = KeplerOrbitUtils.CrossProduct(Position, Velocity);
 			OrbitNormal = angularMomentumVector.normalized;
 			Vector3d eccVector;
-			if (OrbitNormal.sqrMagnitude < 0.5f)
+			if (OrbitNormal.sqrMagnitude < 0.99)
 			{
 				// If normalized vector len is not one, then it's zero.
 				OrbitNormal = KeplerOrbitUtils.CrossProduct(Position, EclipticUp).normalized;
@@ -109,21 +267,16 @@ namespace SimpleKeplerOrbits
 			{
 				eccVector = KeplerOrbitUtils.CrossProduct(Velocity, angularMomentumVector) / MG - Position / AttractorDistance;
 			}
-			if (eccVector.magnitude < 1e-4)
-			{
-				eccVector = new Vector3d();
-			}
 			OrbitNormalDotEclipticNormal = KeplerOrbitUtils.DotProduct(OrbitNormal, EclipticNormal);
 			FocalParameter = angularMomentumVector.sqrMagnitude / MG;
 			Eccentricity = eccVector.magnitude;
 			EnergyTotal = Velocity.sqrMagnitude - 2 * MG / AttractorDistance;
 			SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(angularMomentumVector, eccVector).normalized;
-			if (SemiMinorAxisBasis.sqrMagnitude < 0.5)
+			if (SemiMinorAxisBasis.sqrMagnitude < 0.99)
 			{
 				SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(OrbitNormal, Position).normalized;
 			}
 			SemiMajorAxisBasis = KeplerOrbitUtils.CrossProduct(OrbitNormal, SemiMinorAxisBasis).normalized;
-			Inclination = Vector3d.Angle(OrbitNormal, EclipticNormal) * KeplerOrbitUtils.Deg2Rad;
 			if (Eccentricity < 1)
 			{
 				OrbitCompressionRatio = 1 - Eccentricity * Eccentricity;
@@ -165,6 +318,48 @@ namespace SimpleKeplerOrbits
 		}
 
 		/// <summary>
+		/// Calculates the full state of orbit from current orbital elements: eccentricity, mean anomaly, semi major and semi minor axis.
+		/// </summary>
+		/// <remarks>
+		/// Update orbital state using known main orbital elements and basis axis vectors.
+		/// Can be used for first initialization of orbit state, in this case initial data must be filled before this method call.
+		/// Required initial data: eccentricity, mean anomaly, inclination, attractor mass, grav constant, all anomalies, semi minor and semi major axis vectors and magnitudes.
+		/// Note that semi minor and semi major axis must be fully precalculated from inclination and argument of periapsis or another source data;
+		/// </remarks>
+		public void CalculateOrbitStateFromOrbitalElements()
+		{
+			MG = AttractorMass * GravConst;
+			OrbitNormal = -KeplerOrbitUtils.CrossProduct(SemiMajorAxisBasis, SemiMinorAxisBasis).normalized;
+			OrbitNormalDotEclipticNormal = KeplerOrbitUtils.DotProduct(OrbitNormal, EclipticNormal);
+			if (Eccentricity < 1.0)
+			{
+				OrbitCompressionRatio = 1 - Eccentricity * Eccentricity;
+				CenterPoint = SemiMajorAxisBasis * SemiMajorAxis * Eccentricity;
+				Period = KeplerOrbitUtils.PI_2 * Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
+				Apoapsis = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
+				Periapsis = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
+				PeriapsisDistance = Periapsis.magnitude;
+				ApoapsisDistance = Apoapsis.magnitude;
+				// All anomalies state already preset.
+			}
+			else
+			{
+				CenterPoint = -SemiMajorAxisBasis * SemiMajorAxis * Eccentricity;
+				Period = double.PositiveInfinity;
+				Apoapsis = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+				Periapsis = CenterPoint + SemiMajorAxisBasis * (SemiMajorAxis);
+				PeriapsisDistance = Periapsis.magnitude;
+				ApoapsisDistance = double.PositiveInfinity;
+			}
+			Position = GetFocalPositionAtEccentricAnomaly(EccentricAnomaly);
+			double compresion = Eccentricity < 1 ? (1 - Eccentricity * Eccentricity) : (Eccentricity * Eccentricity - 1);
+			FocalParameter = SemiMajorAxis * compresion;
+			Velocity = GetVelocityAtTrueAnomaly(this.TrueAnomaly);
+			AttractorDistance = Position.magnitude;
+			EnergyTotal = Velocity.sqrMagnitude - 2 * MG / AttractorDistance;
+		}
+
+		/// <summary>
 		/// Gets the velocity vector value at eccentric anomaly.
 		/// </summary>
 		/// <param name="eccentricAnomaly">The eccentric anomaly.</param>
@@ -181,7 +376,7 @@ namespace SimpleKeplerOrbits
 		/// <returns>Velocity vector.</returns>
 		public Vector3d GetVelocityAtTrueAnomaly(double trueAnomaly)
 		{
-			if (FocalParameter < 1e-5)
+			if (FocalParameter < KeplerOrbitUtils.Epsilon)
 			{
 				return new Vector3d();
 			}
@@ -556,7 +751,7 @@ namespace SimpleKeplerOrbits
 		{
 			if (Eccentricity < 1)
 			{
-				if (Period > 1e-5)
+				if (Period > KeplerOrbitUtils.Epsilon)
 				{
 					MeanAnomaly += KeplerOrbitUtils.PI_2 * deltaTime / Period;
 				}
@@ -590,7 +785,7 @@ namespace SimpleKeplerOrbits
 			}
 			else
 			{
-				double n = Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3));// * Math.Sign(OrbitNormalDotEclipticNormal);
+				double n = Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3));
 				MeanAnomaly = MeanAnomaly + n * deltaTime;
 				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
 				TrueAnomaly = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1.0) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
@@ -624,10 +819,10 @@ namespace SimpleKeplerOrbits
 				return;
 			}
 			e = Math.Abs(e);
-			double _periapsis = PeriapsisDistance; // Periapsis remains constant
+			double periapsis = PeriapsisDistance; // Periapsis remains constant
 			Eccentricity = e;
 			double compresion = Eccentricity < 1 ? (1 - Eccentricity * Eccentricity) : (Eccentricity * Eccentricity - 1);
-			SemiMajorAxis = Math.Abs(_periapsis / (1 - Eccentricity));
+			SemiMajorAxis = Math.Abs(periapsis / (1 - Eccentricity));
 			FocalParameter = SemiMajorAxis * compresion;
 			SemiMinorAxis = SemiMajorAxis * Math.Sqrt(compresion);
 			CenterPoint = SemiMajorAxis * Math.Abs(Eccentricity) * SemiMajorAxisBasis;
@@ -751,6 +946,16 @@ namespace SimpleKeplerOrbits
 			Position = new Vector3d(rotation * ((Vector3)Position));
 			Velocity = new Vector3d(rotation * ((Vector3)Velocity));
 			CalculateOrbitStateFromOrbitalVectors();
+		}
+
+		public object Clone()
+		{
+			return MemberwiseClone();
+		}
+
+		public KeplerOrbitData CloneOrbit()
+		{
+			return (KeplerOrbitData)MemberwiseClone();
 		}
 	}
 }

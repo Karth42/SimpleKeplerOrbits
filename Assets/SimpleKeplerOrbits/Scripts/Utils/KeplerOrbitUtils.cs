@@ -35,8 +35,18 @@ namespace SimpleKeplerOrbits
 			{
 				return 0;
 			}
-
 			return Math.Log(x + System.Math.Sqrt(x * x - 1.0));
+		}
+
+		/// <summary>
+		/// Project vector onto plane.
+		/// </summary>
+		/// <param name="point">Input vector.</param>
+		/// <param name="planeNormal">Plane normal.</param>
+		/// <returns>Result vector.</returns>
+		public static Vector3d ProjectPointOnPlane(Vector3d point, Vector3d planeNormal)
+		{
+			return point - planeNormal * DotProduct(point, planeNormal);
 		}
 
 		/// <summary>
@@ -50,14 +60,13 @@ namespace SimpleKeplerOrbits
 		public static Vector3 GetRayPlaneIntersectionPoint(Vector3 pointOnPlane, Vector3 normal, Vector3 rayOrigin, Vector3 rayDirection)
 		{
 			float dotProd = DotProduct(rayDirection, normal);
-			if (Math.Abs(dotProd) < 1e-5)
+			if (Math.Abs(dotProd) < Epsilon)
 			{
 				return new Vector3();
 			}
-
 			Vector3 p = rayOrigin + rayDirection * DotProduct((pointOnPlane - rayOrigin), normal) / dotProd;
 
-			//Projection. for better precision.
+			//Projection. For better precision.
 			p = p - normal * DotProduct(p - pointOnPlane, normal);
 			return p;
 		}
@@ -170,7 +179,7 @@ namespace SimpleKeplerOrbits
 			Vector3 distanceVector = bodyPos - attractorPos;
 			float dist = distanceVector.magnitude;
 			double MG = attractorMass * gConst;
-			double vScalar = System.Math.Sqrt(MG / dist);
+			double vScalar = Math.Sqrt(MG / dist);
 			return CrossProduct(distanceVector, -orbitNormal).normalized * (float)vScalar;
 		}
 
@@ -182,7 +191,7 @@ namespace SimpleKeplerOrbits
 			Vector3d distanceVector = bodyPos - attractorPos;
 			double dist = distanceVector.magnitude;
 			double MG = attractorMass * gConst;
-			double vScalar = System.Math.Sqrt(MG / dist);
+			double vScalar = Math.Sqrt(MG / dist);
 			return CrossProduct(distanceVector, -orbitNormal).normalized * vScalar;
 		}
 
@@ -191,7 +200,7 @@ namespace SimpleKeplerOrbits
 		/// </summary>
 		public static Vector3[] CalcOrbitPoints(Vector3 attractorPos, Vector3 bodyPos, double attractorMass, double bodyMass, Vector3 relVelocity, double gConst, int pointsCount)
 		{
-			if (pointsCount < 3 || pointsCount > 10000)
+			if (pointsCount < 3 || pointsCount > 1000000)
 			{
 				return new Vector3[0];
 			}
@@ -221,7 +230,7 @@ namespace SimpleKeplerOrbits
 			}
 			else
 			{
-				orbitCompressionRatio = eccentricity * eccentricity - 1f;
+				orbitCompressionRatio = eccentricity * eccentricity - 1.0;
 				semiMajorAxys = focalParameter / orbitCompressionRatio;
 				semiMinorAxys = semiMajorAxys * System.Math.Sqrt(orbitCompressionRatio);
 				relFocusPoint = -(float)semiMajorAxys * eccVector;
@@ -325,10 +334,6 @@ namespace SimpleKeplerOrbits
 			else
 			{
 				double cosT = Math.Cos(trueAnomaly);
-				if (double.IsNaN(trueAnomaly))
-				{
-					Debug.Log("Ec " + eccentricity);
-				}
 				double eccAnom = Acosh((eccentricity + cosT) / (1d + eccentricity * cosT)) * System.Math.Sign(trueAnomaly);
 				return eccAnom;
 			}
@@ -398,17 +403,21 @@ namespace SimpleKeplerOrbits
 		public static double KeplerSolver(double meanAnomaly, double eccentricity)
 		{
 			// One stable method.
-			int iterations = eccentricity < 0.4d ? 2 : 4;
-			double E = meanAnomaly;
+			int iterations = eccentricity < 0.4d ? 3 : 5;
+			double e = meanAnomaly;
+			double esinE;
+			double ecosE;
+			double deltaE;
+			double n;
 			for (int i = 0; i < iterations; i++)
 			{
-				double esinE = eccentricity * System.Math.Sin(E);
-				double ecosE = eccentricity * System.Math.Cos(E);
-				double deltaE = E - esinE - meanAnomaly;
-				double n = 1.0 - ecosE;
-				E += -5d * deltaE / (n + System.Math.Sign(n) * System.Math.Sqrt(System.Math.Abs(16d * n * n - 20d * deltaE * esinE)));
+				esinE = eccentricity * System.Math.Sin(e);
+				ecosE = eccentricity * System.Math.Cos(e);
+				deltaE = e - esinE - meanAnomaly;
+				n = 1.0 - ecosE;
+				e += -5d * deltaE / (n + System.Math.Sign(n) * System.Math.Sqrt(System.Math.Abs(16d * n * n - 20d * deltaE * esinE)));
 			}
-			return E;
+			return e;
 		}
 
 		/// <summary>
@@ -419,7 +428,6 @@ namespace SimpleKeplerOrbits
 		/// <returns>Eccentric anomaly in radians.</returns>
 		public static double KeplerSolverHyperbolicCase(double meanAnomaly, double eccentricity)
 		{
-			double epsilon = 1e-005d;
 			double delta = 1d;
 			// Danby guess.
 			double F = System.Math.Log(2d * System.Math.Abs(meanAnomaly) / eccentricity + 1.8d);
@@ -427,7 +435,7 @@ namespace SimpleKeplerOrbits
 			{
 				return meanAnomaly;
 			}
-			while (System.Math.Abs(delta) > epsilon)
+			while (System.Math.Abs(delta) > 1e-005d)
 			{
 				delta = (eccentricity * (float)System.Math.Sinh(F) - F - meanAnomaly) / (eccentricity * (float)System.Math.Cosh(F) - 1d);
 				if (double.IsNaN(delta) || double.IsInfinity(delta))

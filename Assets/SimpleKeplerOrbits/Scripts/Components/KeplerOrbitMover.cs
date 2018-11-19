@@ -209,6 +209,7 @@ namespace SimpleKeplerOrbits
 		/// Forces the update of body position, and velocity handler from OrbitData.
 		/// Call this method after any direct changing of OrbitData.
 		/// </summary>
+		[ContextMenu("Update transform from orbit state")]
 		public void ForceUpdateViewFromInternalState()
 		{
 			transform.position = AttractorSettings.AttractorObject.position + (Vector3)OrbitData.Position;
@@ -233,9 +234,9 @@ namespace SimpleKeplerOrbits
 
 		/// <summary>
 		/// Gets the displayed velocity vector from Velocity Handle object position if Handle reference is not null.
-		/// NOTE: Displayed velocity may not be equal to actual orbit velocity!
+		/// NOTE: Displayed velocity may not be equal to actual orbit velocity.
 		/// </summary>
-		/// <returns>Displayed velocity if Handle is not null, otherwise - zero vector.</returns>
+		/// <returns>Displayed velocity vector if Handle is not null, otherwise zero vector.</returns>
 		public Vector3 GetVelocityHandleDisplayedVelocity()
 		{
 			if (VelocityHandle != null)
@@ -257,6 +258,7 @@ namespace SimpleKeplerOrbits
 		/// This method must be called after any manual changing of body position, velocity handler position or attractor settings.
 		/// It will update internal OrbitData state from view state.
 		/// </remarks>
+		[ContextMenu("Update Orbit data from current vectors")]
 		public void ForceUpdateOrbitData()
 		{
 			if (IsReferencesAsigned)
@@ -285,6 +287,12 @@ namespace SimpleKeplerOrbits
 				OrbitData.CalculateOrbitStateFromOrbitalVectors();
 				ForceUpdateVelocityHandleFromInternalState();
 			}
+		}
+
+		[ContextMenu("Reset orbit")]
+		public void ResetOrbit()
+		{
+			OrbitData = new KeplerOrbitData();
 		}
 	}
 }
