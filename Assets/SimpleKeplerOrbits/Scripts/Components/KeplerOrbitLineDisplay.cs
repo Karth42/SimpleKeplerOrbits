@@ -39,6 +39,7 @@ namespace SimpleKeplerOrbits
 		public bool ShowOrbitGizmoWhileInPlayMode = true;
 		public bool ShowVelocityGizmoInEditor = true;
 		public bool ShowPeriapsisApoapsisGizmosInEditor = true;
+		public bool ShowAscendingNodeIneditor = true;
 		public bool ShowAxisGizmosInEditor = false;
 
 		[Range(0f, 1f)]
@@ -101,6 +102,10 @@ namespace SimpleKeplerOrbits
 						{
 							ShowAxis();
 						}
+						if (ShowAscendingNodeIneditor)
+						{
+							ShowAscNode();
+						}
 					}
 				}
 			}
@@ -114,12 +119,20 @@ namespace SimpleKeplerOrbits
 			Gizmos.DrawLine(origin, origin + (Vector3)_moverReference.OrbitData.SemiMajorAxisBasis);
 			Gizmos.color = new Color(1, 0.8f, 0.2f, GizmosAlphaSecondary);
 			Gizmos.DrawLine(origin, origin + (Vector3)_moverReference.OrbitData.SemiMinorAxisBasis);
-			Gizmos.color = new Color(0.5f, 0, 1f, GizmosAlphaSecondary);
+			Gizmos.color = new Color(0.9f, 0.1f, 0.2f, GizmosAlphaSecondary);
 			Gizmos.DrawLine(origin, origin + (Vector3)_moverReference.OrbitData.OrbitNormal);
-			////Gizmos.color = new Color(1, 1, 1, GizmosAlphaSecondary);
-			////Gizmos.DrawLine(new Vector3(), (Vector3)_moverReference.OrbitData.EclipticNormal);
-			////Gizmos.color = new Color(0, 0, 0, GizmosAlphaSecondary);
-			////Gizmos.DrawLine(new Vector3(), (Vector3)_moverReference.OrbitData.EclipticUp);
+		}
+
+		private void ShowAscNode()
+		{
+			if (GizmosAlphaSecondary <= 0) return;
+			Vector3 origin = _moverReference.AttractorSettings.AttractorObject.position;
+			Gizmos.color = new Color(0.29f, 0.42f, 0.64f, GizmosAlphaSecondary);
+			Vector3 ascNode;
+			if (_moverReference.OrbitData.GetAscendingNode(out ascNode))
+			{
+				Gizmos.DrawLine(origin, origin + ascNode);
+			}
 		}
 
 		private void ShowVelocity()

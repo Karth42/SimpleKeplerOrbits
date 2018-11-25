@@ -12,6 +12,7 @@ using UnityEngine;
 namespace SimpleKeplerOrbits
 {
 	[CustomEditor(typeof(KeplerOrbitMover))]
+	[CanEditMultipleObjects]
 	public class KeplerOrbitMoverEditor : Editor
 	{
 		private KeplerOrbitMover _target;
@@ -54,9 +55,20 @@ namespace SimpleKeplerOrbits
 			{
 				EditorGUILayout.LabelField("Mean anomaly", _target.OrbitData.MeanAnomaly.ToString());
 			}
-			EditorGUILayout.LabelField("Inclination", _target.OrbitData.Inclination.ToString() + "(deg=" + (_target.OrbitData.Inclination * KeplerOrbitUtils.Rad2Deg).ToString("0.000") + ")");
-			EditorGUILayout.LabelField("Argument of periapsis", _target.OrbitData.ArgumentOfPeriapsis.ToString() + "(deg=" + (_target.OrbitData.ArgumentOfPeriapsis * KeplerOrbitUtils.Rad2Deg).ToString("0.000") + ")");
-			EditorGUILayout.LabelField("Ascending node longitude", _target.OrbitData.AscendingNodeLongitude.ToString() + "(deg=" + (_target.OrbitData.AscendingNodeLongitude * KeplerOrbitUtils.Rad2Deg).ToString("0.000") + ")");
+			EditorGUILayout.LabelField("Velocity", _target.OrbitData.Velocity.magnitude.ToString("0.00000"));
+
+			string inclinationRad = _target.OrbitData.Inclination.ToString();
+			string inclinationDeg = (_target.OrbitData.Inclination * KeplerOrbitUtils.Rad2Deg).ToString("0.000");
+			EditorGUILayout.LabelField("Inclination", string.Format("{0,15} (deg={1})", inclinationRad, inclinationDeg));
+
+			string ascNodeRad = _target.OrbitData.AscendingNodeLongitude.ToString();
+			string ascNodeDeg = (_target.OrbitData.AscendingNodeLongitude * KeplerOrbitUtils.Rad2Deg).ToString("0.000");
+			EditorGUILayout.LabelField("AscendingNodeLongitude", string.Format("{0,15} (deg={1})", ascNodeRad, ascNodeDeg));
+
+			string argOfPeriRad = _target.OrbitData.ArgumentOfPerifocus.ToString();
+			string argOfPeriDeg = (_target.OrbitData.ArgumentOfPerifocus * KeplerOrbitUtils.Rad2Deg).ToString("0.000");
+			EditorGUILayout.LabelField("ArgumentOfPerifocus", string.Format("{0,15} (deg={1})", argOfPeriRad, argOfPeriDeg));
+
 			if (!GUI.enabled)
 			{
 				GUI.enabled = true;

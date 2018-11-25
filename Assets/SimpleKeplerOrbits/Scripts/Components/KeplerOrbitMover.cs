@@ -289,6 +289,40 @@ namespace SimpleKeplerOrbits
 			}
 		}
 
+		[ContextMenu("Inverse velocity")]
+		public void InverseVelocity()
+		{
+			if (IsReferencesAsigned)
+			{
+				OrbitData.Velocity = -OrbitData.Velocity;
+				OrbitData.CalculateOrbitStateFromOrbitalVectors();
+				ForceUpdateVelocityHandleFromInternalState();
+			}
+		}
+
+		[ContextMenu("Inverse position")]
+		public void InversePositionRelativeToAttractor()
+		{
+			if (IsReferencesAsigned)
+			{
+				OrbitData.Position = -OrbitData.Position;
+				OrbitData.CalculateOrbitStateFromOrbitalVectors();
+				ForceUpdateVelocityHandleFromInternalState();
+			}
+		}
+
+		[ContextMenu("Inverse velocity and position")]
+		public void InverseOrbit()
+		{
+			if (IsReferencesAsigned)
+			{
+				OrbitData.Velocity = -OrbitData.Velocity;
+				OrbitData.Position = -OrbitData.Position;
+				OrbitData.CalculateOrbitStateFromOrbitalVectors();
+				ForceUpdateVelocityHandleFromInternalState();
+			}
+		}
+
 		[ContextMenu("Reset orbit")]
 		public void ResetOrbit()
 		{
