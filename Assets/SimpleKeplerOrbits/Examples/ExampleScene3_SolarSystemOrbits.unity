@@ -1,0 +1,672 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!29 &1
+OcclusionCullingSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_OcclusionBakeSettings:
+    smallestOccluder: 5
+    smallestHole: 0.25
+    backfaceThreshold: 100
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
+--- !u!104 &2
+RenderSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 9
+  m_Fog: 0
+  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_FogMode: 3
+  m_FogDensity: 0.01
+  m_LinearFogStart: 0
+  m_LinearFogEnd: 300
+  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
+  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_AmbientIntensity: 1
+  m_AmbientMode: 0
+  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_HaloStrength: 0.5
+  m_FlareStrength: 1
+  m_FlareFadeSpeed: 3
+  m_HaloTexture: {fileID: 0}
+  m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
+  m_DefaultReflectionMode: 0
+  m_DefaultReflectionResolution: 128
+  m_ReflectionBounces: 1
+  m_ReflectionIntensity: 1
+  m_CustomReflection: {fileID: 0}
+  m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_UseRadianceAmbientProbe: 0
+--- !u!157 &3
+LightmapSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 11
+  m_GIWorkflowMode: 0
+  m_GISettings:
+    serializedVersion: 2
+    m_BounceScale: 1
+    m_IndirectOutputScale: 1
+    m_AlbedoBoost: 1
+    m_TemporalCoherenceThreshold: 1
+    m_EnvironmentLightingMode: 0
+    m_EnableBakedLightmaps: 1
+    m_EnableRealtimeLightmaps: 1
+  m_LightmapEditorSettings:
+    serializedVersion: 10
+    m_Resolution: 2
+    m_BakeResolution: 40
+    m_AtlasSize: 1024
+    m_AO: 0
+    m_AOMaxDistance: 1
+    m_CompAOExponent: 1
+    m_CompAOExponentDirect: 0
+    m_Padding: 2
+    m_LightmapParameters: {fileID: 0}
+    m_LightmapsBakeMode: 1
+    m_TextureCompression: 1
+    m_FinalGather: 0
+    m_FinalGatherFiltering: 1
+    m_FinalGatherRayCount: 256
+    m_ReflectionCompression: 2
+    m_MixedBakeMode: 2
+    m_BakeBackend: 1
+    m_PVRSampling: 1
+    m_PVRDirectSampleCount: 32
+    m_PVRSampleCount: 500
+    m_PVRBounces: 2
+    m_PVRFilterTypeDirect: 0
+    m_PVRFilterTypeIndirect: 0
+    m_PVRFilterTypeAO: 0
+    m_PVRFilteringMode: 1
+    m_PVRCulling: 1
+    m_PVRFilteringGaussRadiusDirect: 1
+    m_PVRFilteringGaussRadiusIndirect: 5
+    m_PVRFilteringGaussRadiusAO: 2
+    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+    m_PVRFilteringAtrousPositionSigmaIndirect: 2
+    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ShowResolutionOverlay: 1
+  m_LightingDataAsset: {fileID: 0}
+  m_UseShadowmask: 1
+--- !u!196 &4
+NavMeshSettings:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_BuildSettings:
+    serializedVersion: 2
+    agentTypeID: 0
+    agentRadius: 0.5
+    agentHeight: 2
+    agentSlope: 45
+    agentClimb: 0.4
+    ledgeDropHeight: 0
+    maxJumpAcrossDistance: 0
+    minRegionArea: 2
+    manualCellSize: 0
+    cellSize: 0.16666667
+    manualTileSize: 0
+    tileSize: 256
+    accuratePlacement: 0
+    debug:
+      m_Flags: 0
+  m_NavMeshData: {fileID: 0}
+--- !u!1 &139608332
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 139608335}
+  - component: {fileID: 139608334}
+  - component: {fileID: 139608333}
+  m_Layer: 0
+  m_Name: Main Camera
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!81 &139608333
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 139608332}
+  m_Enabled: 1
+--- !u!20 &139608334
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 139608332}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 0}
+  m_projectionMatrixMode: 1
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!4 &139608335
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 139608332}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &142333818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 142333821}
+  - component: {fileID: 142333819}
+  - component: {fileID: 142333820}
+  m_Layer: 0
+  m_Name: BodyTemplate
+  m_TagString: Untagged
+  m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &142333819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 142333818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 360a38c11d75bf24991bdc7b1fcddb56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AttractorSettings:
+    AttractorObject: {fileID: 0}
+    AttractorMass: 1000
+    GravityConstant: 0.1
+  VelocityHandle: {fileID: 389432181}
+  VelocityHandleLenghtScale: 10
+  TimeScale: 1
+  OrbitData:
+    GravConst: 1
+    EclipticNormal:
+      x: 0
+      y: 0
+      z: 1
+    EclipticUp:
+      x: 0
+      y: 1
+      z: 0
+    EclipticRight:
+      x: 1
+      y: 0
+      z: 0
+    Position:
+      x: 0
+      y: 0
+      z: 0
+    AttractorDistance: 0
+    AttractorMass: 0
+    Velocity:
+      x: 0
+      y: 0
+      z: 0
+    MG: 0
+    SemiMinorAxis: 0
+    SemiMajorAxis: 0
+    FocalParameter: 0
+    Eccentricity: 0
+    EnergyTotal: 0
+    Period: 0
+    TrueAnomaly: 0
+    MeanAnomaly: 0
+    EccentricAnomaly: 0
+    SquaresConstant: 0
+    Periapsis:
+      x: 0
+      y: 0
+      z: 0
+    PeriapsisDistance: 0
+    Apoapsis:
+      x: 0
+      y: 0
+      z: 0
+    ApoapsisDistance: 0
+    CenterPoint:
+      x: 0
+      y: 0
+      z: 0
+    OrbitCompressionRatio: 0
+    OrbitNormal:
+      x: 0
+      y: 0
+      z: 0
+    SemiMinorAxisBasis:
+      x: 0
+      y: 0
+      z: 0
+    SemiMajorAxisBasis:
+      x: 0
+      y: 0
+      z: 0
+    OrbitNormalDotEclipticNormal: 0
+  LockOrbitEditing: 1
+--- !u!114 &142333820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 142333818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6830bec90f469e45947a153a51aa976, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OrbitPointsCount: 100
+  MaxOrbitWorldUnitsDistance: 10000
+  LineRendererReference: {fileID: 0}
+  ShowOrbitGizmoInEditor: 1
+  ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 0
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
+--- !u!4 &142333821
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 142333818}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 389432181}
+  m_Father: {fileID: 446493818}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &389432180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 389432181}
+  m_Layer: 0
+  m_Name: Velocity
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &389432181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 389432180}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 142333821}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &446493816
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 446493818}
+  - component: {fileID: 446493817}
+  m_Layer: 0
+  m_Name: Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &446493817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 446493816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3cd8e705f774994b9a2c12dc87424aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LoadingDataSource: 0
+  GConstant: 1e-28
+  UnitsPerAU: 100
+  BodyTemplate: {fileID: 142333819}
+  JsonData: {fileID: 4900000, guid: ccb07bf196cceb048a9f4a9468c5a910, type: 3}
+  ElementsTable:
+  - BodyName: Solar system barycenter
+    AttractorName: 
+    AttractorMass: 0
+    EC: 0
+    IN: 0
+    OM: 0
+    W: 0
+    MA: 0
+    A: 0
+  - BodyName: Sun
+    AttractorName: Solar system barycenter
+    AttractorMass: 2.684475e+27
+    EC: 0.4629633494640212
+    IN: 1.724705251117903
+    OM: 110.5954222372583
+    W: 190.9645080829407
+    MA: 117.4534471342322
+    A: 0.005539872753246974
+  - BodyName: Mercury
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.2331356414821117
+    IN: 6.92507210665298
+    OM: 49.14359237152809
+    W: 28.75915523435282
+    MA: 6.105611252749826
+    A: 0.4104191516021073
+  - BodyName: Venus
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.01519626725794277
+    IN: 3.390328473888002
+    OM: 76.8733993032892
+    W: 26.93063987043875
+    MA: 346.4379843715778
+    A: 0.7379267096652449
+  - BodyName: Earth-Moon barycenter
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.02123758527190883
+    IN: 0.006132962786053039
+    OM: 160.28931712968
+    W: 285.6707277718496
+    MA: 343.4080165865644
+    A: 1.013384516874098
+  - BodyName: Mars
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.09722407509360328
+    IN: 1.852653789821378
+    OM: 49.75565526577027
+    W: 284.9930114695734
+    MA: 40.74370127865248
+    A: 1.528117435216392
+  - BodyName: Jupiter
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.04955221277452629
+    IN: 1.303245345962924
+    OM: 100.5042552394082
+    W: 273.8271139061637
+    MA: 234.1139371929583
+    A: 5.193553755886376
+  - BodyName: Saturn
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.05459159028940153
+    IN: 2.489224445059011
+    OM: 113.5849721841255
+    W: 339.0964779283165
+    MA: 188.474809892173
+    A: 9.53852638352189
+  - BodyName: Uranus
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.04734671744888258
+    IN: 0.7724162023692199
+    OM: 73.98321027762336
+    W: 97.08647710463048
+    MA: 223.2136697708723
+    A: 19.18767101207814
+  - BodyName: Neptune
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.00881139069464004
+    IN: 1.770451555474154
+    OM: 131.7875937191575
+    W: 270.6008285876983
+    MA: 303.8071301409309
+    A: 30.08264629659431
+  - BodyName: Pluto-Charon barycenter
+    AttractorName: Solar system barycenter
+    AttractorMass: 1.9885e+30
+    EC: 0.2490221681852492
+    IN: 17.1407615085851
+    OM: 110.3010192404503
+    W: 113.7714989602284
+    MA: 42.30868568495605
+    A: 39.48875947370696
+  - BodyName: Earth
+    AttractorName: Earth-Moon barycenter
+    AttractorMass: 7.349e+23
+    EC: 0.03423594384645105
+    IN: 5.141856170318997
+    OM: 117.8095579939846
+    W: 170.0195744005027
+    MA: 60.02020718879891
+    A: 0.00003089477687876932
+  - BodyName: Moon
+    AttractorName: Earth-Moon barycenter
+    AttractorMass: 5.97219e+24
+    EC: 0.03423594384647611
+    IN: 5.141856170318998
+    OM: 117.8095579939846
+    W: 350.0195744005806
+    MA: 60.0202071887209
+    A: 0.002511762941664227
+  - BodyName: Phobos
+    AttractorName: Mars
+    AttractorMass: 6.4171e+23
+    EC: 0.01557703409451973
+    IN: 27.78894517648133
+    OM: 82.7638766393582
+    W: 111.8755323121606
+    MA: 7.030433957874552
+    A: 0.0000626958589307788
+  - BodyName: Deimos
+    AttractorName: Mars
+    AttractorMass: 6.4171e+23
+    EC: 0.00027206995721949
+    IN: 25.19672266738589
+    OM: 78.8332706437575
+    W: 346.2388974077845
+    MA: 356.2849392823141
+    A: 0.0001568150190014563
+  - BodyName: Io
+    AttractorName: Jupiter
+    AttractorMass: 1.89813e+27
+    EC: 0.004667098476932153
+    IN: 2.229027486829249
+    OM: 338.664875172428
+    W: 4.463925492794401
+    MA: 38.512392233759
+    A: 0.002821149311843206
+  - BodyName: Europa
+    AttractorName: Jupiter
+    AttractorMass: 1.89813e+27
+    EC: 0.008750555500105447
+    IN: 2.66135523127922
+    OM: 334.5203079387416
+    W: 182.4168885556483
+    MA: 203.0684960334627
+    A: 0.004487373942370853
+  - BodyName: Ganymede
+    AttractorName: Jupiter
+    AttractorMass: 1.89813e+27
+    EC: 0.002563399366182863
+    IN: 2.299793859286571
+    OM: 340.5265409329659
+    W: 358.714950127214
+    MA: 99.96910629019504
+    A: 0.007158032479795034
+  - BodyName: Callisto
+    AttractorName: Jupiter
+    AttractorMass: 1.89813e+27
+    EC: 0.00756715858756182
+    IN: 1.96428984049784
+    OM: 337.0014140873245
+    W: 32.35618138106049
+    MA: 53.6214848039146
+    A: 0.01259382500695099
+  - BodyName: Mimas
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.01853682162169492
+    IN: 28.66714312399812
+    OM: 172.5675589973777
+    W: 184.610893222332
+    MA: 105.6530003974165
+    A: 0.001243429296828646
+  - BodyName: Enceladus
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.003427397972690224
+    IN: 28.05703170243503
+    OM: 169.5016836390941
+    W: 315.526838571282
+    MA: 149.7962264055324
+    A: 0.001593653081235797
+  - BodyName: Tethys
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.0008220249827016398
+    IN: 28.49364029975749
+    OM: 167.4189650156762
+    W: 346.7567217075243
+    MA: 1.808102417307161
+    A: 0.001971772957883403
+  - BodyName: Dione
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.001433801082763693
+    IN: 28.06745611551012
+    OM: 169.5604713659235
+    W: 40.37228055832475
+    MA: 165.6422281715771
+    A: 0.002524420966193689
+  - BodyName: Rhea
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.0009431059069579845
+    IN: 27.84974674228825
+    OM: 170.1061953513459
+    W: 154.1532286425956
+    MA: 316.2237675616478
+    A: 0.003524246480677098
+  - BodyName: Titan
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.02862440028280095
+    IN: 27.69520232274198
+    OM: 169.0821947477493
+    W: 173.9588471147311
+    MA: 247.0798910241597
+    A: 0.008168235793869476
+  - BodyName: Hyperion
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.1208844184331644
+    IN: 27.02106357087031
+    OM: 169.1149499000754
+    W: 196.3152607168972
+    MA: 308.7804198617681
+    A: 0.009875906003916414
+  - BodyName: Iapetus
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.02743332125842052
+    IN: 17.07834489337263
+    OM: 138.8633579393003
+    W: 229.6199669620512
+    MA: 239.3129468382318
+    A: 0.023829661400842
+  - BodyName: Phoebe
+    AttractorName: Saturn
+    AttractorMass: 5.6834e+26
+    EC: 0.1544263308367994
+    IN: 173.0804846769535
+    OM: 268.4166226803412
+    W: 14.74115749162412
+    MA: 241.6968640959601
+    A: 0.08626822012005671
+  - BodyName: Pluto
+    AttractorName: Pluto-Charon barycenter
+    AttractorMass: 1.53e+21
+    EC: 0.03569460397083753
+    IN: 112.8959399718727
+    OM: 227.402012898446
+    W: 181.7284800589839
+    MA: 180.0591983190099
+    A: 0.0000137748137448436
+  - BodyName: Charon
+    AttractorName: Pluto-Charon barycenter
+    AttractorMass: 1.307e+22
+    EC: 0.001846449584801415
+    IN: 112.8959335309486
+    OM: 227.4020230555296
+    W: 1.200531994780104
+    MA: 180.586776652803
+    A: 0.0001164961751948647
+--- !u!4 &446493818
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 446493816}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.6374264, y: 7.5835953, z: 114.0343}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 142333821}
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
