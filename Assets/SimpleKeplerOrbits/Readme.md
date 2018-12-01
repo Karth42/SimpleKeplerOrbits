@@ -16,6 +16,96 @@
 
 https://github.com/Karth42/SimpleKeplerOrbits
 
+## Components
+
+	* KeplerOrbitMover - component for making object affected by simulation. It contains main settings and orbit state.
+	* KeplerOrbitLineDisplay - component for displaying orbit path via customizable LineRenderer object or via editor Gizmos.
+
+## Scripting
+
+This plugin is designed to be customizable via editor inspector and via scripting. 
+Scripting part is not mandatory for functionality, but it provides some additional flexibility for customization.
+
+Main MonoBehaviour component, KeplerOrbitMover, is just an lightweight adapter between unity scene and KeplerOrbitData container. 
+KeplerOrbitData container struct contains full orbit state and all orbit handling logic and can be used in scripts even without KeplerOrbitMover in different situations.
+This document, however, will give examples only for KeplerOrbitData in pair with KeplerOrbitMover situations.
+
+Here list of some snippets, that can be usefull:
+
+# Orbit initialization
+
+```cs
+	var body = GetComponent<KeplerOrbitMover>();
+  
+	// Setup attractor for orbit.
+	body.AttractorSettings.AttractorObject = attractorReference;
+	body.AttractorSettings.AttractorMass = attractorMass;
+  
+	// Lock inspector editing.
+	body.LockOrbitEditing = false;
+
+	// Create orbit from custom position and velocity
+	body.CreateNewOrbitFromPositionAndVelocity(newPosition, newVelocity);
+```
+
+# Orbit changing
+
+```cs
+	// Make orbit circular.
+	body.SetAutoCircleOrbit();
+```
+```cs
+	// Update attrractor settings.
+	body.AttractorSettings.AttractorMass = 100;
+	
+	// Refresh orbit state to apply changes.
+	body.ForceUpdateOrbitData();
+```
+```cs
+	// Set different eccentricity for orbit, leaving perifocus and mean anomaly unchanged.
+	body.OrbitData.SetEccentricity(newEccentricity);
+	
+	// Update transform from orbit state.
+	body.ForceUpdateViewFromInternalState();
+```
+```cs
+	// Set anomaly for orbit.
+	body.OrbitData.SetMeanAnomaly(anomalyValueInRadians);
+	// Or other anomalies:
+	// body.OrbitData.SetTrueAnomaly(anomalyValueInRadians);
+	// body.OrbitData.SetEccentricAnomaly(anomalyValueInRadians);
+	
+	// Note: changing one anomaly will automatically update other two.
+	
+	// After changing orbit state, transform should be updated:
+	body.ForceUpdateViewFromInternalState();
+```
+```cs
+	// Progress mean anomaly by mean motion, scaled by delta time.
+	body.OrbitData.UpdateOrbitAnomaliesByTime(deltaTime);
+	body.ForceUpdateViewFromInternalState();
+	
+	//Note: the mean motion is dependent on orbit period. It will behave differently for different orbits.
+	//To strictly set some certain orbit time or progress ratio (independent from orbit state), set anomaly value explicitly instead.
+```
+```cs
+	// Rotate whole orbit by some quaternion.
+	body.OrbitData.RotateOrbit(rotation);
+	body.ForceUpdateViewFromInternalState();
+```
+```cs
+	//Get orbit points for orbit line in array.
+	var array = body.OrbitData.GetOrbitPoints();
+	//Non-allocating version of same method, which is more efficient in Update methods.
+	body.OrbitData.GetOrbitPointsNoAlloc(ref array, pointsCount: 100, origin: body.AttractorSettings.AttractorObject.transform);
+```
+```cs
+	//Get orbit point at certain anomaly angle, without changing current orbit state.
+	//Useful for manual sampling of orbit points.
+	var position = body.OrbitData.GetFocalPositionAtEccentricAnomaly(anomalyValue);
+```
+
+
 ## Contacts
 
-If you have any questions about this plugin, feel free to write me your feedback on **itanksp@gmail.com**
+If you have any questions about this plugin, feel free to write your feedback on **itanksp@gmail.com**
