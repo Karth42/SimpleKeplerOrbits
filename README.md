@@ -17,7 +17,7 @@ from Assets/SimpleKeplerOrbits/ folder into your project folder.
 This plugin is designed to be customizable via editor inspector and via scripting.
 Scripting is fully optional. Some usage examples:
 
-# Initializing orbit from orbit elements (JPL database supported)
+#### Initializing orbit from orbit elements (JPL database supported)
 ```cs
 	var body = GetComponent<KeplerOrbitMover>();
 	body.AttractorSettings.AttractorObject = attractorTransform;
@@ -35,7 +35,7 @@ Scripting is fully optional. Some usage examples:
 	body.ForceUpdateViewFromInternalState();
 ```
 
-# Initializing orbit from orbit vectors
+#### Initializing orbit from orbit vectors
 ```cs
 	var body = GetComponent<KeplerOrbitMover>();
 	body.AttractorSettings.AttractorObject = attractorTransform;

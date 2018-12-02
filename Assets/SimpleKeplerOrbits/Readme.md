@@ -34,7 +34,7 @@ For detailed algorithms description see [Concept](Docs/Concept.odt) document.
 
 List of some scripting snippets, that can be usefull:
 
-# Orbit initialization
+#### Orbit initialization
 
 ```cs
 	// Initializing orbit via KeplerOrbitMover public interface.
@@ -95,7 +95,7 @@ List of some scripting snippets, that can be usefull:
 	body.ForceUpdateViewFromInternalState();	
 ```
 
-# Orbit changing
+#### Orbit changing
 
 ```cs
 	// Make orbit circular.
