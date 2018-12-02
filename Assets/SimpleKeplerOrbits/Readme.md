@@ -7,9 +7,9 @@
 	* Create third object, which will be velocity handle helper object.
 	* Attach KeplerOrbitMover component to orbiting body object.
 	* Assign attractor object to AttractorObject field inside KeplerOrbitMover component.
-	* Assign velocity helper object to VelocityHandler field inside KeplerOrbitMover
+	* Assign velocity helper object to VelocityHandler field inside KeplerOrbitMover.
 	* Attach KeplerOrbitLineDisplay component to orbiting body object to be able to see orbit curve.
-	* Move orbiting body and velocity helper in scene window and notice how orbit curve changes
+	* Move orbiting body and velocity helper in scene window and notice how orbit curve changes.
 	* If you hit play, body will start moving along orbit curve around attractor body.
 
 ## Repository
@@ -30,11 +30,15 @@ Main MonoBehaviour component, KeplerOrbitMover, is just an lightweight adapter b
 KeplerOrbitData container struct contains full orbit state and all orbit handling logic and can be used in scripts even without KeplerOrbitMover in different situations.
 This document, however, will give examples only for KeplerOrbitData in pair with KeplerOrbitMover situations.
 
-Here list of some snippets, that can be usefull:
+For detailed algorithms description see [Concept](Docs/Concept.odt) document.
+
+List of some scripting snippets, that can be usefull:
 
 # Orbit initialization
 
 ```cs
+	// Initializing orbit via KeplerOrbitMover public interface.
+	
 	var body = GetComponent<KeplerOrbitMover>();
   
 	// Setup attractor for orbit.
@@ -46,6 +50,49 @@ Here list of some snippets, that can be usefull:
 
 	// Create orbit from custom position and velocity
 	body.CreateNewOrbitFromPositionAndVelocity(newPosition, newVelocity);
+```
+
+```cs
+	// Initializing orbit from orbit elements (JPL database supported)
+	
+	var body = GetComponent<KeplerOrbitMover>();
+	
+	// Setup attractor settings for update process;
+	// Note: AttractorSettings is not required for OrbitData setup, but it will be used in Update later, so it is initialized with same parameters.
+	body.AttractorSettings.AttractorObject = attractorTransform;
+	body.AttractorSettings.AttractorMass = attractorMass;
+	body.AttractorSettings.GravityConstant = GConstant;
+	
+	// Setup orbit state.
+	body.OrbitData = new KeplerOrbitData(
+		eccentricity: eValue,
+		semiMajorAxis: aValue,
+		meanAnomalyDeg: mValue,
+		inclinationDeg: inValue,
+		argOfPerifocus: wValue,
+		ascendingNodeDeg: omValue,
+		attractorMass: attractorMass,
+		gConst: GConstant);
+	body.ForceUpdateViewFromInternalState();
+```
+
+```cs
+	// Initializing orbit from orbit vectors.
+	
+	var body = GetComponent<KeplerOrbitMover>();
+	
+	// Setup attractor settings for update process;
+	body.AttractorSettings.AttractorObject = attractorTransform;
+	body.AttractorSettings.AttractorMass = attractorMass;
+	body.AttractorSettings.GravityConstant = GConstant;
+	
+	// Setup orbit state.
+	body.OrbitData = new KeplerOrbitData(
+		position: bodyPosition, 
+		velocity: bodyVelocity, 
+		attractorMass: attractorMass, 
+		gConst: GConstant);
+	body.ForceUpdateViewFromInternalState();	
 ```
 
 # Orbit changing
