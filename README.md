@@ -8,9 +8,11 @@ Unity3d project for simplest orbits simulation.
 
 ## Importing
 
-This repository contains whole Unity Project for basic demonstration setup, 
-but if you want to import package into separated project, you can safely copy all files 
-from Assets/SimpleKeplerOrbits/ folder into your project folder.
+This repository contains whole Unity Project for basic demonstration setup.
+There are multiple ways of importing project:
+- Copy all files from Asset directory manually;
+- Importing asset store package;
+- Importing src branch as submodule, which contains only Assets folder content.
 
 ## Usage
 
