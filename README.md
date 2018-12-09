@@ -55,8 +55,9 @@ For more detailed scripting snippets go to the [included manual](Assets/SimpleKe
 
 ## Published version
 
-[https://www.assetstore.unity3d.com/en/#!/content/97048](Unity Asset Store)
+[Unity Asset Store]
 
+[Unity Asset Store]: https://www.assetstore.unity3d.com/en/#!/content/97048
 ## License
 
 [MIT](LICENSE)
