@@ -4,19 +4,19 @@
 
 ## Description
 
-Unity3d project for simplest orbits simulation.
+Unity3d project for simplest orbits simulation, using 2-body solution model.
 
 ## Importing
 
 This repository contains whole Unity Project for basic demonstration setup.
 There are multiple ways of importing project:
-- Copy all files from Asset directory manually;
+- Manual copying of all files from Asset directory to your unity project directory;
 - Importing asset store package;
-- Importing src branch as submodule, which contains only Assets folder content.
+- Importing 'src' branch as submodule, which contains only Assets folder content.
 
 ## Usage
 
-This plugin is designed to be customizable via editor inspector and via scripting.
+This plugin has the ability to customize orbits using the editor inspector and scripts.
 Scripting is fully optional. Some usage examples:
 
 #### Initializing orbit from orbit elements (JPL database supported)
@@ -51,13 +51,11 @@ Scripting is fully optional. Some usage examples:
 	body.ForceUpdateViewFromInternalState();	
 ```
 
-For more detailed scipting snippets see [manual](Assets/SimpleKeplerOrbits/Readme.md).
+For more detailed scripting snippets go to the [included manual](Assets/SimpleKeplerOrbits/Readme.md).
 
 ## Published version
 
-Asset store [link]
-
-[link]: https://www.assetstore.unity3d.com/en/#!/content/97048
+[https://www.assetstore.unity3d.com/en/#!/content/97048](Unity Asset Store)
 
 ## License
 
