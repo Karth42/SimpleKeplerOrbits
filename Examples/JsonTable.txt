@@ -124,7 +124,7 @@
 		{
 			"BodyName": "Earth",
 			"AttractorName": "Earth-Moon barycenter",
-			"AttractorMass": 7.348999812677029e23,
+			"AttractorMass": 1.11135511130601e19,
 			"EC": 0.03423594384645105,
 			"IN": 5.141856170318997,
 			"OM": 117.8095579939846,
@@ -311,7 +311,7 @@
 		{
 			"BodyName": "Pluto",
 			"AttractorName": "Pluto-Charon barycenter",
-			"AttractorMass": 1.5300000201072308e21,
+			"AttractorMass": 2.16071653286067e19,
 			"EC": 0.03569460397083753,
 			"IN": 112.8959399718727,
 			"OM": 227.402012898446,

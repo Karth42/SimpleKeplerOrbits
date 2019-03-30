@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 8
+  serializedVersion: 9
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -39,6 +39,7 @@ RenderSettings:
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -49,16 +50,14 @@ LightmapSettings:
     m_BounceScale: 1
     m_IndirectOutputScale: 1
     m_AlbedoBoost: 1
-    m_TemporalCoherenceThreshold: 1
     m_EnvironmentLightingMode: 0
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 1
   m_LightmapEditorSettings:
-    serializedVersion: 9
+    serializedVersion: 10
     m_Resolution: 2
     m_BakeResolution: 40
-    m_TextureWidth: 1024
-    m_TextureHeight: 1024
+    m_AtlasSize: 1024
     m_AO: 0
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
@@ -77,15 +76,18 @@ LightmapSettings:
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
     m_PVRBounces: 2
-    m_PVRFiltering: 0
+    m_PVRFilterTypeDirect: 0
+    m_PVRFilterTypeIndirect: 0
+    m_PVRFilterTypeAO: 0
     m_PVRFilteringMode: 1
     m_PVRCulling: 1
     m_PVRFilteringGaussRadiusDirect: 1
     m_PVRFilteringGaussRadiusIndirect: 5
     m_PVRFilteringGaussRadiusAO: 2
-    m_PVRFilteringAtrousColorSigma: 1
-    m_PVRFilteringAtrousNormalSigma: 1
-    m_PVRFilteringAtrousPositionSigma: 1
+    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+    m_PVRFilteringAtrousPositionSigmaIndirect: 2
+    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ShowResolutionOverlay: 1
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -107,13 +109,16 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    debug:
+      m_Flags: 0
   m_NavMeshData: {fileID: 0}
 --- !u!1 &263554793
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 263554798}
   - component: {fileID: 263554797}
@@ -130,34 +135,43 @@ GameObject:
 --- !u!81 &263554794
 AudioListener:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
   m_Enabled: 1
 --- !u!124 &263554795
 Behaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
   m_Enabled: 1
 --- !u!92 &263554796
 Behaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
   m_Enabled: 1
 --- !u!20 &263554797
 Camera:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_GateFitMode: 2
+  m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -179,16 +193,17 @@ Camera:
   m_TargetEye: 3
   m_HDR: 1
   m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
-  m_StereoMirrorMode: 0
 --- !u!4 &263554798
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -10}
@@ -200,9 +215,10 @@ Transform:
 --- !u!1 &465941007
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 465941009}
   - component: {fileID: 465941008}
@@ -216,8 +232,9 @@ GameObject:
 --- !u!108 &465941008
 Light:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465941007}
   m_Enabled: 1
   serializedVersion: 8
@@ -243,22 +260,9 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_FalloffTable:
-    m_Table[0]: 0
-    m_Table[1]: 0
-    m_Table[2]: 0
-    m_Table[3]: 0
-    m_Table[4]: 0
-    m_Table[5]: 0
-    m_Table[6]: 0
-    m_Table[7]: 0
-    m_Table[8]: 0
-    m_Table[9]: 0
-    m_Table[10]: 0
-    m_Table[11]: 0
-    m_Table[12]: 0
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
@@ -266,8 +270,9 @@ Light:
 --- !u!4 &465941009
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465941007}
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
@@ -279,13 +284,14 @@ Transform:
 --- !u!1 &824484455
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 824484456}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -294,8 +300,9 @@ GameObject:
 --- !u!4 &824484456
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 824484455}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.26203912, y: 0, z: -0.3637539}
@@ -307,13 +314,14 @@ Transform:
 --- !u!1 &933479598
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 933479599}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -322,8 +330,9 @@ GameObject:
 --- !u!4 &933479599
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 933479598}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -26.237085, y: 0, z: 74.0804}
@@ -335,13 +344,14 @@ Transform:
 --- !u!1 &1023550923
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1023550924}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -350,8 +360,9 @@ GameObject:
 --- !u!4 &1023550924
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023550923}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -264.8053, y: 0, z: -318.29453}
@@ -363,9 +374,10 @@ Transform:
 --- !u!1 &1203570368
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1203570369}
   - component: {fileID: 1203570374}
@@ -383,11 +395,12 @@ GameObject:
 --- !u!4 &1203570369
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.040627, y: 0, z: -3.6311598}
+  m_LocalPosition: {x: -4.22, y: -1.17, z: -4.05}
   m_LocalScale: {x: 0.36944813, y: 0.36944813, z: 0.36944813}
   m_Children:
   - {fileID: 824484456}
@@ -398,8 +411,9 @@ Transform:
 --- !u!114 &1203570370
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -411,11 +425,18 @@ MonoBehaviour:
   LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 1
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
 --- !u!114 &1203570371
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -425,9 +446,9 @@ MonoBehaviour:
   AttractorSettings:
     AttractorObject: {fileID: 1706961758}
     AttractorMass: 1000
-    MaxDistForHyperbolicCase: 100
     GravityConstant: 0.1
   VelocityHandle: {fileID: 824484456}
+  VelocityHandleLenghtScale: 0
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
@@ -439,68 +460,76 @@ MonoBehaviour:
       x: 0
       y: 1
       z: 0
-    Position:
-      x: -42.199989318847656
+    EclipticRight:
+      x: 1
       y: 0
-      z: -30.400001525878906
-    AttractorDistance: 52.009606721107744
+      z: 0
+    Position:
+      x: -35.32971954345703
+      y: -9.795215606689453
+      z: -33.906524658203125
+    AttractorDistance: 49.93783882186131
     AttractorMass: 1000
     Velocity:
-      x: 0.8104877471923828
+      x: 0.8104901313781738
       y: 0
       z: -1.125091552734375
-    SemiMinorAxis: 52.009597285292166
-    SemiMajorAxis: 52.00959728551488
-    FocalParameter: 52.009597285069454
-    Eccentricity: 0.000002926483987460511
-    EnergyTotal: -1.9227220880244533
-    Period: 235.67043402601274
-    TrueAnomaly: 1.6328315943742775
-    MeanAnomaly: 1.6328257526641026
-    EccentricAnomaly: 1.6328286735193225
+    MG: 100.00000149011612
+    SemiMinorAxis: 47.53171417742145
+    SemiMajorAxis: 48.02488400709709
+    FocalParameter: 47.0436087323025
+    Eccentricity: 0.1429427936841801
+    EnergyTotal: -2.0822538889492828
+    Period: 209.11219080514454
+    TrueAnomaly: 1.9882712190144431
+    MeanAnomaly: 1.7159151351862627
+    EccentricAnomaly: 1.8531958986116115
     SquaresConstant: 0
     Periapsis:
-      x: -27.725230581268605
-      y: -0
-      z: 44.00334040470334
-    PeriapsisDistance: 52.00944508026123
+      x: -14.088113800070783
+      y: 2.2497616716065205
+      z: 38.60848643523636
+    PeriapsisDistance: 41.16007292076393
     Apoapsis:
-      x: 27.725392856630194
-      y: 0
-      z: -44.00359795559923
-    ApoapsisDistance: 52.009749490768534
+      x: 18.78743685454773
+      y: -3.00020683697749
+      z: -51.48698479054174
+    ApoapsisDistance: 54.889695093430255
     CenterPoint:
-      x: 0.00008113768079285667
-      y: -0
-      z: -0.0001287754479484248
-    OrbitCompressionRatio: 0.9999999999914357
+      x: 2.3496615272384735
+      y: -0.3752225826854848
+      z: -6.439249177652689
+    OrbitCompressionRatio: 0.9795673577337619
     OrbitNormal:
-      x: 0
-      y: -1
-      z: -0
+      x: 0.16067619774873537
+      y: -0.9801967600703645
+      z: 0.11574744500233874
     SemiMinorAxisBasis:
-      x: -0.8460644088164595
-      y: 0
-      z: -0.5330806844503512
+      x: 0.9257592316161699
+      y: 0.19033318997245322
+      z: 0.326715659055927
     SemiMajorAxisBasis:
-      x: 0.5330806844503512
-      y: 0
-      z: -0.8460644088164595
-    Inclination: 1.5707963401439946
-    OrbitNormalDotEclipticNormal: 0
+      x: -0.3422762109093297
+      y: 0.05465883590482147
+      z: 0.9380082127055615
+    OrbitNormalDotEclipticNormal: 0.11574744500233874
   LockOrbitEditing: 0
 --- !u!23 &1203570372
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -513,6 +542,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -524,8 +554,9 @@ MeshRenderer:
 --- !u!135 &1203570373
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -536,20 +567,22 @@ SphereCollider:
 --- !u!33 &1203570374
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1400993288
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1400993289}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -558,8 +591,9 @@ GameObject:
 --- !u!4 &1400993289
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1400993288}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -11.051247, y: 0, z: 7.8099523}
@@ -571,13 +605,14 @@ Transform:
 --- !u!1 &1445855284
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1445855285}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -586,8 +621,9 @@ GameObject:
 --- !u!4 &1445855285
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1445855284}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.911208, y: 0, z: -1.4409007}
@@ -599,9 +635,10 @@ Transform:
 --- !u!1 &1589184994
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1589184995}
   - component: {fileID: 1589184998}
@@ -617,8 +654,9 @@ GameObject:
 --- !u!4 &1589184995
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589184994}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -632,15 +670,19 @@ Transform:
 --- !u!23 &1589184996
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589184994}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -653,6 +695,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -664,8 +707,9 @@ MeshRenderer:
 --- !u!135 &1589184997
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589184994}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -676,20 +720,22 @@ SphereCollider:
 --- !u!33 &1589184998
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589184994}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1630831011
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1630831012}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -698,8 +744,9 @@ GameObject:
 --- !u!4 &1630831012
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1630831011}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.09825964, y: 0, z: 0.021796126}
@@ -711,9 +758,10 @@ Transform:
 --- !u!1 &1706961757
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1706961758}
   - component: {fileID: 1706961763}
@@ -731,11 +779,12 @@ GameObject:
 --- !u!4 &1706961758
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.3930103, y: 0, z: 6.279962}
+  m_LocalPosition: {x: 1.3930103, y: 0.361, z: 6.279962}
   m_LocalScale: {x: 0.38236886, y: 0.38236886, z: 0.38236886}
   m_Children:
   - {fileID: 1630831012}
@@ -746,8 +795,9 @@ Transform:
 --- !u!114 &1706961759
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -759,11 +809,18 @@ MonoBehaviour:
   LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 1
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
 --- !u!114 &1706961760
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -773,9 +830,9 @@ MonoBehaviour:
   AttractorSettings:
     AttractorObject: {fileID: 1589184995}
     AttractorMass: 1000
-    MaxDistForHyperbolicCase: 100
     GravityConstant: 0.1
   VelocityHandle: {fileID: 1630831012}
+  VelocityHandleLenghtScale: 0
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
@@ -787,68 +844,76 @@ MonoBehaviour:
       x: 0
       y: 1
       z: 0
+    EclipticRight:
+      x: 1
+      y: 0
+      z: 0
     Position:
       x: 30.499980926513672
-      y: 0
+      y: 7.904108047485352
       z: 137.5
-    AttractorDistance: 140.8421060497098
+    AttractorDistance: 141.0637223404516
     AttractorMass: 1000
     Velocity:
       x: -0.8226261138916016
       y: 0
       z: 0.1824798583984375
-    SemiMinorAxis: 140.84164339570611
-    SemiMajorAxis: 140.8416434005137
-    FocalParameter: 140.84164339089853
-    Eccentricity: 0.000008262535591373713
-    EnergyTotal: -0.7100172866184502
-    Period: 1050.2108264990245
-    TrueAnomaly: 1.9796647462798205
-    MeanAnomaly: 1.9796495833115133
-    EccentricAnomaly: 1.979657164801893
+    MG: 100.00000149011612
+    SemiMinorAxis: 141.28539741030983
+    SemiMajorAxis: 141.28557159038797
+    FocalParameter: 141.2852232304464
+    Eccentricity: 0.0015702369692070586
+    EnergyTotal: -0.7077863674574918
+    Period: 1055.1800816486395
+    TrueAnomaly: 0.004828248984089222
+    MeanAnomaly: 0.004813103891094454
+    EccentricAnomaly: 0.004820673461461966
     SquaresConstant: 0
     Periapsis:
-      x: 114.03882109902266
-      y: -0
-      z: -82.65100121628933
-    PeriapsisDistance: 140.84047969142236
+      x: 31.164551120472016
+      y: 7.904016061868139
+      z: 137.35090213330173
+    PeriapsisDistance: 141.0637197626612
     Apoapsis:
-      x: -114.0407056142298
-      y: 0
-      z: 82.65236704125294
-    ApoapsisDistance: 140.84280710960505
+      x: -31.262576504149603
+      y: -7.928877456600354
+      z: -137.78292744398348
+    ApoapsisDistance: 141.50742341811474
     CenterPoint:
-      x: -0.0009422576035659599
-      y: -0
-      z: 0.0006829124818009494
-    OrbitCompressionRatio: 0.9999999999317305
+      x: -0.04901269183879405
+      y: -0.012430697366107676
+      z: -0.21601265534088393
+    OrbitCompressionRatio: 0.9999975343558606
     OrbitNormal:
-      x: 0
-      y: -1
-      z: 0
+      x: 0.012134431357816514
+      y: -0.9984289632580398
+      z: 0.05470247620627517
     SemiMinorAxisBasis:
-      x: 0.5868412362509374
-      y: 0
-      z: 0.809702021385319
+      x: 0.9752152311134551
+      y: -0.00027011213329869877
+      z: -0.22125817508911594
     SemiMajorAxisBasis:
-      x: -0.809702021385319
-      y: 0
-      z: 0.5868412362509374
-    Inclination: 1.5707963401439946
-    OrbitNormalDotEclipticNormal: 0
+      x: 0.2209253461691367
+      y: 0.05603153011395555
+      z: 0.9736798544969163
+    OrbitNormalDotEclipticNormal: 0.05470247620627517
   LockOrbitEditing: 0
 --- !u!23 &1706961761
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -861,6 +926,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -872,8 +938,9 @@ MeshRenderer:
 --- !u!135 &1706961762
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -884,16 +951,18 @@ SphereCollider:
 --- !u!33 &1706961763
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1743455983
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1743455984}
   - component: {fileID: 1743455989}
@@ -911,8 +980,9 @@ GameObject:
 --- !u!4 &1743455984
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743455983}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -2.7199807, y: 0, z: -0.9633041}
@@ -926,8 +996,9 @@ Transform:
 --- !u!114 &1743455985
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743455983}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -939,11 +1010,18 @@ MonoBehaviour:
   LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 1
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
 --- !u!114 &1743455986
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743455983}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -953,9 +1031,9 @@ MonoBehaviour:
   AttractorSettings:
     AttractorObject: {fileID: 2130787791}
     AttractorMass: 1000
-    MaxDistForHyperbolicCase: 100
     GravityConstant: 0.1
   VelocityHandle: {fileID: 933479599}
+  VelocityHandleLenghtScale: 0
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
@@ -967,68 +1045,76 @@ MonoBehaviour:
       x: 0
       y: 1
       z: 0
-    Position:
-      x: -0.959991455078125
+    EclipticRight:
+      x: 1
       y: 0
-      z: -0.339996337890625
-    AttractorDistance: 1.018420887257352
+      z: 0
+    Position:
+      x: -0.9599909782409668
+      y: 0
+      z: -0.33998870849609375
+    AttractorDistance: 1.0184178907545223
     AttractorMass: 1000
     Velocity:
       x: -3.308152198791504
       y: 0
       z: 9.340568542480469
-    SemiMinorAxis: 1.018409061266837
-    SemiMajorAxis: 1.018409061343005
-    FocalParameter: 1.0184090611906693
-    Eccentricity: 0.000012230375085071238
-    EnergyTotal: -98.19237208891607
-    Period: 0.6457482640604623
-    TrueAnomaly: 2.822283544326441
-    MeanAnomaly: 2.822275865769151
-    EccentricAnomaly: 2.8222797050589414
+    MG: 100.00000149011612
+    SemiMinorAxis: 1.0184030683275094
+    SemiMajorAxis: 1.0184030684941594
+    FocalParameter: 1.0184030681608591
+    Eccentricity: 0.000018090807098937387
+    EnergyTotal: -98.19294990732803
+    Period: 0.6457425641906466
+    TrueAnomaly: 2.505673782153707
+    MeanAnomaly: 2.5056522930426075
+    EccentricAnomaly: 2.5056630376372517
     SquaresConstant: 0
     Periapsis:
-      x: 1.0181705106224714
-      y: -0
-      z: 0.021458286063788103
-    PeriapsisDistance: 1.0183966058181948
-    Apoapsis:
-      x: -1.018195416141566
+      x: 0.9742312625615654
       y: 0
-      z: -0.021458810955982215
-    ApoapsisDistance: 1.018421516867815
-    CenterPoint:
-      x: -0.000012452759547391444
+      z: -0.29661546104691167
+    PeriapsisDistance: 1.0183846447606983
+    Apoapsis:
+      x: -0.974266512458946
       y: -0
-      z: -0.000000262446097057092
-    OrbitCompressionRatio: 0.9999999998504179
+      z: 0.2966261932672429
+    ApoapsisDistance: 1.0184214922276205
+    CenterPoint:
+      x: -0.000017624948690302385
+      y: -0
+      z: 0.0000053661101656259325
+    OrbitCompressionRatio: 0.9999999996727227
     OrbitNormal:
       x: 0
       y: 1
       z: 0
     SemiMinorAxisBasis:
-      x: 0.021070657483729726
-      y: 0
-      z: -0.9997779890521711
+      x: 0.2912607358849276
+      y: -0
+      z: 0.9566437078305435
     SemiMajorAxisBasis:
-      x: -0.9997779890521712
+      x: 0.9566437078305436
       y: 0
-      z: -0.02107065748372973
-    Inclination: 1.5707963401439946
+      z: -0.2912607358849277
     OrbitNormalDotEclipticNormal: 0
   LockOrbitEditing: 0
 --- !u!23 &1743455987
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743455983}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -1041,6 +1127,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1052,8 +1139,9 @@ MeshRenderer:
 --- !u!135 &1743455988
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743455983}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -1064,16 +1152,18 @@ SphereCollider:
 --- !u!33 &1743455989
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743455983}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1775089760
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1775089761}
   - component: {fileID: 1775089766}
@@ -1091,11 +1181,12 @@ GameObject:
 --- !u!4 &1775089761
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1775089760}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5842173, y: 0, z: 3.2007577}
+  m_LocalPosition: {x: -1.5842173, y: 0.2, z: 3.2007577}
   m_LocalScale: {x: 0.29947224, y: 0.2994722, z: 0.2994722}
   m_Children:
   - {fileID: 1445855285}
@@ -1106,8 +1197,9 @@ Transform:
 --- !u!114 &1775089762
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1775089760}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -1119,11 +1211,18 @@ MonoBehaviour:
   LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 1
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
 --- !u!114 &1775089763
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1775089760}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -1133,9 +1232,9 @@ MonoBehaviour:
   AttractorSettings:
     AttractorObject: {fileID: 1203570369}
     AttractorMass: 1000
-    MaxDistForHyperbolicCase: 100
     GravityConstant: 0.1
   VelocityHandle: {fileID: 1445855285}
+  VelocityHandleLenghtScale: 0
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
@@ -1147,68 +1246,76 @@ MonoBehaviour:
       x: 0
       y: 1
       z: 0
-    Position:
-      x: -4.90000057220459
+    EclipticRight:
+      x: 1
       y: 0
+      z: 0
+    Position:
+      x: -4.899998664855957
+      y: 0.6186021566390991
       z: 9.899986267089844
-    AttractorDistance: 11.046254283519495
+    AttractorDistance: 11.063561073739152
     AttractorMass: 1000
     Velocity:
-      x: -2.6965675354003906
+      x: -2.6965646743774414
       y: 0
       z: -1.3346633911132812
-    SemiMinorAxis: 11.046205753582546
-    SemiMajorAxis: 11.04620575369467
-    FocalParameter: 11.046205753470424
-    Eccentricity: 0.0000045056351576097715
-    EnergyTotal: -9.052882385127464
-    Period: 23.067448396501188
-    TrueAnomaly: 2.917871871386118
-    MeanAnomaly: 2.9178698721462535
-    EccentricAnomaly: 2.9178708717672834
+    MG: 100.00000149011612
+    SemiMinorAxis: 11.080840905120667
+    SemiMajorAxis: 11.080854399536818
+    FocalParameter: 11.08082741072095
+    Eccentricity: 0.001560649188912046
+    EnergyTotal: -9.024574990742241
+    Period: 23.176066997839854
+    TrueAnomaly: 0.000271081680611911
+    MeanAnomaly: 0.00027023654276370576
+    EccentricAnomaly: 0.0002706589464237565
     SquaresConstant: 0
     Periapsis:
-      x: 6.974227482866176
-      y: -0
-      z: -8.566079209855912
-    PeriapsisDistance: 11.04615598352167
+      x: -4.897310574750616
+      y: 0.6186021339454408
+      z: 9.90131628384097
+    PeriapsisDistance: 11.06356107310573
     Apoapsis:
-      x: -6.97429032979843
-      y: 0
-      z: 8.56615640145901
-    ApoapsisDistance: 11.046255523867673
+      x: 4.912620435625243
+      y: -0.6205359938595498
+      z: -9.93226955349122
+    ApoapsisDistance: 11.09814772596791
     CenterPoint:
-      x: -0.000031423466126643896
-      y: -0
-      z: 0.00003859580154939732
-    OrbitCompressionRatio: 0.9999999999796992
+      x: 0.007654930437313105
+      y: -0.0009669299570544429
+      z: -0.01547663482512496
+    OrbitCompressionRatio: 0.9999975643741091
     OrbitNormal:
-      x: -0
-      y: -1
-      z: 0
+      x: -0.024802592584369395
+      y: -0.998435617954863
+      z: 0.05011135799581523
     SemiMinorAxisBasis:
-      x: 0.7754805583620707
-      y: 0
-      z: 0.6313714466163727
+      x: 0.8963502591874426
+      y: -0.00001513350068425968
+      z: 0.44334660551940824
     SemiMajorAxisBasis:
-      x: -0.6313714466163727
-      y: 0
-      z: 0.7754805583620707
-    Inclination: 1.5707963401439946
-    OrbitNormalDotEclipticNormal: 0
+      x: -0.44265228368969073
+      y: 0.05591347395814473
+      z: 0.8949484002858678
+    OrbitNormalDotEclipticNormal: 0.05011135799581523
   LockOrbitEditing: 0
 --- !u!23 &1775089764
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1775089760}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -1221,6 +1328,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1232,8 +1340,9 @@ MeshRenderer:
 --- !u!135 &1775089765
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1775089760}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -1244,16 +1353,18 @@ SphereCollider:
 --- !u!33 &1775089766
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1775089760}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1875600056
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1875600062}
   - component: {fileID: 1875600061}
@@ -1271,8 +1382,9 @@ GameObject:
 --- !u!114 &1875600057
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875600056}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -1284,11 +1396,18 @@ MonoBehaviour:
   LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 1
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
 --- !u!114 &1875600058
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875600056}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -1298,9 +1417,9 @@ MonoBehaviour:
   AttractorSettings:
     AttractorObject: {fileID: 1743455984}
     AttractorMass: 1000
-    MaxDistForHyperbolicCase: 100
     GravityConstant: 0.1
   VelocityHandle: {fileID: 1023550924}
+  VelocityHandleLenghtScale: 0
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
@@ -1312,6 +1431,10 @@ MonoBehaviour:
       x: 0
       y: 1
       z: 0
+    EclipticRight:
+      x: 1
+      y: 0
+      z: 0
     Position:
       x: 0.2440013885498047
       y: 0
@@ -1319,61 +1442,65 @@ MonoBehaviour:
     AttractorDistance: 0.3173967109958847
     AttractorMass: 1000
     Velocity:
-      x: -11.352082252502441
+      x: -11.352084159851074
       y: 0
-      z: -13.6451416015625
-    SemiMinorAxis: 0.3173932151682204
-    SemiMajorAxis: 0.3173932152698009
-    FocalParameter: 0.31739321506663987
-    Eccentricity: 0.000025300052457728016
-    EnergyTotal: -315.0666009199688
-    Period: 0.11235083989755516
-    TrueAnomaly: 4.2619616778265295
-    MeanAnomaly: 4.262007231511909
-    EccentricAnomaly: 4.261984454606512
+      z: -13.645156860351562
+    MG: 100.00000149011612
+    SemiMinorAxis: 0.31739367829349213
+    SemiMajorAxis: 0.31739367838696714
+    FocalParameter: 0.3173936782000171
+    Eccentricity: 0.00002426965457924041
+    EnergyTotal: -315.06614119830033
+    Period: 0.11235108579894375
+    TrueAnomaly: 4.307724169579325
+    MeanAnomaly: 4.307768788902621
+    EccentricAnomaly: 4.30774647918769
     SquaresConstant: 0
     Periapsis:
-      x: -0.28895748741210153
+      x: -0.28264963904207097
       y: 0
-      z: -0.13128947503883728
-    PeriapsisDistance: 0.31738518520480485
+      z: -0.1443711844501683
+    PeriapsisDistance: 0.31738597535202706
     Apoapsis:
-      x: 0.2889721090612091
+      x: 0.28266335899326245
       y: -0
-      z: 0.13129611846812764
-    ApoapsisDistance: 0.3174012453347969
+      z: 0.14437819229780194
+    ApoapsisDistance: 0.3174013814219072
     CenterPoint:
-      x: 0.000007310824553824172
+      x: 0.0000068599755957361776
       y: -0
-      z: 0.000003321714645184929
-    OrbitCompressionRatio: 0.9999999993599074
+      z: 0.0000035039238168220955
+    OrbitCompressionRatio: 0.9999999994109838
     OrbitNormal:
       x: 0
       y: 1
       z: 0
     SemiMinorAxisBasis:
-      x: -0.4136597458199498
+      x: 0.45487575274880915
       y: 0
-      z: 0.9104315540929886
+      z: -0.8905549110308719
     SemiMajorAxisBasis:
-      x: 0.9104315540929887
-      y: -0
-      z: 0.41365974581994985
-    Inclination: 1.5707963401439946
+      x: -0.890554911030872
+      y: 0
+      z: -0.4548757527488092
     OrbitNormalDotEclipticNormal: 0
   LockOrbitEditing: 0
 --- !u!23 &1875600059
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875600056}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -1386,6 +1513,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1397,8 +1525,9 @@ MeshRenderer:
 --- !u!135 &1875600060
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875600056}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -1409,15 +1538,17 @@ SphereCollider:
 --- !u!33 &1875600061
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875600056}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1875600062
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875600056}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1.9351695, y: 0, z: -1.609944}
@@ -1430,13 +1561,14 @@ Transform:
 --- !u!1 &1906149911
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 1906149912}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: VelocityHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1445,8 +1577,9 @@ GameObject:
 --- !u!4 &1906149912
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1906149911}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -1458,9 +1591,10 @@ Transform:
 --- !u!1 &2130787790
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
   - component: {fileID: 2130787791}
   - component: {fileID: 2130787796}
@@ -1478,11 +1612,12 @@ GameObject:
 --- !u!4 &2130787791
 Transform:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130787790}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.73138, y: 0, z: 3.8649492}
+  m_LocalPosition: {x: 2.3, y: 0, z: 4.4}
   m_LocalScale: {x: 0.38103443, y: 0.38103446, z: 0.38103446}
   m_Children:
   - {fileID: 1400993289}
@@ -1493,8 +1628,9 @@ Transform:
 --- !u!114 &2130787792
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130787790}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -1506,11 +1642,18 @@ MonoBehaviour:
   LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
+  ShowVelocityGizmoInEditor: 1
+  ShowPeriapsisApoapsisGizmosInEditor: 1
+  ShowAscendingNodeIneditor: 1
+  ShowAxisGizmosInEditor: 0
+  GizmosAlphaMain: 1
+  GizmosAlphaSecondary: 0.3
 --- !u!114 &2130787793
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130787790}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -1520,9 +1663,9 @@ MonoBehaviour:
   AttractorSettings:
     AttractorObject: {fileID: 1775089761}
     AttractorMass: 1000
-    MaxDistForHyperbolicCase: 100
     GravityConstant: 0.1
   VelocityHandle: {fileID: 1400993289}
+  VelocityHandleLenghtScale: 0
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
@@ -1534,68 +1677,76 @@ MonoBehaviour:
       x: 0
       y: 1
       z: 0
-    Position:
-      x: 2.529995918273926
+    EclipticRight:
+      x: 1
       y: 0
-      z: 3.5799942016601562
-    AttractorDistance: 4.383747008028983
+      z: 0
+    Position:
+      x: 2.130422592163086
+      y: 0
+      z: 4.075592041015625
+    AttractorDistance: 4.598820599456864
     AttractorMass: 1000
     Velocity:
-      x: -3.9004335403442383
+      x: -3.9004364013671875
       y: 0
-      z: 2.7564544677734375
-    SemiMinorAxis: 4.383725351971463
-    SemiMajorAxis: 4.383725352025461
-    FocalParameter: 4.383725351917463
-    Eccentricity: 0.000004963472815433757
-    EnergyTotal: -22.811648417689305
-    Period: 5.766932533125063
-    TrueAnomaly: 3.04449096920379
-    MeanAnomaly: 3.044490006791131
-    EccentricAnomaly: 3.0444904879980546
+      z: 2.7564620971679688
+    MG: 100.00000149011612
+    SemiMinorAxis: 4.787241540504188
+    SemiMajorAxis: 4.836075395255788
+    FocalParameter: 4.738900801590327
+    Eccentricity: 0.1417522089057696
+    EnergyTotal: -20.67792441536718
+    Period: 6.682199838902309
+    TrueAnomaly: 1.3542251201785331
+    MeanAnomaly: 1.084401429836905
+    EccentricAnomaly: 1.21739341238156
     SquaresConstant: 0
     Periapsis:
-      x: -2.170978905194787
-      y: -0
-      z: -3.808373378369449
-    PeriapsisDistance: 4.383703593523847
-    Apoapsis:
-      x: 2.171000456491314
+      x: 4.005565251497022
       y: 0
-      z: 3.8084111840725656
-    ApoapsisDistance: 4.383747110527077
-    CenterPoint:
-      x: 0.000010775648263451687
+      z: -1.0874377369023394
+    PeriapsisDistance: 4.150551025543438
+    Apoapsis:
+      x: -5.328720937320527
       y: -0
-      z: 0.00001890285155834822
-    OrbitCompressionRatio: 0.9999999999753639
+      z: 1.4466503159568498
+    ApoapsisDistance: 5.521599764968139
+    CenterPoint:
+      x: -0.6615778429117525
+      y: -0
+      z: 0.17960628952725527
+    OrbitCompressionRatio: 0.979906311270335
     OrbitNormal:
       x: 0
       y: -1
       z: 0
     SemiMinorAxisBasis:
-      x: 0.8687570446130648
-      y: 0
-      z: -0.4952385257986027
+      x: -0.26199840219045595
+      y: -0
+      z: -0.9650683070382365
     SemiMajorAxisBasis:
-      x: 0.4952385257986028
+      x: 0.9650683070382367
       y: 0
-      z: 0.8687570446130649
-    Inclination: 1.5707963401439946
+      z: -0.261998402190456
     OrbitNormalDotEclipticNormal: 0
   LockOrbitEditing: 0
 --- !u!23 &2130787794
 MeshRenderer:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130787790}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
@@ -1608,6 +1759,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1619,8 +1771,9 @@ MeshRenderer:
 --- !u!135 &2130787795
 SphereCollider:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130787790}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -1631,7 +1784,8 @@ SphereCollider:
 --- !u!33 &2130787796
 MeshFilter:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130787790}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}

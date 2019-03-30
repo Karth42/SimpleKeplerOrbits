@@ -1,12 +1,4 @@
-﻿#region Copyright
-/// Copyright © 2017-2018 Vlad Kirpichenko
-/// 
-/// Author: Vlad Kirpichenko 'itanksp@gmail.com'
-/// Licensed under the MIT License.
-/// License: http://opensource.org/licenses/MIT
-#endregion
-
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace SimpleKeplerOrbits
@@ -55,6 +47,12 @@ namespace SimpleKeplerOrbits
 			{
 				EditorGUILayout.LabelField("Mean anomaly", _target.OrbitData.MeanAnomaly.ToString());
 			}
+
+			if (_target.OrbitData.IsValidOrbit && _target.OrbitData.Eccentricity >= 1.0)
+			{
+				GUI.enabled = true;
+			}
+
 			EditorGUILayout.LabelField("Velocity", _target.OrbitData.Velocity.magnitude.ToString("0.00000"));
 
 			string inclinationRad = _target.OrbitData.Inclination.ToString();
@@ -69,10 +67,11 @@ namespace SimpleKeplerOrbits
 			string argOfPeriDeg = (_target.OrbitData.ArgumentOfPerifocus * KeplerOrbitUtils.Rad2Deg).ToString("0.000");
 			EditorGUILayout.LabelField("ArgumentOfPerifocus", string.Format("{0,15} (deg={1})", argOfPeriRad, argOfPeriDeg));
 
-			if (!GUI.enabled)
-			{
-				GUI.enabled = true;
-			}
+			EditorGUILayout.LabelField("Current Orbit Time", _target.OrbitData.GetCurrentOrbitTime().ToString("0.000"));
+
+			EditorGUILayout.LabelField("Current MeanMotion", _target.OrbitData.MeanMotion.ToString("0.000"));
+
+			GUI.enabled = true;
 
 			if (_target.AttractorSettings != null && _target.AttractorSettings.AttractorObject == _target.gameObject)
 			{

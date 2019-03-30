@@ -1,12 +1,4 @@
-﻿#region Copyright
-/// Copyright © 2017-2018 Vlad Kirpichenko
-/// 
-/// Author: Vlad Kirpichenko 'itanksp@gmail.com'
-/// Licensed under the MIT License.
-/// License: http://opensource.org/licenses/MIT
-#endregion
-
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace SimpleKeplerOrbits
@@ -72,6 +64,8 @@ namespace SimpleKeplerOrbits
 		private bool _debugErrorDisplayed = false;
 #endif
 
+		private Coroutine _updateRoutine;
+
 		private bool IsReferencesAsigned
 		{
 			get
@@ -89,7 +83,20 @@ namespace SimpleKeplerOrbits
 				return;
 			}
 #endif
-			StartCoroutine(OrbitUpdateLoop());
+			if (_updateRoutine != null)
+			{
+				StopCoroutine(_updateRoutine);
+			}
+			_updateRoutine = StartCoroutine(OrbitUpdateLoop());
+		}
+
+		private void OnDisable()
+		{
+			if (_updateRoutine != null)
+			{
+				StopCoroutine(_updateRoutine);
+				_updateRoutine = null;
+			}
 		}
 
 		/// <summary>

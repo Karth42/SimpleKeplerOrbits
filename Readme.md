@@ -18,8 +18,11 @@ https://github.com/Karth42/SimpleKeplerOrbits
 
 ## Components
 
-	* KeplerOrbitMover - component for making object affected by simulation. It contains main settings and orbit state.
-	* KeplerOrbitLineDisplay - component for displaying orbit path via customizable LineRenderer object or via editor Gizmos.
+	* KeplerOrbitMover - component for making object affected by simulation.
+	It contains main settings and orbit state.
+
+	* KeplerOrbitLineDisplay - component for displaying orbit path
+	via customizable LineRenderer object or via editor Gizmos.
 
 ## Scripting
 
