@@ -64,6 +64,8 @@ namespace SimpleKeplerOrbits
 		private bool _debugErrorDisplayed = false;
 #endif
 
+		private Coroutine _updateRoutine;
+
 		private bool IsReferencesAsigned
 		{
 			get
@@ -81,7 +83,20 @@ namespace SimpleKeplerOrbits
 				return;
 			}
 #endif
-			StartCoroutine(OrbitUpdateLoop());
+			if (_updateRoutine != null)
+			{
+				StopCoroutine(_updateRoutine);
+			}
+			_updateRoutine = StartCoroutine(OrbitUpdateLoop());
+		}
+
+		private void OnDisable()
+		{
+			if (_updateRoutine != null)
+			{
+				StopCoroutine(_updateRoutine);
+				_updateRoutine = null;
+			}
 		}
 
 		/// <summary>
