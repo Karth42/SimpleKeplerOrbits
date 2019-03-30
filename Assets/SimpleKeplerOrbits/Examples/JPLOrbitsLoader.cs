@@ -185,7 +185,7 @@ namespace SimpleKeplerOrbits.Examples
 							semiMajorAxis: spawnOrder[i].A * UnitsPerAU,
 							meanAnomalyDeg: spawnOrder[i].MA,
 							inclinationDeg: spawnOrder[i].IN,
-							argOfPerifocus: spawnOrder[i].W,
+							argOfPerifocusDeg: spawnOrder[i].W,
 							ascendingNodeDeg: spawnOrder[i].OM,
 							attractorMass: body.AttractorSettings.AttractorMass,
 							gConst: GConstant);
