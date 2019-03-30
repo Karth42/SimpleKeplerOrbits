@@ -6,7 +6,8 @@
 /// License: http://opensource.org/licenses/MIT
 #endregion
 
-using System;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SimpleKeplerOrbits
@@ -169,6 +170,16 @@ namespace SimpleKeplerOrbits
 		public static Vector3d CrossProduct(Vector3d a, Vector3d b)
 		{
 			return new Vector3d(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+		}
+
+		public static double Abs(double a)
+		{
+			return a < 0 ? -a : a;
+		}
+
+		public static float Abs(float a)
+		{
+			return a < 0 ? -a : a;
 		}
 
 		/// <summary>
@@ -403,7 +414,7 @@ namespace SimpleKeplerOrbits
 		public static double KeplerSolver(double meanAnomaly, double eccentricity)
 		{
 			// One stable method.
-			int iterations = eccentricity < 0.4d ? 3 : 5;
+			var iterations = eccentricity < 0.2 ? 2 : 3;
 			double e = meanAnomaly;
 			double esinE;
 			double ecosE;
@@ -435,16 +446,154 @@ namespace SimpleKeplerOrbits
 			{
 				return meanAnomaly;
 			}
-			while (System.Math.Abs(delta) > 1e-005d)
+			int i = 0;
+			while (delta > 1e-8 || delta < -1e-8)
 			{
-				delta = (eccentricity * (float)System.Math.Sinh(F) - F - meanAnomaly) / (eccentricity * (float)System.Math.Cosh(F) - 1d);
-				if (double.IsNaN(delta) || double.IsInfinity(delta))
-				{
-					return F;
-				}
+				i++;
+				delta = (eccentricity * System.Math.Sinh(F) - F - meanAnomaly) / (eccentricity * System.Math.Cosh(F) - 1d);
 				F -= delta;
 			}
 			return F;
+		}
+
+		/// <summary>
+		/// Find attractor transform, which is parent for both A and B.
+		/// If mutual attractor is not direct parent of both A and B, then look in upper hierarchy of attractors.
+		/// </summary>
+		/// <param name="a">Body A.</param>
+		/// <param name="b">Body B.</param>
+		/// <param name="isGetFullChain">If true, attractors chains will include full hierarchy. In opposite case, chains will end before mutual attractor.</param>
+		/// <param name="attractorsAChain">Chain of parent attractors for A.</param>
+		/// <param name="attractorsBChain">Chain of parent attractors for B.</param>
+		/// <param name="gConst">Attractor gravity const.</param>
+		/// <param name="mass">Attractor mass.</param>
+		/// <returns>Mutual attractor transform or null if not found.</returns>
+		/// <remarks>
+		/// Chain of attractors is constructed from attractors transforms, which also have own KeplerOrbitMover component.
+		/// 
+		/// Note: this method also retreaving g and mass of attractor. Because these values can be different for any KeplerOrbitMover, those, what belong to body A are preffered.
+		/// </remarks>
+		public static Transform FindMutualAttractor(KeplerOrbitMover a, KeplerOrbitMover b, bool isGetFullChain, ref List<KeplerOrbitMover> attractorsAChain, ref List<KeplerOrbitMover> attractorsBChain, ref double mass, ref double gConst)
+		{
+			if (attractorsAChain == null)
+			{
+				attractorsAChain = new List<KeplerOrbitMover>();
+			}
+			else
+			{
+				attractorsAChain.Clear();
+			}
+			if (attractorsBChain == null)
+			{
+				attractorsBChain = new List<KeplerOrbitMover>();
+			}
+			else
+			{
+				attractorsBChain.Clear();
+			}
+			int maxChainLen = 1000;
+			Transform mutualAttractor = null;
+			if (a != null && b != null && a != b)
+			{
+				var attrTransform = a.AttractorSettings.AttractorObject;
+				while (attrTransform != null && attractorsAChain.Count < maxChainLen)
+				{
+					var attrOrbitMover = attrTransform.GetComponent<KeplerOrbitMover>();
+					attrTransform = null;
+					if (attrOrbitMover != null && !attractorsAChain.Contains(attrOrbitMover))
+					{
+						attrTransform = attrOrbitMover.AttractorSettings.AttractorObject;
+						attractorsAChain.Add(attrOrbitMover);
+					}
+				}
+
+				attrTransform = b.AttractorSettings.AttractorObject;
+				while (attrTransform != null && attractorsBChain.Count < maxChainLen)
+				{
+					var attrOrbitMover = attrTransform.GetComponent<KeplerOrbitMover>();
+					attrTransform = null;
+					if (attrOrbitMover != null && !attractorsBChain.Contains(attrOrbitMover))
+					{
+						attrTransform = attrOrbitMover.AttractorSettings.AttractorObject;
+						attractorsBChain.Add(attrOrbitMover);
+					}
+				}
+
+				if (a.AttractorSettings.AttractorObject == b.AttractorSettings.AttractorObject)
+				{
+					mutualAttractor = a.AttractorSettings.AttractorObject;
+					gConst = a.AttractorSettings.GravityConstant;
+					mass = a.AttractorSettings.AttractorMass;
+				}
+				else
+				{
+					for (int i = 0; i < attractorsAChain.Count && mutualAttractor == null; i++)
+					{
+						for (int n = 0; n < attractorsBChain.Count; n++)
+						{
+							if (attractorsAChain[i].AttractorSettings.AttractorObject == attractorsBChain[n].transform ||
+								attractorsAChain[i].AttractorSettings.AttractorObject == attractorsBChain[i].AttractorSettings.AttractorObject)
+							{
+								mutualAttractor = attractorsAChain[i].AttractorSettings.AttractorObject;
+								gConst = attractorsAChain[i].AttractorSettings.GravityConstant;
+								mass = attractorsAChain[i].AttractorSettings.AttractorMass;
+							}
+							else if (attractorsBChain[i].AttractorSettings.AttractorObject == attractorsAChain[i].transform)
+							{
+								mutualAttractor = attractorsBChain[i].AttractorSettings.AttractorObject;
+								gConst = attractorsAChain[i].AttractorSettings.GravityConstant;
+								mass = attractorsAChain[i].AttractorSettings.AttractorMass;
+							}
+							else
+							{
+								continue;
+							}
+							break;
+						}
+					}
+				}
+				if (!isGetFullChain && mutualAttractor != null)
+				{
+					int mutualAttractorIndex = -1;
+					for (int i = 0; i < attractorsAChain.Count; i++)
+					{
+						if (attractorsAChain[i].transform == mutualAttractor)
+						{
+							mutualAttractorIndex = i;
+							break;
+						}
+					}
+					if (mutualAttractorIndex >= 0)
+					{
+						//mutualAttractorIndex++;
+						while (attractorsAChain.Count > mutualAttractorIndex)
+						{
+							attractorsAChain.RemoveAt(attractorsAChain.Count - 1);
+						}
+					}
+					mutualAttractorIndex = -1;
+					for (int i = 0; i < attractorsBChain.Count; i++)
+					{
+						if (attractorsBChain[i].transform == mutualAttractor)
+						{
+							mutualAttractorIndex = i;
+							break;
+						}
+					}
+					if (mutualAttractorIndex >= 0)
+					{
+						//mutualAttractorIndex++;
+						while (attractorsBChain.Count > mutualAttractorIndex)
+						{
+							attractorsBChain.RemoveAt(attractorsBChain.Count - 1);
+						}
+					}
+				}
+				return mutualAttractor;
+			}
+			attractorsAChain.Clear();
+			attractorsBChain.Clear();
+			return null;
 		}
 	}
 }

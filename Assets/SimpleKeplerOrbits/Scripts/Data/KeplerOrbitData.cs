@@ -145,6 +145,21 @@ namespace SimpleKeplerOrbits
 			}
 		}
 
+		public double MeanMotion
+		{
+			get
+			{
+				if (Eccentricity < 1)
+				{
+					return KeplerOrbitUtils.PI_2 / Period;
+				}
+				else
+				{
+					return Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3));
+				}
+			}
+		}
+
 		/// <summary>
 		/// Is orbit state valid and error-free.
 		/// </summary>
@@ -195,11 +210,11 @@ namespace SimpleKeplerOrbits
 		/// <param name="semiMajorAxis">Main axis semi width.</param>
 		/// <param name="meanAnomalyDeg">Mean anomaly in degrees.</param>
 		/// <param name="inclinationDeg">Orbit inclination in degrees.</param>
-		/// <param name="argOfPerifocus">Orbit argument of perifocus in degrees.</param>
+		/// <param name="argOfPerifocusDeg">Orbit argument of perifocus in degrees.</param>
 		/// <param name="ascendingNodeDeg">Longitude of ascending node in degrees.</param>
 		/// <param name="attractorMass">Attractor mass.</param>
 		/// <param name="gConst">Gravitational constant.</param>
-		public KeplerOrbitData(double eccentricity, double semiMajorAxis, double meanAnomalyDeg, double inclinationDeg, double argOfPerifocus, double ascendingNodeDeg, double attractorMass, double gConst)
+		public KeplerOrbitData(double eccentricity, double semiMajorAxis, double meanAnomalyDeg, double inclinationDeg, double argOfPerifocusDeg, double ascendingNodeDeg, double attractorMass, double gConst)
 		{
 			this.Eccentricity = eccentricity;
 			this.SemiMajorAxis = semiMajorAxis;
@@ -219,13 +234,13 @@ namespace SimpleKeplerOrbits
 			if (ascendingNodeDeg > 180) ascendingNodeDeg -= 360;
 			inclinationDeg %= 360;
 			if (inclinationDeg > 180) inclinationDeg -= 360;
-			argOfPerifocus %= 360;
-			if (argOfPerifocus > 180) argOfPerifocus -= 360;
+			argOfPerifocusDeg %= 360;
+			if (argOfPerifocusDeg > 180) argOfPerifocusDeg -= 360;
 
 			ascendingNode = KeplerOrbitUtils.RotateVectorByAngle(ascendingNode, ascendingNodeDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
 			normal = KeplerOrbitUtils.RotateVectorByAngle(normal, inclinationDeg * KeplerOrbitUtils.Deg2Rad, ascendingNode).normalized;
 			var periapsis = ascendingNode;
-			periapsis = KeplerOrbitUtils.RotateVectorByAngle(periapsis, argOfPerifocus * KeplerOrbitUtils.Deg2Rad, normal).normalized;
+			periapsis = KeplerOrbitUtils.RotateVectorByAngle(periapsis, argOfPerifocusDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
 
 			this.SemiMajorAxisBasis = periapsis;
 			this.SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(periapsis, normal);
@@ -281,7 +296,6 @@ namespace SimpleKeplerOrbits
 			Vector3d eccVector;
 			if (OrbitNormal.sqrMagnitude < 0.99)
 			{
-				// If normalized vector len is not one, then it's zero.
 				OrbitNormal = KeplerOrbitUtils.CrossProduct(Position, EclipticUp).normalized;
 				eccVector = new Vector3d();
 			}
@@ -464,6 +478,7 @@ namespace SimpleKeplerOrbits
 		/// <returns>Position relative to orbit center.</returns>
 		/// <remarks>
 		/// Note: central position is not same as focal position.
+		/// Orbit center point is geometric center of orbit ellipse, which is the further from attractor (Focus point) the larger eccentricity is.
 		/// </remarks>
 		public Vector3d GetCentralPosition()
 		{
@@ -750,8 +765,7 @@ namespace SimpleKeplerOrbits
 		}
 
 		/// <summary>
-		/// Updates the kepler orbit state by defined deltatime.
-		/// Orbit main parameters will remains unchanged, but all anomalies will progress in time.
+		/// Updates the kepler orbit dynamic state (anomalies, position, velocity) by defined deltatime.
 		/// </summary>
 		/// <param name="deltaTime">The delta time.</param>
 		public void UpdateOrbitDataByTime(double deltaTime)
@@ -775,7 +789,7 @@ namespace SimpleKeplerOrbits
 			{
 				if (Period > KeplerOrbitUtils.Epsilon)
 				{
-					MeanAnomaly += KeplerOrbitUtils.PI_2 * deltaTime / Period;
+					MeanAnomaly += MeanMotion * deltaTime;
 				}
 				MeanAnomaly %= KeplerOrbitUtils.PI_2;
 				if (MeanAnomaly < 0)
@@ -807,10 +821,39 @@ namespace SimpleKeplerOrbits
 			}
 			else
 			{
-				double n = Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3));
-				MeanAnomaly = MeanAnomaly + n * deltaTime;
+				MeanAnomaly = MeanAnomaly + MeanMotion * deltaTime;
 				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
 				TrueAnomaly = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1.0) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
+			}
+		}
+
+		/// <summary>
+		/// Get orbit time for elliption orbits at current anomaly. Result is in range [0..Period].
+		/// </summary>
+		/// <returns>Time, corresponding to current anomaly</returns>
+		public double GetCurrentOrbitTime()
+		{
+			if (Eccentricity < 1)
+			{
+				if (Period > 0 && Period < double.PositiveInfinity)
+				{
+					var anomaly = MeanAnomaly % KeplerOrbitUtils.PI_2;
+					if (anomaly < 0)
+					{
+						anomaly = KeplerOrbitUtils.PI_2 - anomaly;
+					}
+					return anomaly / KeplerOrbitUtils.PI_2 * Period;
+				}
+				return 0.0;
+			}
+			else
+			{
+				var meanMotion = MeanMotion;
+				if (meanMotion > 0)
+				{
+					return MeanAnomaly / meanMotion;
+				}
+				return 0.0;
 			}
 		}
 
