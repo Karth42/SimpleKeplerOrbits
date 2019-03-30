@@ -1,3 +1,7 @@
+version 1.0.4
+- Added component for orbit interception calculation.
+- Minor bugs fixes.
+
 version 1.0.3
 - Added orbit elements and orbit vectors constructors for KeplerOrbitData.
 - Added some small tools for KeplerOrbitMover and KeplerOrbitLineDisplay.
