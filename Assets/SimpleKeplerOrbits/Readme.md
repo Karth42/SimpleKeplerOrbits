@@ -24,6 +24,9 @@ https://github.com/Karth42/SimpleKeplerOrbits
 	* KeplerOrbitLineDisplay - component for displaying orbit path
 	via customizable LineRenderer object or via editor Gizmos.
 
+	* EllipticInterceptionSolver - component for calculation transfer
+	orbit between two orbiting bodies.
+
 ## Scripting
 
 This plugin is designed to be customizable via editor inspector and via scripting. 
@@ -155,6 +158,26 @@ List of some scripting snippets, that can be usefull:
 	var position = body.OrbitData.GetFocalPositionAtEccentricAnomaly(anomalyValue);
 ```
 
+## EllipticInterceptionSolver usage
+
+This component can calculate transfer trajectory in first approach. Functionality is limited to just display curve, which can be used as helper guidline for initial transfer planning process (which is not implemented here).
+
+	* Open or create scene with at least two orbiting bodies;
+	* Orbiting bodies must have mutual attractor directly or indirectly (attractor of attractor of attractor etc..);
+	* Attach EllipticInterceptionSolver component to one of orbiting bodies;
+	* Assign reference to another body inside component inspector;
+	* Transfer orbit green curve will appear;
+
+Note 1: If you need to calculate transfer trajectory from circular orbit around planet to another circular orbit around another planet (i.e. 'parking orbit'), 
+then you can create dummy celestial body with prefered orbit parameters, and then use it for tranfer calculations.
+
+Note 2: Transfer calculator will take into account orbital motion of orbits and calculate proper
+ending position vector after transfer duration period ending. But if resulting duration will not match target duration, 
+then ending point will not match real ending point.
+In other words, the bigger is difference between target and real duration the bigger is ending point error.
+This will be a problem in case, when target duration is 0, because algorithm will then calculate minimal possible duration, which will always be bigger than 0.
+To solve this, you can use 'set real target duration' button, which will assign real duration to target duration
+(it may requre multiple uses, for better convergence of resulting duration and reducing value difference).
 
 ## Contacts
 
