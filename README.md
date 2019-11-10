@@ -48,10 +48,14 @@ Scripting is fully optional. Some usage examples:
 		velocity: bodyVelocity, 
 		attractorMass: attractorMass, 
 		gConst: GConstant);
-	body.ForceUpdateViewFromInternalState();	
+	body.ForceUpdateViewFromInternalState();
 ```
 
 For more detailed scripting snippets go to the [included manual](Assets/SimpleKeplerOrbits/Readme.md).
+
+## Contributing
+
+This repository is closed for contributions.
 
 ## Published version
 
