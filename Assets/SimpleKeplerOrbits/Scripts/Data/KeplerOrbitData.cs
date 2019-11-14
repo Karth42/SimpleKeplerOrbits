@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace SimpleKeplerOrbits
@@ -102,7 +102,7 @@ namespace SimpleKeplerOrbits
 				var ascNodeDir = KeplerOrbitUtils.CrossProduct(EclipticNormal, OrbitNormal).normalized;
 				
 				var dot = KeplerOrbitUtils.DotProduct(ascNodeDir, EclipticRight);
-				if (dot < KeplerOrbitUtils.Epsilon && dot > -KeplerOrbitUtils.Epsilon)
+				if (KeplerOrbitUtils.IsZeroApprox(dot))
 				{
 					return 0;
 				}
@@ -124,7 +124,7 @@ namespace SimpleKeplerOrbits
 			{
 				var ascNodeDir = KeplerOrbitUtils.CrossProduct(EclipticNormal, OrbitNormal).normalized;
 				var dot = KeplerOrbitUtils.DotProduct(ascNodeDir, SemiMajorAxisBasis.normalized);
-				if (dot < KeplerOrbitUtils.Epsilon && dot > -KeplerOrbitUtils.Epsilon)
+				if (KeplerOrbitUtils.IsZeroApprox(dot))
 				{
 					return 0;
 				}

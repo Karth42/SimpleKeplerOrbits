@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ namespace SimpleKeplerOrbits
 		public const double PI_2 = 6.2831853071796d;
 		public const double Deg2Rad = 0.017453292519943d;
 		public const double Rad2Deg = 57.295779513082d;
-		public const double Epsilon = 1.401298E-45d;
+		public const double Epsilon = 1e-14d;
 
 		/// <summary>
 		/// Regular Acosh, but without exception when out of possible range.
@@ -29,6 +29,15 @@ namespace SimpleKeplerOrbits
 				return 0;
 			}
 			return Math.Log(x + System.Math.Sqrt(x * x - 1.0));
+		}
+
+		/// <summary>
+		/// Checks if the number is nearly zero using an epsilon value.
+		/// </summary>
+		/// <param name="s">The number to check.</param>
+		public static bool IsZeroApprox(double s)
+		{
+			return Abs(s) < Epsilon;
 		}
 
 		/// <summary>
@@ -53,7 +62,7 @@ namespace SimpleKeplerOrbits
 		public static Vector3 GetRayPlaneIntersectionPoint(Vector3 pointOnPlane, Vector3 normal, Vector3 rayOrigin, Vector3 rayDirection)
 		{
 			float dotProd = DotProduct(rayDirection, normal);
-			if (Math.Abs(dotProd) < Epsilon)
+			if (IsZeroApprox(dotProd))
 			{
 				return new Vector3();
 			}
