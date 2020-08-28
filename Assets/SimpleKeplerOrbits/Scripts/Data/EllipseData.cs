@@ -1,12 +1,10 @@
-﻿using UnityEngine;
-
-namespace SimpleKeplerOrbits
+﻿namespace SimpleKeplerOrbits
 {
 	public class EllipseData
 	{
-		public double A;
-		public double B;
-		public double Eccentricity;
+		public double   A;
+		public double   B;
+		public double   Eccentricity;
 		public Vector3d FocusDistance;
 		public Vector3d AxisMain;
 		public Vector3d AxisSecondary;
@@ -16,29 +14,26 @@ namespace SimpleKeplerOrbits
 
 		public Vector3d Normal
 		{
-			get
-			{
-				return KeplerOrbitUtils.CrossProduct(AxisMain, AxisSecondary).normalized;
-			}
+			get { return Vector3d.Cross(AxisMain, AxisSecondary).normalized; }
 		}
 
 		public EllipseData(Vector3d focus0, Vector3d focus1, Vector3d p0)
 		{
-			Focus0 = focus0;
-			Focus1 = focus1;
+			Focus0        = focus0;
+			Focus1        = focus1;
 			FocusDistance = Focus0 - Focus1;
-			A = ((Focus0 - p0).magnitude + (focus1 - p0).magnitude) * 0.5;
+			A             = ((Focus0 - p0).magnitude + (focus1 - p0).magnitude) * 0.5;
 			if (A < 0)
 			{
 				A = -A;
 			}
-			Eccentricity = (FocusDistance.magnitude * 0.5) / A;
-			B = A * System.Math.Sqrt(1 - Eccentricity * Eccentricity);
 
-			AxisMain = FocusDistance.normalized;
-			var tempNormal = KeplerOrbitUtils.CrossProduct(AxisMain, p0 - Focus0).normalized;
-			AxisSecondary = KeplerOrbitUtils.CrossProduct(AxisMain, tempNormal).normalized;
-			Center = Focus1 + FocusDistance * 0.5;
+			Eccentricity = (FocusDistance.magnitude * 0.5) / A;
+			B            = A * System.Math.Sqrt(1 - Eccentricity * Eccentricity);
+			AxisMain     = FocusDistance.normalized;
+			var tempNorm = Vector3d.Cross(AxisMain, p0 - Focus0).normalized;
+			AxisSecondary = Vector3d.Cross(AxisMain, tempNorm).normalized;
+			Center        = Focus1 + FocusDistance * 0.5;
 		}
 
 		/// <summary>
@@ -58,28 +53,15 @@ namespace SimpleKeplerOrbits
 		/// <returns>Eccentric anomaly radians.</returns>
 		public double GetEccentricAnomalyForPoint(Vector3d point)
 		{
-			var vector = point - Focus0;
+			var vector      = point - Focus0;
 			var trueAnomaly = Vector3d.Angle(vector, AxisMain) * KeplerOrbitUtils.Deg2Rad;
-			if (KeplerOrbitUtils.DotProduct(vector, AxisSecondary) > 0)
+			if (Vector3d.Dot(vector, AxisSecondary) > 0)
 			{
 				trueAnomaly = KeplerOrbitUtils.PI_2 - trueAnomaly;
 			}
+
 			var result = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(trueAnomaly, Eccentricity);
 			return result;
-		}
-
-		public void DebugDrawEllipse(Color color)
-		{
-			Vector3 lastPoint = (Vector3)(Center + AxisMain * A);
-			Vector3 point = lastPoint;
-			int points = 100;
-			for (int i = 1; i < points; i++)
-			{
-				float angle = (float)(KeplerOrbitUtils.PI_2 * (i / (float)(points - 1)));
-				point = (Vector3)(Center + AxisMain * A * System.Math.Cos(angle) + AxisSecondary * B * System.Math.Sin(angle));
-				Debug.DrawLine(lastPoint, point, color);
-				lastPoint = point;
-			}
 		}
 	}
 }

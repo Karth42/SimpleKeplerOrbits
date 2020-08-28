@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace SimpleKeplerOrbits
 {
@@ -13,19 +12,19 @@ namespace SimpleKeplerOrbits
 		public double GravConst = 1;
 
 		/// <summary>
-		/// Noraml of ecliptic plane.
+		/// Normal of ecliptic plane.
 		/// </summary>
-		public Vector3d EclipticNormal = new Vector3d(0, 0, 1);
+		public static readonly Vector3d EclipticNormal = new Vector3d(0, 0, 1);
 
 		/// <summary>
 		/// Up direction on ecliptic plane (y-axis on xy ecliptic plane).
 		/// </summary>
-		public Vector3d EclipticUp = new Vector3d(0, 1, 0);
+		public static readonly Vector3d EclipticUp = new Vector3d(0, 1, 0);
 
 		/// <summary>
 		/// Right vector on ecliptic plane (x-axis on xy ecliptic plane).
 		/// </summary>
-		public Vector3d EclipticRight = new Vector3d(1, 0, 0);
+		public static readonly Vector3d EclipticRight = new Vector3d(1, 0, 0);
 
 		/// <summary>
 		/// Body position relatve to attractor or Focal Position.
@@ -55,22 +54,21 @@ namespace SimpleKeplerOrbits
 		/// </summary>
 		public double MG;
 
-		public double SemiMinorAxis;
-		public double SemiMajorAxis;
-		public double FocalParameter;
-		public double Eccentricity;
-		public double EnergyTotal;
-		public double Period;
-		public double TrueAnomaly;
-		public double MeanAnomaly;
-		public double EccentricAnomaly;
-		public double SquaresConstant;
+		public double   SemiMinorAxis;
+		public double   SemiMajorAxis;
+		public double   FocalParameter;
+		public double   Eccentricity;
+		public double   Period;
+		public double   TrueAnomaly;
+		public double   MeanAnomaly;
+		public double   EccentricAnomaly;
+		public double   MeanMotion;
 		public Vector3d Periapsis;
-		public double PeriapsisDistance;
+		public double   PeriapsisDistance;
 		public Vector3d Apoapsis;
-		public double ApoapsisDistance;
+		public double   ApoapsisDistance;
 		public Vector3d CenterPoint;
-		public double OrbitCompressionRatio;
+		public double   OrbitCompressionRatio;
 		public Vector3d OrbitNormal;
 		public Vector3d SemiMinorAxisBasis;
 		public Vector3d SemiMajorAxisBasis;
@@ -80,6 +78,11 @@ namespace SimpleKeplerOrbits
 		/// </summary>
 		public double OrbitNormalDotEclipticNormal;
 
+		public double EnergyTotal
+		{
+			get { return Velocity.sqrMagnitude - 2 * MG / AttractorDistance; }
+		}
+
 		/// <summary>
 		/// The orbit inclination in radians relative to ecliptic plane.
 		/// </summary>
@@ -87,7 +90,7 @@ namespace SimpleKeplerOrbits
 		{
 			get
 			{
-				var dot = KeplerOrbitUtils.DotProduct(OrbitNormal, EclipticNormal);
+				var dot = Vector3d.Dot(OrbitNormal, EclipticNormal);
 				return Math.Acos(dot);
 			}
 		}
@@ -99,18 +102,14 @@ namespace SimpleKeplerOrbits
 		{
 			get
 			{
-				var ascNodeDir = KeplerOrbitUtils.CrossProduct(EclipticNormal, OrbitNormal).normalized;
-				
-				var dot = KeplerOrbitUtils.DotProduct(ascNodeDir, EclipticRight);
-				if (dot < KeplerOrbitUtils.Epsilon && dot > -KeplerOrbitUtils.Epsilon)
-				{
-					return 0;
-				}
+				var ascNodeDir = Vector3d.Cross(EclipticNormal, OrbitNormal).normalized;
+				var dot = Vector3d.Dot(ascNodeDir, EclipticRight);
 				var angle = Math.Acos(dot);
-				if (KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(ascNodeDir, EclipticRight), EclipticNormal) >= 0)
+				if (Vector3d.Dot(Vector3d.Cross(ascNodeDir, EclipticRight), EclipticNormal) >= 0)
 				{
 					angle = KeplerOrbitUtils.PI_2 - angle;
 				}
+
 				return angle;
 			}
 		}
@@ -122,33 +121,15 @@ namespace SimpleKeplerOrbits
 		{
 			get
 			{
-				var ascNodeDir = KeplerOrbitUtils.CrossProduct(EclipticNormal, OrbitNormal).normalized;
-				var dot = KeplerOrbitUtils.DotProduct(ascNodeDir, SemiMajorAxisBasis.normalized);
-				if (dot < KeplerOrbitUtils.Epsilon && dot > -KeplerOrbitUtils.Epsilon)
-				{
-					return 0;
-				}
+				var ascNodeDir = Vector3d.Cross(EclipticNormal, OrbitNormal).normalized;
+				var dot        = Vector3d.Dot(ascNodeDir, SemiMajorAxisBasis.normalized);
 				var angle = Math.Acos(dot);
-				if (KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(ascNodeDir, SemiMajorAxisBasis), OrbitNormal) < 0)
+				if (Vector3d.Dot(Vector3d.Cross(ascNodeDir, SemiMajorAxisBasis), OrbitNormal) < 0)
 				{
 					angle = KeplerOrbitUtils.PI_2 - angle;
 				}
-				return angle;
-			}
-		}
 
-		public double MeanMotion
-		{
-			get
-			{
-				if (Eccentricity < 1)
-				{
-					return KeplerOrbitUtils.PI_2 / Period;
-				}
-				else
-				{
-					return Math.Sqrt(AttractorMass * GravConst / Math.Pow(SemiMajorAxis, 3));
-				}
+				return angle;
 			}
 		}
 
@@ -162,10 +143,9 @@ namespace SimpleKeplerOrbits
 		{
 			get
 			{
-				return Eccentricity >= 0 
-					&& Period > KeplerOrbitUtils.Epsilon 
-					&& AttractorDistance > KeplerOrbitUtils.Epsilon 
-					&& AttractorMass > KeplerOrbitUtils.Epsilon;
+				return Eccentricity >= 0
+				       && Period > 0
+				       && AttractorMass > 0;
 			}
 		}
 
@@ -188,10 +168,10 @@ namespace SimpleKeplerOrbits
 		/// <param name="gConst">Gravitational Constant.</param>
 		public KeplerOrbitData(Vector3d position, Vector3d velocity, double attractorMass, double gConst)
 		{
-			this.Position = position;
-			this.Velocity = velocity;
+			this.Position      = position;
+			this.Velocity      = velocity;
 			this.AttractorMass = attractorMass;
-			this.GravConst = gConst;
+			this.GravConst     = gConst;
 			CalculateOrbitStateFromOrbitalVectors();
 		}
 
@@ -206,20 +186,25 @@ namespace SimpleKeplerOrbits
 		/// <param name="ascendingNodeDeg">Longitude of ascending node in degrees.</param>
 		/// <param name="attractorMass">Attractor mass.</param>
 		/// <param name="gConst">Gravitational constant.</param>
-		public KeplerOrbitData(double eccentricity, double semiMajorAxis, double meanAnomalyDeg, double inclinationDeg, double argOfPerifocusDeg, double ascendingNodeDeg, double attractorMass, double gConst)
+		public KeplerOrbitData(double eccentricity, double semiMajorAxis, double meanAnomalyDeg, double inclinationDeg, double argOfPerifocusDeg, double ascendingNodeDeg, double attractorMass,
+			double                      gConst)
 		{
-			this.Eccentricity = eccentricity;
+			this.Eccentricity  = eccentricity;
 			this.SemiMajorAxis = semiMajorAxis;
 			if (eccentricity < 1.0)
 			{
 				this.SemiMinorAxis = SemiMajorAxis * Math.Sqrt(1 - Eccentricity * Eccentricity);
 			}
-			else
+			else if (eccentricity > 1.0)
 			{
 				this.SemiMinorAxis = SemiMajorAxis * Math.Sqrt(Eccentricity * Eccentricity - 1);
 			}
-			
-			var normal = EclipticNormal.normalized;
+			else
+			{
+				this.SemiMajorAxis = 0;
+			}
+
+			var normal        = EclipticNormal.normalized;
 			var ascendingNode = EclipticRight.normalized;
 
 			ascendingNodeDeg %= 360;
@@ -230,18 +215,18 @@ namespace SimpleKeplerOrbits
 			if (argOfPerifocusDeg > 180) argOfPerifocusDeg -= 360;
 
 			ascendingNode = KeplerOrbitUtils.RotateVectorByAngle(ascendingNode, ascendingNodeDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
-			normal = KeplerOrbitUtils.RotateVectorByAngle(normal, inclinationDeg * KeplerOrbitUtils.Deg2Rad, ascendingNode).normalized;
+			normal        = KeplerOrbitUtils.RotateVectorByAngle(normal, inclinationDeg * KeplerOrbitUtils.Deg2Rad, ascendingNode).normalized;
 			var periapsis = ascendingNode;
 			periapsis = KeplerOrbitUtils.RotateVectorByAngle(periapsis, argOfPerifocusDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
 
 			this.SemiMajorAxisBasis = periapsis;
-			this.SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(periapsis, normal);
+			this.SemiMinorAxisBasis = Vector3d.Cross(periapsis, normal);
 
-			this.MeanAnomaly = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
+			this.MeanAnomaly      = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
 			this.EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(this.MeanAnomaly, this.Eccentricity);
-			this.TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(this.EccentricAnomaly, this.Eccentricity);
-			this.AttractorMass = attractorMass;
-			this.GravConst = gConst;
+			this.TrueAnomaly      = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(this.EccentricAnomaly, this.Eccentricity);
+			this.AttractorMass    = attractorMass;
+			this.GravConst        = gConst;
 			CalculateOrbitStateFromOrbitalElements();
 		}
 
@@ -256,24 +241,18 @@ namespace SimpleKeplerOrbits
 		/// <param name="gConst">Gravitational constant.</param>
 		public KeplerOrbitData(double eccentricity, Vector3d semiMajorAxis, Vector3d semiMinorAxis, double meanAnomalyDeg, double attractorMass, double gConst)
 		{
-			this.Eccentricity = eccentricity;
+			this.Eccentricity       = eccentricity;
 			this.SemiMajorAxisBasis = semiMajorAxis.normalized;
 			this.SemiMinorAxisBasis = semiMinorAxis.normalized;
-			this.SemiMajorAxis = semiMajorAxis.magnitude;
-			this.SemiMinorAxis = semiMinorAxis.magnitude;
+			this.SemiMajorAxis      = semiMajorAxis.magnitude;
+			this.SemiMinorAxis      = semiMinorAxis.magnitude;
 
-			this.MeanAnomaly = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
+			this.MeanAnomaly      = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
 			this.EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(this.MeanAnomaly, this.Eccentricity);
-			this.TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(this.EccentricAnomaly, this.Eccentricity);
-			this.AttractorMass = attractorMass;
-			this.GravConst = gConst;
+			this.TrueAnomaly      = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(this.EccentricAnomaly, this.Eccentricity);
+			this.AttractorMass    = attractorMass;
+			this.GravConst        = gConst;
 			CalculateOrbitStateFromOrbitalElements();
-		}
-
-		[Obsolete("Use CalculateOrbitStateFromOrbitalVectors() instead.", error: true)]
-		public void CalculateNewOrbitData()
-		{
-			CalculateOrbitStateFromOrbitalVectors();
 		}
 
 		/// <summary>
@@ -281,67 +260,93 @@ namespace SimpleKeplerOrbits
 		/// </summary>
 		public void CalculateOrbitStateFromOrbitalVectors()
 		{
-			MG = AttractorMass * GravConst;
+			MG                = AttractorMass * GravConst;
 			AttractorDistance = Position.magnitude;
-			Vector3d angularMomentumVector = KeplerOrbitUtils.CrossProduct(Position, Velocity);
+			Vector3d angularMomentumVector = Vector3d.Cross(Position, Velocity);
 			OrbitNormal = angularMomentumVector.normalized;
 			Vector3d eccVector;
 			if (OrbitNormal.sqrMagnitude < 0.99)
 			{
-				OrbitNormal = KeplerOrbitUtils.CrossProduct(Position, EclipticUp).normalized;
-				eccVector = new Vector3d();
+				OrbitNormal = Vector3d.Cross(Position, EclipticUp).normalized;
+				eccVector   = new Vector3d();
 			}
 			else
 			{
-				eccVector = KeplerOrbitUtils.CrossProduct(Velocity, angularMomentumVector) / MG - Position / AttractorDistance;
+				eccVector = Vector3d.Cross(Velocity, angularMomentumVector) / MG - Position / AttractorDistance;
 			}
-			OrbitNormalDotEclipticNormal = KeplerOrbitUtils.DotProduct(OrbitNormal, EclipticNormal);
-			FocalParameter = angularMomentumVector.sqrMagnitude / MG;
-			Eccentricity = eccVector.magnitude;
-			EnergyTotal = Velocity.sqrMagnitude - 2 * MG / AttractorDistance;
-			SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(angularMomentumVector, -eccVector).normalized;
+
+			OrbitNormalDotEclipticNormal = Vector3d.Dot(OrbitNormal, EclipticNormal);
+			FocalParameter               = angularMomentumVector.sqrMagnitude / MG;
+			Eccentricity                 = eccVector.magnitude;
+			SemiMinorAxisBasis           = Vector3d.Cross(angularMomentumVector, -eccVector).normalized;
 			if (SemiMinorAxisBasis.sqrMagnitude < 0.99)
 			{
-				SemiMinorAxisBasis = KeplerOrbitUtils.CrossProduct(OrbitNormal, Position).normalized;
+				SemiMinorAxisBasis = Vector3d.Cross(OrbitNormal, Position).normalized;
 			}
-			SemiMajorAxisBasis = KeplerOrbitUtils.CrossProduct(OrbitNormal, SemiMinorAxisBasis).normalized;
-			if (Eccentricity < 1)
+
+			SemiMajorAxisBasis = Vector3d.Cross(OrbitNormal, SemiMinorAxisBasis).normalized;
+			if (Eccentricity < 1.0)
 			{
 				OrbitCompressionRatio = 1 - Eccentricity * Eccentricity;
-				SemiMajorAxis = FocalParameter / OrbitCompressionRatio;
-				SemiMinorAxis = SemiMajorAxis * Math.Sqrt(OrbitCompressionRatio);
-				CenterPoint = -SemiMajorAxis * eccVector;
-				Period = KeplerOrbitUtils.PI_2 * Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
-				Apoapsis = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
-				Periapsis = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
-				PeriapsisDistance = Periapsis.magnitude;
-				ApoapsisDistance = Apoapsis.magnitude;
-				TrueAnomaly = Vector3d.Angle(Position, SemiMajorAxisBasis) * KeplerOrbitUtils.Deg2Rad;
-				if (KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(Position, -SemiMajorAxisBasis), OrbitNormal) < 0)
+				SemiMajorAxis         = FocalParameter / OrbitCompressionRatio;
+				SemiMinorAxis         = SemiMajorAxis * Math.Sqrt(OrbitCompressionRatio);
+				CenterPoint           = -SemiMajorAxis * eccVector;
+				Period                = KeplerOrbitUtils.PI_2 * Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
+				MeanMotion            = KeplerOrbitUtils.PI_2 / Period;
+				Apoapsis              = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
+				Periapsis             = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
+				PeriapsisDistance     = Periapsis.magnitude;
+				ApoapsisDistance      = Apoapsis.magnitude;
+				TrueAnomaly           = Vector3d.Angle(Position, SemiMajorAxisBasis) * KeplerOrbitUtils.Deg2Rad;
+				if (Vector3d.Dot(Vector3d.Cross(Position, -SemiMajorAxisBasis), OrbitNormal) < 0)
 				{
 					TrueAnomaly = KeplerOrbitUtils.PI_2 - TrueAnomaly;
 				}
+
 				EccentricAnomaly = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(TrueAnomaly, Eccentricity);
-				MeanAnomaly = EccentricAnomaly - Eccentricity * Math.Sin(EccentricAnomaly);
+				MeanAnomaly      = EccentricAnomaly - Eccentricity * Math.Sin(EccentricAnomaly);
 			}
-			else
+			else if (Eccentricity > 1.0)
 			{
 				OrbitCompressionRatio = Eccentricity * Eccentricity - 1;
-				SemiMajorAxis = FocalParameter / OrbitCompressionRatio;
-				SemiMinorAxis = SemiMajorAxis * Math.Sqrt(OrbitCompressionRatio);
-				CenterPoint = SemiMajorAxis * eccVector;
-				Period = double.PositiveInfinity;
-				Apoapsis = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
-				Periapsis = CenterPoint - SemiMajorAxisBasis * (SemiMajorAxis);
-				PeriapsisDistance = Periapsis.magnitude;
-				ApoapsisDistance = double.PositiveInfinity;
-				TrueAnomaly = Vector3d.Angle(Position, eccVector) * KeplerOrbitUtils.Deg2Rad;
-				if (KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(Position, -SemiMajorAxisBasis), OrbitNormal) < 0)
+				SemiMajorAxis         = FocalParameter / OrbitCompressionRatio;
+				SemiMinorAxis         = SemiMajorAxis * Math.Sqrt(OrbitCompressionRatio);
+				CenterPoint           = SemiMajorAxis * eccVector;
+				Period                = double.PositiveInfinity;
+				MeanMotion            = Math.Sqrt(MG / Math.Pow(SemiMajorAxis, 3));
+				Apoapsis              = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+				Periapsis             = CenterPoint - SemiMajorAxisBasis * (SemiMajorAxis);
+				PeriapsisDistance     = Periapsis.magnitude;
+				ApoapsisDistance      = double.PositiveInfinity;
+				TrueAnomaly           = Vector3d.Angle(Position, eccVector) * KeplerOrbitUtils.Deg2Rad;
+				if (Vector3d.Dot(Vector3d.Cross(Position, -SemiMajorAxisBasis), OrbitNormal) < 0)
 				{
 					TrueAnomaly = -TrueAnomaly;
 				}
+
 				EccentricAnomaly = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(TrueAnomaly, Eccentricity);
-				MeanAnomaly = Math.Sinh(EccentricAnomaly) * Eccentricity - EccentricAnomaly;
+				MeanAnomaly      = Math.Sinh(EccentricAnomaly) * Eccentricity - EccentricAnomaly;
+			}
+			else
+			{
+				OrbitCompressionRatio = 0;
+				SemiMajorAxis         = 0;
+				SemiMinorAxis         = 0;
+				PeriapsisDistance     = angularMomentumVector.sqrMagnitude / MG;
+				CenterPoint           = new Vector3d();
+				Periapsis             = -PeriapsisDistance * SemiMinorAxisBasis;
+				Period                = double.PositiveInfinity;
+				MeanMotion            = Math.Sqrt(MG / Math.Pow(PeriapsisDistance, 3));
+				Apoapsis              = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+				ApoapsisDistance      = double.PositiveInfinity;
+				TrueAnomaly           = Vector3d.Angle(Position, eccVector) * KeplerOrbitUtils.Deg2Rad;
+				if (Vector3d.Dot(Vector3d.Cross(Position, -SemiMajorAxisBasis), OrbitNormal) < 0)
+				{
+					TrueAnomaly = -TrueAnomaly;
+				}
+
+				EccentricAnomaly = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(TrueAnomaly, Eccentricity);
+				MeanAnomaly      = Math.Sinh(EccentricAnomaly) * Eccentricity - EccentricAnomaly;
 			}
 		}
 
@@ -356,35 +361,48 @@ namespace SimpleKeplerOrbits
 		/// </remarks>
 		public void CalculateOrbitStateFromOrbitalElements()
 		{
-			MG = AttractorMass * GravConst;
-			OrbitNormal = -KeplerOrbitUtils.CrossProduct(SemiMajorAxisBasis, SemiMinorAxisBasis).normalized;
-			OrbitNormalDotEclipticNormal = KeplerOrbitUtils.DotProduct(OrbitNormal, EclipticNormal);
+			MG                           = AttractorMass * GravConst;
+			OrbitNormal                  = -Vector3d.Cross(SemiMajorAxisBasis, SemiMinorAxisBasis).normalized;
+			OrbitNormalDotEclipticNormal = Vector3d.Dot(OrbitNormal, EclipticNormal);
 			if (Eccentricity < 1.0)
 			{
 				OrbitCompressionRatio = 1 - Eccentricity * Eccentricity;
-				CenterPoint = -SemiMajorAxisBasis * SemiMajorAxis * Eccentricity;
-				Period = KeplerOrbitUtils.PI_2 * Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
-				Apoapsis = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
-				Periapsis = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
-				PeriapsisDistance = Periapsis.magnitude;
-				ApoapsisDistance = Apoapsis.magnitude;
+				CenterPoint           = -SemiMajorAxisBasis * SemiMajorAxis * Eccentricity;
+				Period                = KeplerOrbitUtils.PI_2 * Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
+				MeanMotion            = KeplerOrbitUtils.PI_2 / Period;
+				Apoapsis              = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
+				Periapsis             = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
+				PeriapsisDistance     = Periapsis.magnitude;
+				ApoapsisDistance      = Apoapsis.magnitude;
 				// All anomalies state already preset.
+			}
+			else if (Eccentricity > 1.0)
+			{
+				CenterPoint       = SemiMajorAxisBasis * SemiMajorAxis * Eccentricity;
+				Period            = double.PositiveInfinity;
+				MeanMotion        = Math.Sqrt(MG / Math.Pow(SemiMajorAxis, 3));
+				Apoapsis          = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+				Periapsis         = CenterPoint - SemiMajorAxisBasis * (SemiMajorAxis);
+				PeriapsisDistance = Periapsis.magnitude;
+				ApoapsisDistance  = double.PositiveInfinity;
 			}
 			else
 			{
-				CenterPoint = SemiMajorAxisBasis * SemiMajorAxis * Eccentricity;
-				Period = double.PositiveInfinity;
-				Apoapsis = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
-				Periapsis = CenterPoint - SemiMajorAxisBasis * (SemiMajorAxis);
-				PeriapsisDistance = Periapsis.magnitude;
-				ApoapsisDistance = double.PositiveInfinity;
+				CenterPoint       = new Vector3d();
+				Period            = double.PositiveInfinity;
+				MeanMotion        = Math.Sqrt(MG * 0.5 / Math.Pow(PeriapsisDistance, 3));
+				Apoapsis          = new Vector3d(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+				PeriapsisDistance = SemiMajorAxis;
+				SemiMajorAxis     = 0;
+				Periapsis         = -PeriapsisDistance * SemiMajorAxisBasis;
+				ApoapsisDistance  = double.PositiveInfinity;
 			}
+
 			Position = GetFocalPositionAtEccentricAnomaly(EccentricAnomaly);
 			double compresion = Eccentricity < 1 ? (1 - Eccentricity * Eccentricity) : (Eccentricity * Eccentricity - 1);
-			FocalParameter = SemiMajorAxis * compresion;
-			Velocity = GetVelocityAtTrueAnomaly(this.TrueAnomaly);
+			FocalParameter    = SemiMajorAxis * compresion;
+			Velocity          = GetVelocityAtTrueAnomaly(this.TrueAnomaly);
 			AttractorDistance = Position.magnitude;
-			EnergyTotal = Velocity.sqrMagnitude - 2 * MG / AttractorDistance;
 		}
 
 		/// <summary>
@@ -404,13 +422,14 @@ namespace SimpleKeplerOrbits
 		/// <returns>Velocity vector.</returns>
 		public Vector3d GetVelocityAtTrueAnomaly(double trueAnomaly)
 		{
-			if (FocalParameter < KeplerOrbitUtils.Epsilon)
+			if (FocalParameter <= 0)
 			{
 				return new Vector3d();
 			}
+
 			double sqrtMGdivP = Math.Sqrt(AttractorMass * GravConst / FocalParameter);
-			double vX = sqrtMGdivP * (Eccentricity + Math.Cos(trueAnomaly));
-			double vY = sqrtMGdivP * Math.Sin(trueAnomaly);
+			double vX         = sqrtMGdivP * (Eccentricity + Math.Cos(trueAnomaly));
+			double vY         = sqrtMGdivP * Math.Sin(trueAnomaly);
 			return -SemiMinorAxisBasis * vX - SemiMajorAxisBasis * vY;
 		}
 
@@ -438,10 +457,23 @@ namespace SimpleKeplerOrbits
 		/// </remarks>
 		public Vector3d GetCentralPositionAtEccentricAnomaly(double eccentricAnomaly)
 		{
-			Vector3d result = Eccentricity < 1 ?
-				new Vector3d(Math.Sin(eccentricAnomaly) * SemiMinorAxis, -Math.Cos(eccentricAnomaly) * SemiMajorAxis) :
-				new Vector3d(Math.Sinh(eccentricAnomaly) * SemiMinorAxis, Math.Cosh(eccentricAnomaly) * SemiMajorAxis);
-			return -SemiMinorAxisBasis * result.x - SemiMajorAxisBasis * result.y;
+			if (Eccentricity < 1.0)
+			{
+				Vector3d result = new Vector3d(Math.Sin(eccentricAnomaly) * SemiMinorAxis, -Math.Cos(eccentricAnomaly) * SemiMajorAxis);
+				return -SemiMinorAxisBasis * result.x - SemiMajorAxisBasis * result.y;
+			}
+			else if (Eccentricity > 1.0)
+			{
+				Vector3d result = new Vector3d(Math.Sinh(eccentricAnomaly) * SemiMinorAxis, Math.Cosh(eccentricAnomaly) * SemiMajorAxis);
+				return -SemiMinorAxisBasis * result.x - SemiMajorAxisBasis * result.y;
+			}
+			else
+			{
+				var pos = new Vector3d(
+					PeriapsisDistance * Math.Sin(eccentricAnomaly) / (1.0 + Math.Cos(eccentricAnomaly)),
+					PeriapsisDistance * Math.Cos(eccentricAnomaly) / (1.0 + Math.Cos(eccentricAnomaly)));
+				return -SemiMinorAxisBasis * pos.x + SemiMajorAxisBasis * pos.y;
+			}
 		}
 
 		/// <summary>
@@ -501,8 +533,9 @@ namespace SimpleKeplerOrbits
 			{
 				return new Vector3d[0];
 			}
+
 			Vector3d[] result = new Vector3d[pointsCount];
-			if (Eccentricity < 1)
+			if (Eccentricity < 1.0)
 			{
 				if (ApoapsisDistance < maxDistance)
 				{
@@ -511,9 +544,17 @@ namespace SimpleKeplerOrbits
 						result[i] = GetFocalPositionAtEccentricAnomaly(i * KeplerOrbitUtils.PI_2 / (pointsCount - 1d)) + origin;
 					}
 				}
+				else if (Eccentricity > 1.0)
+				{
+					double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis, PeriapsisDistance);
+					for (int i = 0; i < pointsCount; i++)
+					{
+						result[i] = GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
+					}
+				}
 				else
 				{
-					double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
+					double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, PeriapsisDistance, PeriapsisDistance);
 					for (int i = 0; i < pointsCount; i++)
 					{
 						result[i] = GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
@@ -526,72 +567,15 @@ namespace SimpleKeplerOrbits
 				{
 					return new Vector3d[0];
 				}
-				double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
+
+				double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis, PeriapsisDistance);
 
 				for (int i = 0; i < pointsCount; i++)
 				{
 					result[i] = GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
 				}
 			}
-			return result;
-		}
 
-		/// <summary>
-		/// Gets calculated orbit points with defined precision.
-		/// </summary>
-		/// <param name="pointsCount">The points count.</param>
-		/// <param name="maxDistance">The maximum distance.</param>
-		/// <returns>Array of orbit curve points.</returns>
-		public Vector3[] GetOrbitPoints(int pointsCount = 50, float maxDistance = 1000f)
-		{
-			return GetOrbitPoints(pointsCount, new Vector3(), maxDistance);
-		}
-
-		/// <summary>
-		/// Gets calculated orbit points with defined precision.
-		/// </summary>
-		/// <param name="pointsCount">The points count.</param>
-		/// <param name="origin">The origin.</param>
-		/// <param name="maxDistance">The maximum distance.</param>
-		/// <returns>Array of orbit curve points.</returns>
-		public Vector3[] GetOrbitPoints(int pointsCount, Vector3 origin, float maxDistance = 1000f)
-		{
-			if (pointsCount < 2)
-			{
-				return new Vector3[0];
-			}
-			Vector3[] result = new Vector3[pointsCount];
-			if (Eccentricity < 1)
-			{
-				if (ApoapsisDistance < maxDistance)
-				{
-					for (int i = 0; i < pointsCount; i++)
-					{
-						result[i] = (Vector3)GetFocalPositionAtEccentricAnomaly(i * KeplerOrbitUtils.PI_2 / (pointsCount - 1d)) + origin;
-					}
-				}
-				else
-				{
-					double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
-					for (int i = 0; i < pointsCount; i++)
-					{
-						result[i] = (Vector3)GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
-					}
-				}
-			}
-			else
-			{
-				if (maxDistance < PeriapsisDistance)
-				{
-					return new Vector3[0];
-				}
-				double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
-
-				for (int i = 0; i < pointsCount; i++)
-				{
-					result[i] = (Vector3)GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
-				}
-			}
 			return result;
 		}
 
@@ -603,32 +587,34 @@ namespace SimpleKeplerOrbits
 		/// <param name="pointsCount">The points count.</param>
 		/// <param name="origin">The origin.</param>
 		/// <param name="maxDistance">The maximum distance.</param>
-		public void GetOrbitPointsNoAlloc(ref Vector3[] orbitPoints, int pointsCount, Vector3 origin, float maxDistance = 1000f)
+		public void GetOrbitPointsNoAlloc(ref Vector3d[] orbitPoints, int pointsCount, Vector3d origin, float maxDistance = 1000f)
 		{
 			if (pointsCount < 2)
 			{
-				orbitPoints = new Vector3[0];
+				orbitPoints = new Vector3d[0];
 				return;
 			}
+
 			if (Eccentricity < 1)
 			{
 				if (orbitPoints == null || orbitPoints.Length != pointsCount)
 				{
-					orbitPoints = new Vector3[pointsCount];
+					orbitPoints = new Vector3d[pointsCount];
 				}
+
 				if (ApoapsisDistance < maxDistance)
 				{
 					for (int i = 0; i < pointsCount; i++)
 					{
-						orbitPoints[i] = (Vector3)GetFocalPositionAtEccentricAnomaly(i * KeplerOrbitUtils.PI_2 / (pointsCount - 1d)) + origin;
+						orbitPoints[i] = GetFocalPositionAtEccentricAnomaly(i * KeplerOrbitUtils.PI_2 / (pointsCount - 1d)) + origin;
 					}
 				}
 				else
 				{
-					double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
+					double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis, PeriapsisDistance);
 					for (int i = 0; i < pointsCount; i++)
 					{
-						orbitPoints[i] = (Vector3)GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
+						orbitPoints[i] = GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
 					}
 				}
 			}
@@ -636,37 +622,22 @@ namespace SimpleKeplerOrbits
 			{
 				if (maxDistance < PeriapsisDistance)
 				{
-					orbitPoints = new Vector3[0];
+					orbitPoints = new Vector3d[0];
 					return;
 				}
+
 				if (orbitPoints == null || orbitPoints.Length != pointsCount)
 				{
-					orbitPoints = new Vector3[pointsCount];
+					orbitPoints = new Vector3d[pointsCount];
 				}
-				double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis);
+
+				double maxAngle = KeplerOrbitUtils.CalcTrueAnomalyForDistance(maxDistance, Eccentricity, SemiMajorAxis, PeriapsisDistance);
 
 				for (int i = 0; i < pointsCount; i++)
 				{
-					orbitPoints[i] = (Vector3)GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
+					orbitPoints[i] = GetFocalPositionAtTrueAnomaly(-maxAngle + i * 2d * maxAngle / (pointsCount - 1)) + origin;
 				}
 			}
-		}
-
-		/// <summary>
-		/// Gets the ascending node of orbit.
-		/// </summary>
-		/// <param name="asc">The asc.</param>
-		/// <returns><c>true</c> if ascending node exists, otherwise <c>false</c></returns>
-		public bool GetAscendingNode(out Vector3 asc)
-		{
-			Vector3d v;
-			if (GetAscendingNode(out v))
-			{
-				asc = (Vector3)v;
-				return true;
-			}
-			asc = new Vector3();
-			return false;
 		}
 
 		/// <summary>
@@ -676,11 +647,11 @@ namespace SimpleKeplerOrbits
 		/// <returns><c>true</c> if ascending node exists, otherwise <c>false</c></returns>
 		public bool GetAscendingNode(out Vector3d asc)
 		{
-			Vector3d ascNodeDir = KeplerOrbitUtils.CrossProduct(OrbitNormal, EclipticNormal);
-			bool s = KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(ascNodeDir, SemiMajorAxisBasis), OrbitNormal) >= 0;
-			double ecc = 0d;
-			double trueAnom = Vector3d.Angle(ascNodeDir, CenterPoint) * KeplerOrbitUtils.Deg2Rad;
-			if (Eccentricity < 1)
+			Vector3d ascNodeDir = Vector3d.Cross(OrbitNormal, EclipticNormal);
+			bool     s          = Vector3d.Dot(Vector3d.Cross(ascNodeDir, SemiMajorAxisBasis), OrbitNormal) >= 0;
+			double   ecc        = 0d;
+			double   trueAnom   = Vector3d.Angle(ascNodeDir, CenterPoint) * KeplerOrbitUtils.Deg2Rad;
+			if (Eccentricity < 1.0)
 			{
 				double cosT = Math.Cos(trueAnom);
 				ecc = Math.Acos((Eccentricity + cosT) / (1d + Eccentricity * cosT));
@@ -689,7 +660,7 @@ namespace SimpleKeplerOrbits
 					ecc = KeplerOrbitUtils.PI_2 - ecc;
 				}
 			}
-			else
+			else if (Eccentricity > 1.0)
 			{
 				trueAnom = Vector3d.Angle(-ascNodeDir, CenterPoint) * KeplerOrbitUtils.Deg2Rad;
 				if (trueAnom >= Math.Acos(-1d / Eccentricity))
@@ -697,28 +668,18 @@ namespace SimpleKeplerOrbits
 					asc = new Vector3d();
 					return false;
 				}
+
 				double cosT = Math.Cos(trueAnom);
 				ecc = KeplerOrbitUtils.Acosh((Eccentricity + cosT) / (1 + Eccentricity * cosT)) * (!s ? -1 : 1);
 			}
+			else
+			{
+				asc = new Vector3d();
+				return false;
+			}
+
 			asc = GetFocalPositionAtEccentricAnomaly(ecc);
 			return true;
-		}
-
-		/// <summary>
-		/// Gets the descending node of orbit.
-		/// </summary>
-		/// <param name="desc">The desc.</param>
-		/// <returns><c>true</c> if descending node exists, otherwise <c>false</c></returns>
-		public bool GetDescendingNode(out Vector3 desc)
-		{
-			Vector3d v;
-			if (GetDescendingNode(out v))
-			{
-				desc = (Vector3)v;
-				return true;
-			}
-			desc = new Vector3();
-			return false;
 		}
 
 		/// <summary>
@@ -728,11 +689,11 @@ namespace SimpleKeplerOrbits
 		/// <returns><c>true</c> if descending node exists, otherwise <c>false</c></returns>
 		public bool GetDescendingNode(out Vector3d desc)
 		{
-			Vector3d norm = KeplerOrbitUtils.CrossProduct(OrbitNormal, EclipticNormal);
-			bool s = KeplerOrbitUtils.DotProduct(KeplerOrbitUtils.CrossProduct(norm, SemiMajorAxisBasis), OrbitNormal) < 0;
-			double ecc = 0d;
-			double trueAnom = Vector3d.Angle(norm, -CenterPoint) * KeplerOrbitUtils.Deg2Rad;
-			if (Eccentricity < 1)
+			Vector3d norm     = Vector3d.Cross(OrbitNormal, EclipticNormal);
+			bool     s        = Vector3d.Dot(Vector3d.Cross(norm, SemiMajorAxisBasis), OrbitNormal) < 0;
+			double   ecc      = 0d;
+			double   trueAnom = Vector3d.Angle(norm, -CenterPoint) * KeplerOrbitUtils.Deg2Rad;
+			if (Eccentricity < 1.0)
 			{
 				double cosT = Math.Cos(trueAnom);
 				ecc = Math.Acos((Eccentricity + cosT) / (1d + Eccentricity * cosT));
@@ -741,7 +702,7 @@ namespace SimpleKeplerOrbits
 					ecc = KeplerOrbitUtils.PI_2 - ecc;
 				}
 			}
-			else
+			else if (Eccentricity > 1.0)
 			{
 				trueAnom = Vector3d.Angle(norm, CenterPoint) * KeplerOrbitUtils.Deg2Rad;
 				if (trueAnom >= Math.Acos(-1d / Eccentricity))
@@ -749,9 +710,16 @@ namespace SimpleKeplerOrbits
 					desc = new Vector3d();
 					return false;
 				}
+
 				double cosT = Math.Cos(trueAnom);
 				ecc = KeplerOrbitUtils.Acosh((Eccentricity + cosT) / (1 + Eccentricity * cosT)) * (s ? -1 : 1);
 			}
+			else
+			{
+				desc = new Vector3d();
+				return false;
+			}
+
 			desc = GetFocalPositionAtEccentricAnomaly(ecc);
 			return true;
 		}
@@ -777,17 +745,16 @@ namespace SimpleKeplerOrbits
 		/// </remarks>
 		public void UpdateOrbitAnomaliesByTime(double deltaTime)
 		{
-			if (Eccentricity < 1)
+			if (Eccentricity < 1.0)
 			{
-				if (Period > KeplerOrbitUtils.Epsilon)
-				{
-					MeanAnomaly += MeanMotion * deltaTime;
-				}
+				MeanAnomaly += MeanMotion * deltaTime;
 				MeanAnomaly %= KeplerOrbitUtils.PI_2;
+
 				if (MeanAnomaly < 0)
 				{
 					MeanAnomaly = KeplerOrbitUtils.PI_2 - MeanAnomaly;
 				}
+
 				EccentricAnomaly = KeplerOrbitUtils.KeplerSolver(MeanAnomaly, Eccentricity);
 				double cosE = Math.Cos(EccentricAnomaly);
 				TrueAnomaly = Math.Acos((cosE - Eccentricity) / (1 - Eccentricity * cosE));
@@ -795,27 +762,18 @@ namespace SimpleKeplerOrbits
 				{
 					TrueAnomaly = KeplerOrbitUtils.PI_2 - TrueAnomaly;
 				}
-				if (double.IsNaN(MeanAnomaly) || double.IsInfinity(MeanAnomaly))
-				{
-					Debug.Log("KeplerOrbitData: NaN(INF) MEAN ANOMALY"); //little paranoya
-					Debug.Break();
-				}
-				if (double.IsNaN(EccentricAnomaly) || double.IsInfinity(EccentricAnomaly))
-				{
-					Debug.Log("KeplerOrbitData: NaN(INF) ECC ANOMALY");
-					Debug.Break();
-				}
-				if (double.IsNaN(TrueAnomaly) || double.IsInfinity(TrueAnomaly))
-				{
-					Debug.Log("KeplerOrbitData: NaN(INF) TRUE ANOMALY");
-					Debug.Break();
-				}
+			}
+			else if (Eccentricity > 1.0)
+			{
+				MeanAnomaly      = MeanAnomaly + MeanMotion * deltaTime;
+				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
+				TrueAnomaly      = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1.0) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
 			}
 			else
 			{
-				MeanAnomaly = MeanAnomaly + MeanMotion * deltaTime;
-				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
-				TrueAnomaly = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1.0) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
+				MeanAnomaly      = MeanAnomaly + MeanMotion * deltaTime;
+				EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(MeanAnomaly, Eccentricity);
+				TrueAnomaly      = EccentricAnomaly;
 			}
 		}
 
@@ -825,7 +783,7 @@ namespace SimpleKeplerOrbits
 		/// <returns>Time, corresponding to current anomaly</returns>
 		public double GetCurrentOrbitTime()
 		{
-			if (Eccentricity < 1)
+			if (Eccentricity < 1.0)
 			{
 				if (Period > 0 && Period < double.PositiveInfinity)
 				{
@@ -834,8 +792,20 @@ namespace SimpleKeplerOrbits
 					{
 						anomaly = KeplerOrbitUtils.PI_2 - anomaly;
 					}
+
 					return anomaly / KeplerOrbitUtils.PI_2 * Period;
 				}
+
+				return 0.0;
+			}
+			else if (Eccentricity > 1.0)
+			{
+				var meanMotion = MeanMotion;
+				if (meanMotion > 0)
+				{
+					return MeanAnomaly / meanMotion;
+				}
+
 				return 0.0;
 			}
 			else
@@ -845,6 +815,7 @@ namespace SimpleKeplerOrbits
 				{
 					return MeanAnomaly / meanMotion;
 				}
+
 				return 0.0;
 			}
 		}
@@ -875,15 +846,16 @@ namespace SimpleKeplerOrbits
 			{
 				return;
 			}
+
 			e = Math.Abs(e);
 			double periapsis = PeriapsisDistance; // Periapsis remains constant
 			Eccentricity = e;
 			double compresion = Eccentricity < 1 ? (1 - Eccentricity * Eccentricity) : (Eccentricity * Eccentricity - 1);
-			SemiMajorAxis = Math.Abs(periapsis / (1 - Eccentricity));
+			SemiMajorAxis  = Math.Abs(periapsis / (1 - Eccentricity));
 			FocalParameter = SemiMajorAxis * compresion;
-			SemiMinorAxis = SemiMajorAxis * Math.Sqrt(compresion);
-			CenterPoint = SemiMajorAxis * Math.Abs(Eccentricity) * SemiMajorAxisBasis;
-			if (Eccentricity < 1)
+			SemiMinorAxis  = SemiMajorAxis * Math.Sqrt(compresion);
+			CenterPoint    = SemiMajorAxis * Math.Abs(Eccentricity) * SemiMajorAxisBasis;
+			if (Eccentricity < 1.0)
 			{
 				EccentricAnomaly = KeplerOrbitUtils.KeplerSolver(MeanAnomaly, Eccentricity);
 				double cosE = Math.Cos(EccentricAnomaly);
@@ -893,11 +865,17 @@ namespace SimpleKeplerOrbits
 					TrueAnomaly = KeplerOrbitUtils.PI_2 - TrueAnomaly;
 				}
 			}
-			else
+			else if (Eccentricity > 1.0)
 			{
 				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
-				TrueAnomaly = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
+				TrueAnomaly      = Math.Atan2(Math.Sqrt(Eccentricity * Eccentricity - 1) * Math.Sinh(EccentricAnomaly), Eccentricity - Math.Cosh(EccentricAnomaly));
 			}
+			else
+			{
+				EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(MeanAnomaly, Eccentricity);
+				TrueAnomaly      = EccentricAnomaly;
+			}
+
 			SetVelocityByCurrentAnomaly();
 			SetPositionByCurrentAnomaly();
 
@@ -914,21 +892,29 @@ namespace SimpleKeplerOrbits
 			{
 				return;
 			}
+
 			MeanAnomaly = m % KeplerOrbitUtils.PI_2;
-			if (Eccentricity < 1)
+			if (Eccentricity < 1.0)
 			{
 				if (MeanAnomaly < 0)
 				{
 					MeanAnomaly += KeplerOrbitUtils.PI_2;
 				}
+
 				EccentricAnomaly = KeplerOrbitUtils.KeplerSolver(MeanAnomaly, Eccentricity);
-				TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(EccentricAnomaly, Eccentricity);
+				TrueAnomaly      = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(EccentricAnomaly, Eccentricity);
+			}
+			else if (Eccentricity > 1.0)
+			{
+				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
+				TrueAnomaly      = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(EccentricAnomaly, Eccentricity);
 			}
 			else
 			{
-				EccentricAnomaly = KeplerOrbitUtils.KeplerSolverHyperbolicCase(MeanAnomaly, Eccentricity);
-				TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(EccentricAnomaly, Eccentricity);
+				EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(MeanAnomaly, Eccentricity);
+				TrueAnomaly      = EccentricAnomaly;
 			}
+
 			SetPositionByCurrentAnomaly();
 			SetVelocityByCurrentAnomaly();
 		}
@@ -943,22 +929,30 @@ namespace SimpleKeplerOrbits
 			{
 				return;
 			}
+
 			t %= KeplerOrbitUtils.PI_2;
 
-			if (Eccentricity < 1)
+			if (Eccentricity < 1.0)
 			{
 				if (t < 0)
 				{
 					t += KeplerOrbitUtils.PI_2;
 				}
+
 				EccentricAnomaly = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(t, Eccentricity);
-				MeanAnomaly = EccentricAnomaly - Eccentricity * Math.Sin(EccentricAnomaly);
+				MeanAnomaly      = EccentricAnomaly - Eccentricity * Math.Sin(EccentricAnomaly);
+			}
+			else if (Eccentricity > 1.0)
+			{
+				EccentricAnomaly = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(t, Eccentricity);
+				MeanAnomaly      = Math.Sinh(EccentricAnomaly) * Eccentricity - EccentricAnomaly;
 			}
 			else
 			{
 				EccentricAnomaly = KeplerOrbitUtils.ConvertTrueToEccentricAnomaly(t, Eccentricity);
-				MeanAnomaly = Math.Sinh(EccentricAnomaly) * Eccentricity - EccentricAnomaly;
+				MeanAnomaly      = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(EccentricAnomaly, Eccentricity);
 			}
+
 			SetPositionByCurrentAnomaly();
 			SetVelocityByCurrentAnomaly();
 		}
@@ -973,46 +967,35 @@ namespace SimpleKeplerOrbits
 			{
 				return;
 			}
+
 			e %= KeplerOrbitUtils.PI_2;
+
 			EccentricAnomaly = e;
-			if (Eccentricity < 1)
+
+			if (Eccentricity < 1.0)
 			{
 				if (e < 0)
 				{
 					e = KeplerOrbitUtils.PI_2 + e;
 				}
+
 				EccentricAnomaly = e;
+				TrueAnomaly      = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(e, Eccentricity);
+				MeanAnomaly      = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(e, Eccentricity);
+			}
+			else if (Eccentricity > 1.0)
+			{
 				TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(e, Eccentricity);
-				MeanAnomaly = EccentricAnomaly - Eccentricity * Math.Sin(EccentricAnomaly);
+				MeanAnomaly = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(e, Eccentricity);
 			}
 			else
 			{
 				TrueAnomaly = KeplerOrbitUtils.ConvertEccentricToTrueAnomaly(e, Eccentricity);
-				MeanAnomaly = Math.Sinh(EccentricAnomaly) * Eccentricity - EccentricAnomaly;
+				MeanAnomaly = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(e, Eccentricity);
 			}
+
 			SetPositionByCurrentAnomaly();
 			SetVelocityByCurrentAnomaly();
-		}
-
-		/// <summary>
-		/// Rotates the relative position and velocity by same quaternion.
-		/// </summary>
-		/// <param name="rotation">The rotation.</param>
-		public void RotateOrbit(Quaternion rotation)
-		{
-			Position = new Vector3d(rotation * ((Vector3)Position));
-			Velocity = new Vector3d(rotation * ((Vector3)Velocity));
-			CalculateOrbitStateFromOrbitalVectors();
-		}
-
-		public object Clone()
-		{
-			return MemberwiseClone();
-		}
-
-		public KeplerOrbitData CloneOrbit()
-		{
-			return (KeplerOrbitData)MemberwiseClone();
 		}
 	}
 }

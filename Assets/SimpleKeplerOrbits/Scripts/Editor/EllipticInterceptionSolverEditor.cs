@@ -38,6 +38,19 @@ namespace SimpleKeplerOrbits
 				_target.TargetDuration = _target.CurrentTransition.Duration;
 				EditorUtility.SetDirty(_target);
 			}
+
+			GUI.enabled = true;
+
+			if (_target.CurrentTransition == null)
+			{
+				GUI.enabled = false;
+			}
+
+			if (GUILayout.Button(new GUIContent( "Spawn body from current trajectory data", "Spawn body from template or default empty gameobject")))
+			{
+				_target.TrySpawnOrbitingBodyForCurrentTrajectory();
+			}
+
 			GUI.enabled = true;
 
 			if (!Application.isPlaying || _target.CurrentTransition == null)

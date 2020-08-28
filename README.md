@@ -4,20 +4,20 @@
 
 ## Description
 
-Unity3d project for simplest orbits simulation, using 2-body solution model.
+Unity3d project for simulating simple orbits using 2-body solution model.
 
 ## Importing
 
-This repository contains whole Unity Project for basic demonstration setup.
-There are multiple ways of importing project:
-- Manual copying of all files from Asset directory to your unity project directory;
-- Importing asset store package;
-- Importing 'src' branch as submodule, which contains only Assets folder content.
+This repository contains the entire Unity Project for basic demo setup.
+There are several ways to import the project:
+- Manually copy all files from Asset directory to your unity project directory;
+- Import asset store package;
+- Import of the 'src' branch as submodule, which contains only Assets folder content.
 
 ## Usage
 
 This plugin has the ability to customize orbits using the editor inspector and scripts.
-Scripting is fully optional. Some usage examples:
+Some scripting usage examples:
 
 #### Initializing orbit from orbit elements (JPL database supported)
 ```cs
@@ -61,7 +61,7 @@ This repository is closed for contributions.
 
 [Unity Asset Store]
 
-[Unity Asset Store]: https://www.assetstore.unity3d.com/en/#!/content/97048
+[Unity Asset Store]: https://assetstore.unity.com/packages/tools/physics/simple-kepler-orbits-97048
 ## License
 
 [MIT](LICENSE)

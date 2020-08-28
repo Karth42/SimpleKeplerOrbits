@@ -7,7 +7,9 @@ namespace SimpleKeplerOrbits
 	/// Component for moving game object in eliptic or hyperbolic path around attractor body.
 	/// </summary>
 	/// <seealso cref="UnityEngine.MonoBehaviour" />
-	[ExecuteInEditMode]
+	[ExecuteAlways]
+	[SelectionBase]
+	[DisallowMultipleComponent]
 	public class KeplerOrbitMover : MonoBehaviour
 	{
 		/// <summary>
@@ -50,7 +52,7 @@ namespace SimpleKeplerOrbits
 		/// </summary>
 		/// <remarks>
 		/// Internal orbit data uses double prevision vectors, but every update it is compared with unity scene vectors, which are float precision.
-		/// In result, if unity vectors precision is not enough for current values, then orbit become unstable (this effect also called Kraken).
+		/// In result, if unity vectors precision is not enough for current values, then orbit become unstable.
 		/// To avoid this issue, you can disable comparison, and then orbit motion will be nice and stable, but you will no longer be able to change orbit by moving objects in editor.
 		/// </remarks>
 		[Tooltip("Disable continious editing orbit in update loop, if you don't need it, or you need to fix Kraken issue on large scale orbits.")]
@@ -68,15 +70,15 @@ namespace SimpleKeplerOrbits
 
 		private bool IsReferencesAsigned
 		{
-			get
-			{
-				return AttractorSettings != null && AttractorSettings.AttractorObject != null;
-			}
+			get { return AttractorSettings != null && AttractorSettings.AttractorObject != null; }
 		}
 
 		private void OnEnable()
 		{
-			ForceUpdateOrbitData();
+			if (!LockOrbitEditing)
+			{
+				ForceUpdateOrbitData();
+			}
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
 			{
@@ -87,6 +89,7 @@ namespace SimpleKeplerOrbits
 			{
 				StopCoroutine(_updateRoutine);
 			}
+
 			_updateRoutine = StartCoroutine(OrbitUpdateLoop());
 		}
 
@@ -114,21 +117,23 @@ namespace SimpleKeplerOrbits
 			{
 				if (!LockOrbitEditing)
 				{
-					Vector3d position = new Vector3d(transform.position - AttractorSettings.AttractorObject.position);
+					var      pos      = transform.position - AttractorSettings.AttractorObject.position;
+					Vector3d position = new Vector3d(pos.x, pos.y, pos.z);
 
 					bool velocityHandleChanged = false;
 					if (VelocityHandle != null)
 					{
 						Vector3 velocity = GetVelocityHandleDisplayedVelocity();
-						if (velocity != (Vector3)OrbitData.Velocity)
+						if (velocity != new Vector3((float)OrbitData.Velocity.x, (float)OrbitData.Velocity.y, (float)OrbitData.Velocity.z))
 						{
 							velocityHandleChanged = true;
 						}
 					}
-					if ((Vector3)position != (Vector3)OrbitData.Position ||
-						velocityHandleChanged ||
-						OrbitData.GravConst != AttractorSettings.GravityConstant ||
-						OrbitData.AttractorMass != AttractorSettings.AttractorMass)
+
+					if (position != OrbitData.Position ||
+					    velocityHandleChanged ||
+					    OrbitData.GravConst != AttractorSettings.GravityConstant ||
+					    OrbitData.AttractorMass != AttractorSettings.AttractorMass)
 					{
 						ForceUpdateOrbitData();
 					}
@@ -188,6 +193,7 @@ namespace SimpleKeplerOrbits
 						ForceUpdateViewFromInternalState();
 					}
 				}
+
 				yield return null;
 			}
 		}
@@ -205,8 +211,8 @@ namespace SimpleKeplerOrbits
 		{
 			if (IsReferencesAsigned)
 			{
-				OrbitData.Position = new Vector3d(relativePosition);
-				OrbitData.Velocity = new Vector3d(velocity);
+				OrbitData.Position = new Vector3d((float)relativePosition.x, (float)relativePosition.y, (float)relativePosition.z);
+				OrbitData.Velocity = new Vector3d((float)velocity.x,         (float)velocity.y,         (float)velocity.z);
 				OrbitData.CalculateOrbitStateFromOrbitalVectors();
 				ForceUpdateViewFromInternalState();
 			}
@@ -219,7 +225,8 @@ namespace SimpleKeplerOrbits
 		[ContextMenu("Update transform from orbit state")]
 		public void ForceUpdateViewFromInternalState()
 		{
-			transform.position = AttractorSettings.AttractorObject.position + (Vector3)OrbitData.Position;
+			var pos = new Vector3((float)OrbitData.Position.x, (float)OrbitData.Position.y, (float)OrbitData.Position.z);
+			transform.position = AttractorSettings.AttractorObject.position + pos;
 			ForceUpdateVelocityHandleFromInternalState();
 		}
 
@@ -230,11 +237,12 @@ namespace SimpleKeplerOrbits
 		{
 			if (VelocityHandle != null)
 			{
-				Vector3 velocityRelativePosition = (Vector3)OrbitData.Velocity;
+				Vector3 velocityRelativePosition = new Vector3((float)OrbitData.Velocity.x, (float)OrbitData.Velocity.y, (float)OrbitData.Velocity.z);
 				if (VelocityHandleLenghtScale > 0 && !float.IsNaN(VelocityHandleLenghtScale) && !float.IsInfinity(VelocityHandleLenghtScale))
 				{
 					velocityRelativePosition *= VelocityHandleLenghtScale;
 				}
+
 				VelocityHandle.position = transform.position + velocityRelativePosition;
 			}
 		}
@@ -253,8 +261,10 @@ namespace SimpleKeplerOrbits
 				{
 					velocity /= VelocityHandleLenghtScale;
 				}
+
 				return velocity;
 			}
+
 			return new Vector3();
 		}
 
@@ -271,13 +281,17 @@ namespace SimpleKeplerOrbits
 			if (IsReferencesAsigned)
 			{
 				OrbitData.AttractorMass = AttractorSettings.AttractorMass;
-				OrbitData.GravConst = AttractorSettings.GravityConstant;
-				OrbitData.Position = new Vector3d(transform.position - AttractorSettings.AttractorObject.position);
+				OrbitData.GravConst     = AttractorSettings.GravityConstant;
+
+				// Possible loss of precision, may be a problem in some situations.
+				var pos = transform.position - AttractorSettings.AttractorObject.position;
+				OrbitData.Position = new Vector3d(pos.x, pos.y, pos.z);
 				if (VelocityHandle != null)
 				{
 					Vector3 velocity = GetVelocityHandleDisplayedVelocity();
-					OrbitData.Velocity = new Vector3d(velocity);
+					OrbitData.Velocity = new Vector3d(velocity.x, velocity.y, velocity.z);
 				}
+
 				OrbitData.CalculateOrbitStateFromOrbitalVectors();
 			}
 		}
@@ -290,7 +304,7 @@ namespace SimpleKeplerOrbits
 		{
 			if (IsReferencesAsigned)
 			{
-				OrbitData.Velocity = KeplerOrbitUtils.CalcCircleOrbitVelocity(Vector3d.zero, OrbitData.Position, OrbitData.AttractorMass, 1f, OrbitData.OrbitNormal, OrbitData.GravConst);
+				OrbitData.Velocity = KeplerOrbitUtils.CalcCircleOrbitVelocity(Vector3d.zero, OrbitData.Position, OrbitData.AttractorMass, OrbitData.OrbitNormal, OrbitData.GravConst);
 				OrbitData.CalculateOrbitStateFromOrbitalVectors();
 				ForceUpdateVelocityHandleFromInternalState();
 			}

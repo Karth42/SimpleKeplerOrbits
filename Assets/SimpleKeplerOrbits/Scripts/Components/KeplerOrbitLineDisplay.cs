@@ -7,7 +7,7 @@ namespace SimpleKeplerOrbits
 	/// </summary>
 	/// <seealso cref="UnityEngine.MonoBehaviour" />
 	[RequireComponent(typeof(KeplerOrbitMover))]
-	[ExecuteInEditMode]
+	[ExecuteAlways]
 	public class KeplerOrbitLineDisplay : MonoBehaviour
 	{
 		/// <summary>
@@ -28,21 +28,22 @@ namespace SimpleKeplerOrbits
 #if UNITY_EDITOR
 		[Header("Gizmo display options:")]
 		public bool ShowOrbitGizmoInEditor = true;
-		public bool ShowOrbitGizmoWhileInPlayMode = true;
-		public bool ShowVelocityGizmoInEditor = true;
+
+		public bool ShowOrbitGizmoWhileInPlayMode       = true;
+		public bool ShowVelocityGizmoInEditor           = true;
 		public bool ShowPeriapsisApoapsisGizmosInEditor = true;
-		public bool ShowAscendingNodeIneditor = true;
-		public bool ShowAxisGizmosInEditor = false;
+		public bool ShowAscendingNodeInEditor           = true;
+		public bool ShowAxisGizmosInEditor              = false;
 
 		[Range(0f, 1f)]
 		public float GizmosAlphaMain = 1f;
 
-		[Range(0f,1f)]
+		[Range(0f, 1f)]
 		public float GizmosAlphaSecondary = 0.3f;
 #endif
 
 		private KeplerOrbitMover _moverReference;
-		private Vector3[] _orbitPoints;
+		private Vector3d[]       _orbitPoints;
 
 		private void OnEnable()
 		{
@@ -60,14 +61,22 @@ namespace SimpleKeplerOrbits
 				return;
 			}
 #endif
-			if (LineRendererReference != null)
+			if (LineRendererReference != null && _moverReference.AttractorSettings.AttractorObject != null)
 			{
-				_moverReference.OrbitData.GetOrbitPointsNoAlloc(ref _orbitPoints, OrbitPointsCount, _moverReference.AttractorSettings.AttractorObject.position, MaxOrbitWorldUnitsDistance);
+				var attractorPosHalf = _moverReference.AttractorSettings.AttractorObject.position;
+
+				_moverReference.OrbitData.GetOrbitPointsNoAlloc(
+					ref _orbitPoints,
+					OrbitPointsCount,
+					new Vector3d(attractorPosHalf.x, attractorPosHalf.y, attractorPosHalf.z),
+					MaxOrbitWorldUnitsDistance);
 				LineRendererReference.positionCount = _orbitPoints.Length;
 				for (int i = 0; i < _orbitPoints.Length; i++)
 				{
-					LineRendererReference.SetPosition(i, _orbitPoints[i]);
+					var point = _orbitPoints[i];
+					LineRendererReference.SetPosition(i, new Vector3((float)point.x, (float)point.y, (float)point.z));
 				}
+
 				LineRendererReference.loop = _moverReference.OrbitData.Eccentricity < 1.0;
 			}
 		}
@@ -85,16 +94,19 @@ namespace SimpleKeplerOrbits
 						{
 							ShowVelocity();
 						}
+
 						ShowOrbit();
 						if (ShowPeriapsisApoapsisGizmosInEditor)
 						{
 							ShowNodes();
 						}
+
 						if (ShowAxisGizmosInEditor)
 						{
 							ShowAxis();
 						}
-						if (ShowAscendingNodeIneditor)
+
+						if (ShowAscendingNodeInEditor)
 						{
 							ShowAscNode();
 						}
@@ -106,13 +118,19 @@ namespace SimpleKeplerOrbits
 		private void ShowAxis()
 		{
 			if (GizmosAlphaSecondary <= 0) return;
-			Vector3 origin = _moverReference.AttractorSettings.AttractorObject.position + (Vector3)_moverReference.OrbitData.CenterPoint;
+			var origin = _moverReference.AttractorSettings.AttractorObject.position + new Vector3((float)_moverReference.OrbitData.CenterPoint.x, (float)_moverReference.OrbitData.CenterPoint.y,
+				(float)_moverReference.OrbitData.CenterPoint.z);
 			Gizmos.color = new Color(0, 1, 0.5f, GizmosAlphaSecondary);
-			Gizmos.DrawLine(origin, origin + (Vector3)_moverReference.OrbitData.SemiMajorAxisBasis);
+			var semiMajorAxis = new Vector3(
+				(float)_moverReference.OrbitData.SemiMajorAxisBasis.x,
+				(float)_moverReference.OrbitData.SemiMajorAxisBasis.y,
+				(float)_moverReference.OrbitData.SemiMajorAxisBasis.z);
+			Gizmos.DrawLine(origin, origin + semiMajorAxis);
 			Gizmos.color = new Color(1, 0.8f, 0.2f, GizmosAlphaSecondary);
-			Gizmos.DrawLine(origin, origin + (Vector3)_moverReference.OrbitData.SemiMinorAxisBasis);
+			Gizmos.DrawLine(origin,
+				origin + new Vector3((float)_moverReference.OrbitData.SemiMinorAxisBasis.x, (float)_moverReference.OrbitData.SemiMinorAxisBasis.y, (float)_moverReference.OrbitData.SemiMinorAxisBasis.z));
 			Gizmos.color = new Color(0.9f, 0.1f, 0.2f, GizmosAlphaSecondary);
-			Gizmos.DrawLine(origin, origin + (Vector3)_moverReference.OrbitData.OrbitNormal);
+			Gizmos.DrawLine(origin, origin + new Vector3((float)_moverReference.OrbitData.OrbitNormal.x, (float)_moverReference.OrbitData.OrbitNormal.y, (float)_moverReference.OrbitData.OrbitNormal.z));
 		}
 
 		private void ShowAscNode()
@@ -120,10 +138,10 @@ namespace SimpleKeplerOrbits
 			if (GizmosAlphaSecondary <= 0) return;
 			Vector3 origin = _moverReference.AttractorSettings.AttractorObject.position;
 			Gizmos.color = new Color(0.29f, 0.42f, 0.64f, GizmosAlphaSecondary);
-			Vector3 ascNode;
+			Vector3d ascNode;
 			if (_moverReference.OrbitData.GetAscendingNode(out ascNode))
 			{
-				Gizmos.DrawLine(origin, origin + ascNode);
+				Gizmos.DrawLine(origin, origin + new Vector3((float)ascNode.x, (float)ascNode.y, (float)ascNode.z));
 			}
 		}
 
@@ -131,21 +149,27 @@ namespace SimpleKeplerOrbits
 		{
 			if (GizmosAlphaSecondary <= 0) return;
 			Gizmos.color = new Color(1, 1, 1, GizmosAlphaSecondary);
-			Vector3 velocity = (Vector3)_moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.EccentricAnomaly);
+			var velocity = _moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.EccentricAnomaly);
 			if (_moverReference.VelocityHandleLenghtScale > 0)
 			{
 				velocity *= _moverReference.VelocityHandleLenghtScale;
 			}
-			Gizmos.DrawLine(transform.position, transform.position + velocity);
+
+			var pos = transform.position;
+			Gizmos.DrawLine(pos, pos + new Vector3((float)velocity.x, (float)velocity.y, (float)velocity.z));
 		}
 
 		private void ShowOrbit()
 		{
-			_moverReference.OrbitData.GetOrbitPointsNoAlloc(ref _orbitPoints, OrbitPointsCount, _moverReference.AttractorSettings.AttractorObject.position, MaxOrbitWorldUnitsDistance);
+			var attractorPosHalf = _moverReference.AttractorSettings.AttractorObject.position;
+			var attractorPos     = new Vector3d(attractorPosHalf.x, attractorPosHalf.y, attractorPosHalf.z);
+			_moverReference.OrbitData.GetOrbitPointsNoAlloc(ref _orbitPoints, OrbitPointsCount, attractorPos, MaxOrbitWorldUnitsDistance);
 			Gizmos.color = new Color(1, 1, 1, GizmosAlphaMain);
 			for (int i = 0; i < _orbitPoints.Length - 1; i++)
 			{
-				Gizmos.DrawLine(_orbitPoints[i], _orbitPoints[i + 1]);
+				var p1 = _orbitPoints[i];
+				var p2 = _orbitPoints[i + 1];
+				Gizmos.DrawLine(new Vector3((float)p1.x, (float)p1.y, (float)p1.z), new Vector3((float)p2.x, (float)p2.y, (float)p2.z));
 			}
 		}
 
@@ -153,15 +177,19 @@ namespace SimpleKeplerOrbits
 		{
 			if (GizmosAlphaSecondary <= 0) return;
 			if (!_moverReference.OrbitData.IsValidOrbit) return;
+
 			Gizmos.color = new Color(0.9f, 0.4f, 0.2f, GizmosAlphaSecondary);
-			Vector3 point = _moverReference.AttractorSettings.AttractorObject.position + (Vector3)_moverReference.OrbitData.Periapsis;
-			Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, point);
+			var     periapsis    = new Vector3((float)_moverReference.OrbitData.Periapsis.x, (float)_moverReference.OrbitData.Periapsis.y, (float)_moverReference.OrbitData.Periapsis.z);
+			var     attractorPos = _moverReference.AttractorSettings.AttractorObject.position;
+			Vector3 point        = attractorPos + periapsis;
+			Gizmos.DrawLine(attractorPos, point);
 
 			if (_moverReference.OrbitData.Eccentricity < 1)
 			{
 				Gizmos.color = new Color(0.2f, 0.4f, 0.78f, GizmosAlphaSecondary);
-				point = _moverReference.AttractorSettings.AttractorObject.position + (Vector3)_moverReference.OrbitData.Apoapsis;
-				Gizmos.DrawLine(_moverReference.AttractorSettings.AttractorObject.position, point);
+				var apoapsis = new Vector3((float)_moverReference.OrbitData.Apoapsis.x, (float)_moverReference.OrbitData.Apoapsis.y, (float)_moverReference.OrbitData.Apoapsis.z);
+				point = _moverReference.AttractorSettings.AttractorObject.position + apoapsis;
+				Gizmos.DrawLine(attractorPos, point);
 			}
 		}
 
@@ -171,8 +199,8 @@ namespace SimpleKeplerOrbits
 			if (LineRendererReference == null)
 			{
 				LineRendererReference = GetComponent<LineRenderer>();
+#endif
 			}
 		}
-#endif
 	}
 }
