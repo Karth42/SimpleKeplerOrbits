@@ -199,7 +199,6 @@ namespace SimpleKeplerOrbits.Examples
 			List<JPLElementsData> spawnOrder = new List<JPLElementsData>(inputData);
 			ClearAllInstances();
 			bool isAnySpawned = true;
-			Transform mainAttractor = null;
 
 			while (spawnOrder.Count > 0 && isAnySpawned)
 			{
@@ -217,7 +216,7 @@ namespace SimpleKeplerOrbits.Examples
 					bool isAttractorSpawned = string.IsNullOrEmpty(attractorName) || _spawnedInstances.Any(Predicate);
 					if (isAttractorSpawned)
 					{
-						KeplerOrbitMover body = SpawnBody(spawnItem, attractorName, ref mainAttractor);
+						KeplerOrbitMover body = SpawnBody(spawnItem, attractorName);
 						spawnOrder.RemoveAt(0);
 						i--;
 						_spawnedInstances.Add(body);
@@ -250,7 +249,7 @@ namespace SimpleKeplerOrbits.Examples
 			return result;
 		}
 
-		private KeplerOrbitMover SpawnBody(JPLElementsData data, string attractorName, ref Transform mainAttractor)
+		private KeplerOrbitMover SpawnBody(JPLElementsData data, string attractorName)
 		{
 			KeplerOrbitMover attractor = FindBodyInstance(attractorName);
 			KeplerOrbitMover body      = Instantiate(BodyTemplate, parent: attractor == null ? null : attractor.transform);
@@ -264,13 +263,6 @@ namespace SimpleKeplerOrbits.Examples
 			if (attractor != null)
 			{
 				body.AttractorSettings.AttractorMass = data.AttractorMass;
-			}
-			else
-			{
-				if (mainAttractor == null)
-				{
-					mainAttractor = bodyTransform;
-				}
 			}
 
 			double unitsPerAU = UnitsPerAU;
