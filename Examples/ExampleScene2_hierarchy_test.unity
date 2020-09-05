@@ -54,7 +54,7 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 1
   m_LightmapEditorSettings:
-    serializedVersion: 10
+    serializedVersion: 12
     m_Resolution: 2
     m_BakeResolution: 40
     m_AtlasSize: 1024
@@ -62,6 +62,7 @@ LightmapSettings:
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
     m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
     m_Padding: 2
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
@@ -76,10 +77,16 @@ LightmapSettings:
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
     m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 500
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 2
+    m_PVRDenoiserTypeDirect: 0
+    m_PVRDenoiserTypeIndirect: 0
+    m_PVRDenoiserTypeAO: 0
     m_PVRFilterTypeDirect: 0
     m_PVRFilterTypeIndirect: 0
     m_PVRFilterTypeAO: 0
-    m_PVRFilteringMode: 1
+    m_PVREnvironmentMIS: 0
     m_PVRCulling: 1
     m_PVRFilteringGaussRadiusDirect: 1
     m_PVRFilteringGaussRadiusIndirect: 5
@@ -87,7 +94,9 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaDirect: 0.5
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
-    m_ShowResolutionOverlay: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -122,7 +131,6 @@ GameObject:
   m_Component:
   - component: {fileID: 263554798}
   - component: {fileID: 263554797}
-  - component: {fileID: 263554796}
   - component: {fileID: 263554795}
   - component: {fileID: 263554794}
   m_Layer: 0
@@ -148,14 +156,6 @@ Behaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
   m_Enabled: 1
---- !u!92 &263554796
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 263554793}
-  m_Enabled: 1
 --- !u!20 &263554797
 Camera:
   m_ObjectHideFlags: 0
@@ -165,12 +165,13 @@ Camera:
   m_GameObject: {fileID: 263554793}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_GateFitMode: 2
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -205,13 +206,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263554793}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.28852293, y: -0, z: -0, w: 0.957473}
+  m_LocalPosition: {x: 0, y: 23, z: 65.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 33.539, y: 0, z: 0}
 --- !u!1 &465941007
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,12 +238,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465941007}
   m_Enabled: 1
-  serializedVersion: 8
+  serializedVersion: 10
   m_Type: 1
+  m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -252,6 +255,24 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
@@ -259,12 +280,15 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &465941009
@@ -385,6 +409,7 @@ GameObject:
   - component: {fileID: 1203570372}
   - component: {fileID: 1203570371}
   - component: {fileID: 1203570370}
+  - component: {fileID: 1203570375}
   m_Layer: 0
   m_Name: Sphere (2)
   m_TagString: Untagged
@@ -422,12 +447,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OrbitPointsCount: 50
   MaxOrbitWorldUnitsDistance: 1000
-  LineRendererReference: {fileID: 0}
+  LineRendererReference: {fileID: 1203570375}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 1
-  ShowAscendingNodeIneditor: 1
+  ShowAscendingNodeInEditor: 1
   ShowAxisGizmosInEditor: 0
   GizmosAlphaMain: 1
   GizmosAlphaSecondary: 0.3
@@ -452,18 +477,6 @@ MonoBehaviour:
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
-    EclipticNormal:
-      x: 0
-      y: 0
-      z: 1
-    EclipticUp:
-      x: 0
-      y: 1
-      z: 0
-    EclipticRight:
-      x: 1
-      y: 0
-      z: 0
     Position:
       x: -35.32971954345703
       y: -9.795215606689453
@@ -479,12 +492,11 @@ MonoBehaviour:
     SemiMajorAxis: 48.02488400709709
     FocalParameter: 47.0436087323025
     Eccentricity: 0.1429427936841801
-    EnergyTotal: -2.0822538889492828
     Period: 209.11219080514454
     TrueAnomaly: 1.9882712190144431
     MeanAnomaly: 1.7159151351862627
     EccentricAnomaly: 1.8531958986116115
-    SquaresConstant: 0
+    MeanMotion: 0.03004695844363476
     Periapsis:
       x: -14.088113800070783
       y: 2.2497616716065205
@@ -528,6 +540,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -539,6 +552,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -572,6 +586,103 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203570368}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!120 &1203570375
+LineRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1203570368}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 0
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Positions:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 1}
+  m_Parameters:
+    serializedVersion: 3
+    widthMultiplier: 0.1
+    widthCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    numCornerVertices: 0
+    numCapVertices: 0
+    alignment: 0
+    textureMode: 0
+    shadowBias: 0.5
+    generateLightingData: 0
+  m_UseWorldSpace: 1
+  m_Loop: 0
 --- !u!1 &1400993288
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,6 +792,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -692,6 +804,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -769,6 +882,7 @@ GameObject:
   - component: {fileID: 1706961761}
   - component: {fileID: 1706961760}
   - component: {fileID: 1706961759}
+  - component: {fileID: 1706961764}
   m_Layer: 0
   m_Name: Sphere (1)
   m_TagString: Untagged
@@ -806,12 +920,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OrbitPointsCount: 50
   MaxOrbitWorldUnitsDistance: 1000
-  LineRendererReference: {fileID: 0}
+  LineRendererReference: {fileID: 1706961764}
   ShowOrbitGizmoInEditor: 1
   ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 1
-  ShowAscendingNodeIneditor: 1
+  ShowAscendingNodeInEditor: 1
   ShowAxisGizmosInEditor: 0
   GizmosAlphaMain: 1
   GizmosAlphaSecondary: 0.3
@@ -836,18 +950,6 @@ MonoBehaviour:
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
-    EclipticNormal:
-      x: 0
-      y: 0
-      z: 1
-    EclipticUp:
-      x: 0
-      y: 1
-      z: 0
-    EclipticRight:
-      x: 1
-      y: 0
-      z: 0
     Position:
       x: 30.499980926513672
       y: 7.904108047485352
@@ -863,12 +965,11 @@ MonoBehaviour:
     SemiMajorAxis: 141.28557159038797
     FocalParameter: 141.2852232304464
     Eccentricity: 0.0015702369692070586
-    EnergyTotal: -0.7077863674574918
     Period: 1055.1800816486395
     TrueAnomaly: 0.004828248984089222
     MeanAnomaly: 0.004813103891094454
     EccentricAnomaly: 0.004820673461461966
-    SquaresConstant: 0
+    MeanMotion: 0.005954609470416269
     Periapsis:
       x: 31.164551120472016
       y: 7.904016061868139
@@ -912,6 +1013,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -923,6 +1025,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -956,6 +1059,103 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706961757}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!120 &1706961764
+LineRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706961757}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 0
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Positions:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 1}
+  m_Parameters:
+    serializedVersion: 3
+    widthMultiplier: 0.1
+    widthCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    numCornerVertices: 0
+    numCapVertices: 0
+    alignment: 0
+    textureMode: 0
+    shadowBias: 0.5
+    generateLightingData: 0
+  m_UseWorldSpace: 1
+  m_Loop: 0
 --- !u!1 &1743455983
 GameObject:
   m_ObjectHideFlags: 0
@@ -1012,7 +1212,7 @@ MonoBehaviour:
   ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 1
-  ShowAscendingNodeIneditor: 1
+  ShowAscendingNodeInEditor: 1
   ShowAxisGizmosInEditor: 0
   GizmosAlphaMain: 1
   GizmosAlphaSecondary: 0.3
@@ -1037,66 +1237,53 @@ MonoBehaviour:
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
-    EclipticNormal:
-      x: 0
-      y: 0
-      z: 1
-    EclipticUp:
-      x: 0
-      y: 1
-      z: 0
-    EclipticRight:
-      x: 1
-      y: 0
-      z: 0
     Position:
-      x: -0.9599909782409668
+      x: -0.9599905014038086
       y: 0
       z: -0.33998870849609375
-    AttractorDistance: 1.0184178907545223
+    AttractorDistance: 1.0184174412736546
     AttractorMass: 1000
     Velocity:
-      x: -3.308152198791504
+      x: -3.3081531524658203
       y: 0
       z: 9.340568542480469
     MG: 100.00000149011612
-    SemiMinorAxis: 1.0184030683275094
-    SemiMajorAxis: 1.0184030684941594
-    FocalParameter: 1.0184030681608591
-    Eccentricity: 0.000018090807098937387
-    EnergyTotal: -98.19294990732803
-    Period: 0.6457425641906466
-    TrueAnomaly: 2.505673782153707
-    MeanAnomaly: 2.5056522930426075
-    EccentricAnomaly: 2.5056630376372517
-    SquaresConstant: 0
+    SemiMinorAxis: 1.0184022348290476
+    SemiMajorAxis: 1.0184022350006436
+    FocalParameter: 1.0184022346574513
+    Eccentricity: 0.000018357311434763385
+    Period: 0.6457417714463787
+    TrueAnomaly: 2.520748806922385
+    MeanAnomaly: 2.5207274489888243
+    EccentricAnomaly: 2.5207381279954673
+    MeanMotion: 9.73018253582399
     Periapsis:
-      x: 0.9742312625615654
+      x: 0.978590862901
       y: 0
-      z: -0.29661546104691167
-    PeriapsisDistance: 1.0183846447606983
+      z: -0.2818952949807112
+    PeriapsisDistance: 1.0183835398736498
     Apoapsis:
-      x: -0.974266512458946
+      x: -0.9786267921550394
       y: -0
-      z: 0.2966261932672429
-    ApoapsisDistance: 1.0184214922276205
+      z: 0.2819056448501509
+    ApoapsisDistance: 1.0184209301276375
     CenterPoint:
-      x: -0.000017624948690302385
+      x: -0.000017964627019740504
       y: -0
-      z: 0.0000053661101656259325
-    OrbitCompressionRatio: 0.9999999996727227
+      z: 0.000005174934719843714
+    OrbitCompressionRatio: 0.9999999996630091
     OrbitNormal:
       x: 0
       y: 1
       z: 0
     SemiMinorAxisBasis:
-      x: 0.2912607358849276
+      x: 0.2768066096351928
       y: -0
-      z: 0.9566437078305435
+      z: 0.9609256479365457
     SemiMajorAxisBasis:
-      x: 0.9566437078305436
+      x: 0.9609256479365457
       y: 0
-      z: -0.2912607358849277
+      z: -0.2768066096351928
     OrbitNormalDotEclipticNormal: 0
   LockOrbitEditing: 0
 --- !u!23 &1743455987
@@ -1113,6 +1300,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1124,6 +1312,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1213,7 +1402,7 @@ MonoBehaviour:
   ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 1
-  ShowAscendingNodeIneditor: 1
+  ShowAscendingNodeInEditor: 1
   ShowAxisGizmosInEditor: 0
   GizmosAlphaMain: 1
   GizmosAlphaSecondary: 0.3
@@ -1238,18 +1427,6 @@ MonoBehaviour:
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
-    EclipticNormal:
-      x: 0
-      y: 0
-      z: 1
-    EclipticUp:
-      x: 0
-      y: 1
-      z: 0
-    EclipticRight:
-      x: 1
-      y: 0
-      z: 0
     Position:
       x: -4.899998664855957
       y: 0.6186021566390991
@@ -1265,12 +1442,11 @@ MonoBehaviour:
     SemiMajorAxis: 11.080854399536818
     FocalParameter: 11.08082741072095
     Eccentricity: 0.001560649188912046
-    EnergyTotal: -9.024574990742241
     Period: 23.176066997839854
     TrueAnomaly: 0.000271081680611911
     MeanAnomaly: 0.00027023654276370576
     EccentricAnomaly: 0.0002706589464237565
-    SquaresConstant: 0
+    MeanMotion: 0.2711066251131061
     Periapsis:
       x: -4.897310574750616
       y: 0.6186021339454408
@@ -1314,6 +1490,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1325,6 +1502,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1398,7 +1576,7 @@ MonoBehaviour:
   ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 1
-  ShowAscendingNodeIneditor: 1
+  ShowAscendingNodeInEditor: 1
   ShowAxisGizmosInEditor: 0
   GizmosAlphaMain: 1
   GizmosAlphaSecondary: 0.3
@@ -1423,66 +1601,53 @@ MonoBehaviour:
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
-    EclipticNormal:
-      x: 0
-      y: 0
-      z: 1
-    EclipticUp:
-      x: 0
-      y: 1
-      z: 0
-    EclipticRight:
-      x: 1
-      y: 0
-      z: 0
     Position:
-      x: 0.2440013885498047
+      x: 0.24399852752685547
       y: 0
       z: -0.2029876708984375
-    AttractorDistance: 0.3173967109958847
+    AttractorDistance: 0.3173945115657264
     AttractorMass: 1000
     Velocity:
-      x: -11.352084159851074
+      x: -11.352082252502441
       y: 0
       z: -13.645156860351562
     MG: 100.00000149011612
-    SemiMinorAxis: 0.31739367829349213
-    SemiMajorAxis: 0.31739367838696714
-    FocalParameter: 0.3173936782000171
-    Eccentricity: 0.00002426965457924041
-    EnergyTotal: -315.06614119830033
-    Period: 0.11235108579894375
-    TrueAnomaly: 4.307724169579325
-    MeanAnomaly: 4.307768788902621
-    EccentricAnomaly: 4.30774647918769
-    SquaresConstant: 0
+    SemiMinorAxis: 0.3173892359308811
+    SemiMajorAxis: 0.3173892360177325
+    FocalParameter: 0.3173892358440297
+    Eccentricity: 0.000023394150706942077
+    Period: 0.11234872704090323
+    TrueAnomaly: 3.922154667436132
+    MeanAnomaly: 3.9221875917847906
+    EccentricAnomaly: 3.922171129542062
+    MeanMotion: 55.92573652296084
     Periapsis:
-      x: -0.28264963904207097
+      x: -0.31619086559553217
       y: 0
-      z: -0.1443711844501683
-    PeriapsisDistance: 0.31738597535202706
+      z: -0.027469081638765925
+    PeriapsisDistance: 0.31738181096611234
     Apoapsis:
-      x: 0.28266335899326245
+      x: 0.31620565997515787
       y: -0
-      z: 0.14437819229780194
-    ApoapsisDistance: 0.3174013814219072
+      z: 0.02747036690050481
+    ApoapsisDistance: 0.31739666106935266
     CenterPoint:
-      x: 0.0000068599755957361776
+      x: 0.0000073971898128736365
       y: -0
-      z: 0.0000035039238168220955
-    OrbitCompressionRatio: 0.9999999994109838
+      z: 0.0000006426308694419941
+    OrbitCompressionRatio: 0.9999999994527137
     OrbitNormal:
       x: 0
       y: 1
       z: 0
     SemiMinorAxisBasis:
-      x: 0.45487575274880915
+      x: 0.08654901033915541
       y: 0
-      z: -0.8905549110308719
+      z: -0.9962475941297488
     SemiMajorAxisBasis:
-      x: -0.890554911030872
+      x: -0.9962475941297488
       y: 0
-      z: -0.4548757527488092
+      z: -0.08654901033915541
     OrbitNormalDotEclipticNormal: 0
   LockOrbitEditing: 0
 --- !u!23 &1875600059
@@ -1499,6 +1664,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1510,6 +1676,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1644,7 +1811,7 @@ MonoBehaviour:
   ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 1
-  ShowAscendingNodeIneditor: 1
+  ShowAscendingNodeInEditor: 1
   ShowAxisGizmosInEditor: 0
   GizmosAlphaMain: 1
   GizmosAlphaSecondary: 0.3
@@ -1669,18 +1836,6 @@ MonoBehaviour:
   TimeScale: 1
   OrbitData:
     GravConst: 0.10000000149011612
-    EclipticNormal:
-      x: 0
-      y: 0
-      z: 1
-    EclipticUp:
-      x: 0
-      y: 1
-      z: 0
-    EclipticRight:
-      x: 1
-      y: 0
-      z: 0
     Position:
       x: 2.130422592163086
       y: 0
@@ -1696,12 +1851,11 @@ MonoBehaviour:
     SemiMajorAxis: 4.836075395255788
     FocalParameter: 4.738900801590327
     Eccentricity: 0.1417522089057696
-    EnergyTotal: -20.67792441536718
     Period: 6.682199838902309
     TrueAnomaly: 1.3542251201785331
     MeanAnomaly: 1.084401429836905
     EccentricAnomaly: 1.21739341238156
-    SquaresConstant: 0
+    MeanMotion: 0.9402869502046717
     Periapsis:
       x: 4.005565251497022
       y: 0
@@ -1745,6 +1899,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1756,6 +1911,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0

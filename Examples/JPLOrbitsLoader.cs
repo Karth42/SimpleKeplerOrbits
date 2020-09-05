@@ -8,6 +8,7 @@ namespace SimpleKeplerOrbits.Examples
 	/// <summary>
 	/// Controller for spawning bodies by orbital elements values. Supports JPL database input.
 	/// </summary>
+	[RequireComponent(typeof(SpawnNotifier))]
 	public class JPLOrbitsLoader : MonoBehaviour
 	{
 		[Serializable]
@@ -24,7 +25,8 @@ namespace SimpleKeplerOrbits.Examples
 		{
 			public string BodyName;
 			public string AttractorName;
-			public float AttractorMass;
+			public float  AttractorMass;
+
 			/// <summary>
 			/// Eccentricity.
 			/// </summary>
@@ -60,6 +62,27 @@ namespace SimpleKeplerOrbits.Examples
 			/// </summary>
 			[Tooltip("Semi-major axis")]
 			public double A;
+
+			/// <summary>
+			/// Diameter for the body transform scale calulation.
+			/// Scale is logarithmic.
+			/// </summary>
+			public double Diameter = 1;
+
+			/// <summary>
+			/// Distance multiplier;
+			/// </summary>
+			public double RangeMlt = 1;
+
+			/// <summary>
+			/// Material tint color.
+			/// </summary>
+			public Color Color = Color.white;
+
+			/// <summary>
+			/// Custom type param. Used to switch mesh material for body.
+			/// </summary>
+			public int Type = 0;
 		}
 
 		public enum LoadingType
@@ -76,9 +99,27 @@ namespace SimpleKeplerOrbits.Examples
 		public double GConstant = 100;
 
 		/// <summary>
-		/// Scale multiplier: world units per 1 au.
+		/// Orbit scale multiplier: world units per 1 au.
 		/// </summary>
 		public float UnitsPerAU = 1f;
+
+		/// <summary>
+		/// Body scale multiplier: world scale unit per diameter unit.
+		/// </summary>
+		public float ScalePerDiameter = 1f;
+
+		/// <summary>
+		/// Each body can have it's own multiplier value for semi major axis for better visualization.
+		/// </summary>
+		public bool IsAllowedRangeScaleMltPerBody = true;
+
+		/// <summary>
+		/// Astronomical unit in SI units.
+		/// </summary>
+		/// <remarks>
+		/// Used to calculate real scale orbit periods.
+		/// </remarks>
+		public double AU = 1.495978707e11;
 
 		public KeplerOrbitMover BodyTemplate;
 
@@ -86,8 +127,14 @@ namespace SimpleKeplerOrbits.Examples
 
 		public JPLElementsData[] ElementsTable;
 
+		public Material MainAttractorMaterial;
+
+		private readonly List<KeplerOrbitMover> _spawnedInstances = new List<KeplerOrbitMover>(20);
+		private SpawnNotifier _spawnNotifier;
+
 		private void Start()
 		{
+			_spawnNotifier = GetComponent<SpawnNotifier>();
 			switch (LoadingDataSource)
 			{
 				case LoadingType.Json:
@@ -137,7 +184,7 @@ namespace SimpleKeplerOrbits.Examples
 				}
 			}
 		}
-		
+
 		private void SpawnAll(JPLElementsData[] inputData)
 		{
 			// Spawn all bodies in multiple passes to resolve parent-child connections.
@@ -146,61 +193,30 @@ namespace SimpleKeplerOrbits.Examples
 
 			if (inputData == null || inputData.Length == 0) return;
 			List<JPLElementsData> spawnOrder = new List<JPLElementsData>(inputData);
-			List<KeplerOrbitMover> spawnedInstances = new List<KeplerOrbitMover>();
-
-			if (GameObject.FindObjectsOfType<Transform>().Length > 5)
-			{
-				Debug.Log("Warning! too many object on scene. Don't forget to remove old spawned object before spawning new pass");
-			}
-
+			ClearAllInstances();
 			bool isAnySpawned = true;
+
 			while (spawnOrder.Count > 0 && isAnySpawned)
 			{
 				isAnySpawned = false;
 				for (int i = 0; i < spawnOrder.Count; i++)
 				{
-					var attractorName = spawnOrder[0].AttractorName != null ? spawnOrder[0].AttractorName.Trim() : "";
-					bool isAttractorSpawned = 
-						string.IsNullOrEmpty(attractorName)
-						?true
-						:spawnedInstances.Any(s => s.name == attractorName);
+					var spawnItem     = spawnOrder[0];
+					var attractorName = spawnItem.AttractorName != null ? spawnItem.AttractorName.Trim() : "";
+
+					bool Predicate(KeplerOrbitMover s)
+					{
+						return s.name == attractorName;
+					}
+
+					bool isAttractorSpawned = string.IsNullOrEmpty(attractorName) || _spawnedInstances.Any(Predicate);
 					if (isAttractorSpawned)
 					{
-						KeplerOrbitMover attractor = string.IsNullOrEmpty(attractorName)
-							? null
-							: spawnedInstances.First(s => s.name == attractorName);
-						KeplerOrbitMover body = Instantiate(BodyTemplate, parent: attractor == null ? null : attractor.transform);
-						if (!string.IsNullOrEmpty(spawnOrder[0].BodyName))
-						{
-							body.name = spawnOrder[0].BodyName.Trim();
-						}
-						if (attractor != null)
-						{
-							body.AttractorSettings.AttractorMass = spawnOrder[0].AttractorMass;
-						}
-						body.AttractorSettings.GravityConstant = (float)GConstant;
-						body.AttractorSettings.AttractorObject = attractor == null ? null : attractor.transform;
-						body.OrbitData = new KeplerOrbitData(
-							eccentricity: spawnOrder[i].EC,
-							semiMajorAxis: spawnOrder[i].A * UnitsPerAU,
-							meanAnomalyDeg: spawnOrder[i].MA,
-							inclinationDeg: spawnOrder[i].IN,
-							argOfPerifocusDeg: spawnOrder[i].W,
-							ascendingNodeDeg: spawnOrder[i].OM,
-							attractorMass: body.AttractorSettings.AttractorMass,
-							gConst: GConstant);
-						if (attractor != null)
-						{
-							body.ForceUpdateViewFromInternalState();
-						}
-						else
-						{
-							body.enabled = false;
-						}
-						body.gameObject.SetActive(true);
+						KeplerOrbitMover body = SpawnBody(spawnItem, attractorName);
 						spawnOrder.RemoveAt(0);
 						i--;
-						spawnedInstances.Add(body);
+						_spawnedInstances.Add(body);
+						_spawnNotifier.NotifyBodySpawned(body);
 						isAnySpawned = true;
 					}
 					else
@@ -209,10 +225,109 @@ namespace SimpleKeplerOrbits.Examples
 					}
 				}
 			}
+
 			if (!isAnySpawned && spawnOrder.Count > 0)
 			{
 				Debug.LogError("Couldn't spawn " + spawnOrder.Count + " because assigned attractor was not found");
 			}
+		}
+
+		private KeplerOrbitMover FindBodyInstance(string str)
+		{
+			bool FindPredicate(KeplerOrbitMover s)
+			{
+				return s.name == str;
+			}
+
+			var result = string.IsNullOrEmpty(str)
+				? null
+				: _spawnedInstances.First(FindPredicate);
+			return result;
+		}
+
+		private KeplerOrbitMover SpawnBody(JPLElementsData data, string attractorName)
+		{
+			KeplerOrbitMover attractor = FindBodyInstance(attractorName);
+			KeplerOrbitMover body      = Instantiate(BodyTemplate, parent: attractor == null ? null : attractor.transform);
+			if (!string.IsNullOrEmpty(data.BodyName))
+			{
+				body.name = data.BodyName.Trim();
+			}
+
+			Transform bodyTransform = body.transform;
+
+			if (attractor != null)
+			{
+				body.AttractorSettings.AttractorMass = data.AttractorMass;
+			}
+
+			double unitsPerAU = UnitsPerAU;
+			if (IsAllowedRangeScaleMltPerBody)
+			{
+				// By default MLT value is 1,
+				// but for moons it may be larger than 1 for better visualization.
+				unitsPerAU *= data.RangeMlt;
+			}
+
+			// G constant is used as free parameter to fixate orbits periods values while SemiMajor axis parameter is adjusted for the scene.
+			double compensatedGConst = GConstant / Math.Pow(AU / unitsPerAU, 3d);
+
+			body.AttractorSettings.GravityConstant = (float)compensatedGConst;
+			body.AttractorSettings.AttractorObject = attractor == null ? null : attractor.transform;
+			body.OrbitData = new KeplerOrbitData(
+				eccentricity: data.EC,
+				semiMajorAxis: data.A * unitsPerAU,
+				meanAnomalyDeg: data.MA,
+				inclinationDeg: data.IN,
+				argOfPerifocusDeg: data.W,
+				ascendingNodeDeg: data.OM,
+				attractorMass: body.AttractorSettings.AttractorMass,
+				gConst: compensatedGConst);
+			if (attractor != null && data.A > 0)
+			{
+				body.ForceUpdateViewFromInternalState();
+			}
+			else
+			{
+				body.enabled = false;
+			}
+
+			var mat = data.Type == 1 ? MainAttractorMaterial : null;
+			SetBodyColorAndDiameter(bodyTransform, data.Color, mat, (float)data.Diameter, ScalePerDiameter);
+			body.gameObject.SetActive(true);
+			return body;
+		}
+
+		private static void SetBodyColorAndDiameter(Transform body, Color col, Material mat, float diameter, float scaleMlt)
+		{
+			var renderer = body.GetComponentInChildren<MeshRenderer>();
+			if (renderer != null)
+			{
+				renderer.material       = mat;
+				renderer.material.color = col;
+				if (diameter <= 0)
+				{
+					renderer.enabled = false;
+				}
+				else
+				{
+					var scale = Mathf.Log10(diameter + 1.3f) * scaleMlt;
+					renderer.transform.localScale = new Vector3(scale, scale, scale);
+				}
+			}
+		}
+
+		private void ClearAllInstances()
+		{
+			foreach (var item in _spawnedInstances)
+			{
+				if (item != null)
+				{
+					Destroy(item.gameObject);
+				}
+			}
+
+			_spawnedInstances.Clear();
 		}
 	}
 }

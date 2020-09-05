@@ -2,15 +2,15 @@
 
 ## First usage guide
 
-	* Create new object, which will be attractor.
-	* Create other object, which will be orbiting body.
-	* Create third object, which will be velocity handle helper object.
-	* Attach KeplerOrbitMover component to orbiting body object.
-	* Assign attractor object to AttractorObject field inside KeplerOrbitMover component.
-	* Assign velocity helper object to VelocityHandler field inside KeplerOrbitMover.
-	* Attach KeplerOrbitLineDisplay component to orbiting body object to be able to see orbit curve.
+	* Create new object which will be attractor.
+	* Create other object which will be orbiting body.
+	* Create third object which will be velocity handle helper object.
+	* Attach KeplerOrbitMover component to the orbiting body object.
+	* Assign attractor object reference to the AttractorObject field inside the KeplerOrbitMover component.
+	* Assign the velocity helper object to the VelocityHandler field inside the KeplerOrbitMover component.
+	* (optional) Attach KeplerOrbitLineDisplay component to the orbiting body object to be able to see orbit path curve.
 	* Move orbiting body and velocity helper in scene window and notice how orbit curve changes.
-	* If you hit play, body will start moving along orbit curve around attractor body.
+	* If you hit play, body will start moving along orbit curve around the attractor body.
 
 ## Repository
 
@@ -18,22 +18,20 @@ https://github.com/Karth42/SimpleKeplerOrbits
 
 ## Components
 
-	* KeplerOrbitMover - component for making object affected by simulation.
+	* KeplerOrbitMover - component that simulates orbit motion for game object.
 	It contains main settings and orbit state.
 
 	* KeplerOrbitLineDisplay - component for displaying orbit path
 	via customizable LineRenderer object or via editor Gizmos.
 
+	* EllipticInterceptionSolver - component for calculation transfer
+	orbit between two orbiting bodies.
+
 ## Scripting
 
-This plugin is designed to be customizable via editor inspector and via scripting. 
-Scripting part is not mandatory for functionality, but it provides some additional flexibility for customization.
-
-Main MonoBehaviour component, KeplerOrbitMover, is just an lightweight adapter between unity scene and KeplerOrbitData container. 
-KeplerOrbitData container struct contains full orbit state and all orbit handling logic and can be used in scripts even without KeplerOrbitMover in different situations.
+Main MonoBehaviour component, KeplerOrbitMover, is just an lightweight adapter between the unity scene and the KeplerOrbitData container. 
+The KeplerOrbitData container struct contains full orbit state and all orbit handling logic and can be used in scripts even without KeplerOrbitMover in different situations.
 This document, however, will give examples only for KeplerOrbitData in pair with KeplerOrbitMover situations.
-
-For detailed algorithms description see [Concept](Docs/Concept.odt) document.
 
 List of some scripting snippets, that can be usefull:
 
@@ -105,16 +103,16 @@ List of some scripting snippets, that can be usefull:
 	body.SetAutoCircleOrbit();
 ```
 ```cs
-	// Update attrractor settings.
+	// Update attractor settings.
 	body.AttractorSettings.AttractorMass = 100;
-	
+
 	// Refresh orbit state to apply changes.
 	body.ForceUpdateOrbitData();
 ```
 ```cs
 	// Set different eccentricity for orbit, leaving perifocus and mean anomaly unchanged.
 	body.OrbitData.SetEccentricity(newEccentricity);
-	
+
 	// Update transform from orbit state.
 	body.ForceUpdateViewFromInternalState();
 ```
@@ -124,9 +122,9 @@ List of some scripting snippets, that can be usefull:
 	// Or other anomalies:
 	// body.OrbitData.SetTrueAnomaly(anomalyValueInRadians);
 	// body.OrbitData.SetEccentricAnomaly(anomalyValueInRadians);
-	
+
 	// Note: changing one anomaly will automatically update other two.
-	
+
 	// After changing orbit state, transform should be updated:
 	body.ForceUpdateViewFromInternalState();
 ```
@@ -134,13 +132,23 @@ List of some scripting snippets, that can be usefull:
 	// Progress mean anomaly by mean motion, scaled by delta time.
 	body.OrbitData.UpdateOrbitAnomaliesByTime(deltaTime);
 	body.ForceUpdateViewFromInternalState();
-	
+
 	//Note: the mean motion is dependent on orbit period. It will behave differently for different orbits.
 	//To strictly set some certain orbit time or progress ratio (independent from orbit state), set anomaly value explicitly instead.
 ```
 ```cs
-	// Rotate whole orbit by some quaternion.
-	body.OrbitData.RotateOrbit(rotation);
+	// Set orbit position at specific Time.
+	// The mean anomaly is changing with time as meanAnomaly = meanMotion * elapsedTime;
+	// So the orbit state at specific time can be calculated with this snipped:
+
+	float time = Time.time;
+	float T0 = 0; // input parameter, can be anything.
+	float meanAnomalyAtT0 = 0; // input parameter.
+	float diff = Time - T0;
+	var meanAnomaly = meanAnomalyAtT0 + body.OrbitData.MeanMotion * diff;
+	body.OrbitData.SetMeanAnomaly(meanAnomaly);
+
+	// Update transform from orbit state.
 	body.ForceUpdateViewFromInternalState();
 ```
 ```cs
@@ -155,6 +163,26 @@ List of some scripting snippets, that can be usefull:
 	var position = body.OrbitData.GetFocalPositionAtEccentricAnomaly(anomalyValue);
 ```
 
+## EllipticInterceptionSolver usage
+
+This component can calculate transfer trajectory in first approach. Functionality is limited to just display curve, which can be used as helper guidline for initial transfer planning process (which is not implemented here).
+
+	* Open or create scene with at least two orbiting bodies;
+	* Orbiting bodies must have mutual attractor directly or indirectly (attractor of attractor of attractor etc..);
+	* Attach EllipticInterceptionSolver component to one of orbiting bodies;
+	* Assign reference to another body inside component inspector;
+	* Transfer orbit green curve will appear;
+
+Note 1: If you need to calculate transfer trajectory from circular orbit around planet to another circular orbit around another planet (i.e. 'parking orbit'), 
+then you can create dummy celestial body with prefered orbit parameters, and then use it for tranfer calculations.
+
+Note 2: Transfer calculator will take into account orbital motion of orbits and calculate proper
+ending position vector after transfer duration period ending. But if resulting duration will not match target duration, 
+then ending point will not match real ending point.
+In other words, the bigger is difference between target and real duration the bigger is ending point error.
+This will be a problem in case, when target duration is 0, because algorithm will then calculate minimal possible duration, which will always be bigger than 0.
+To solve this, you can use 'set real target duration' button, which will assign real duration to target duration
+(it may requre multiple uses, for better convergence of resulting duration and reducing value difference).
 
 ## Contacts
 

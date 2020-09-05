@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +15,7 @@ namespace SimpleKeplerOrbits
 	/// only one revolution around attractor is supported.
 	/// </summary>
 	[RequireComponent(typeof(KeplerOrbitMover))]
+	[RequireComponent(typeof(SpawnNotifier))]
 	[ExecuteInEditMode]
 	public class EllipticInterceptionSolver : MonoBehaviour
 	{
@@ -25,13 +25,13 @@ namespace SimpleKeplerOrbits
 		[Serializable]
 		public struct BodiesReferencesData
 		{
-			public Transform Attractor;
-			public KeplerOrbitMover Origin;
-			public KeplerOrbitMover Target;
+			public Transform          Attractor;
+			public KeplerOrbitMover   Origin;
+			public KeplerOrbitMover   Target;
 			public KeplerOrbitMover[] OriginAttractorsChain;
 			public KeplerOrbitMover[] TargetAttractorsChain;
-			public double AttractorMass;
-			public double GConst;
+			public double             AttractorMass;
+			public double             GConst;
 		}
 
 		/// <summary>
@@ -40,9 +40,9 @@ namespace SimpleKeplerOrbits
 		public struct TrajectoryData
 		{
 			public KeplerOrbitData orbit;
-			public double Duration;
-			public double EccAnomStart;
-			public double EccAnomEnd;
+			public double          Duration;
+			public double          EccAnomStart;
+			public double          EccAnomEnd;
 		}
 
 		/// <summary>
@@ -98,7 +98,12 @@ namespace SimpleKeplerOrbits
 
 		private KeplerOrbitMover _orbitMover;
 
+		private SpawnNotifier _spawnNotifier;
+
 		private TransitionOrbitData _currentTransition;
+
+		[SerializeField]
+		private KeplerOrbitMover _instantiateBodyTemplate;
 
 		/// <summary>
 		/// Reference to current transition data.
@@ -108,15 +113,13 @@ namespace SimpleKeplerOrbits
 		/// </remarks>
 		public TransitionOrbitData CurrentTransition
 		{
-			get
-			{
-				return _currentTransition;
-			}
+			get { return _currentTransition; }
 		}
 
 		private void Awake()
 		{
-			_orbitMover = GetComponent<KeplerOrbitMover>();
+			_orbitMover    = GetComponent<KeplerOrbitMover>();
+			_spawnNotifier = GetComponent<SpawnNotifier>();
 		}
 
 		private void Update()
@@ -135,31 +138,35 @@ namespace SimpleKeplerOrbits
 		private void GizmosDrawSingleTransition(TransitionOrbitData transition)
 		{
 			Gizmos.color = Color.green;
-			int steps = 50;
-			float delta = transition.EccAnomalyEnd - transition.EccAnomalyStart;
-			Vector3 lastPoint = (Vector3)transition.Orbit.GetFocalPositionAtEccentricAnomaly(transition.EccAnomalyStart);
-			Vector3 point = lastPoint;
+			int   steps     = 50;
+			float delta     = transition.EccAnomalyEnd - transition.EccAnomalyStart;
+			var   lastPoint = transition.Orbit.GetFocalPositionAtEccentricAnomaly(transition.EccAnomalyStart);
+			var   point     = lastPoint;
 			for (int i = 1; i <= steps; i++)
 			{
 				var ratio = i / (float)steps;
-				point = (Vector3)transition.Orbit.GetFocalPositionAtEccentricAnomaly(transition.EccAnomalyStart + delta * ratio);
-				Gizmos.DrawLine(transition.Attractor.position + lastPoint, transition.Attractor.position + point);
+				point = transition.Orbit.GetFocalPositionAtEccentricAnomaly(transition.EccAnomalyStart + delta * ratio);
+				var attractorPos = transition.Attractor.position;
+				Gizmos.DrawLine(
+					attractorPos + new Vector3((float)lastPoint.x, (float)lastPoint.y, (float)lastPoint.z),
+					attractorPos + new Vector3((float)point.x,     (float)point.y,     (float)point.z));
 				lastPoint = point;
 			}
 		}
 
-		private List<Vector3d> CalculateVelocityDifference(KeplerOrbitMover a, KeplerOrbitMover b, KeplerOrbitData transitionOrbit, double departureTime, double duration, double eccAnomalyDeparture, double eccAnomalyArrival)
+		private List<Vector3d> CalculateVelocityDifference(KeplerOrbitMover a, KeplerOrbitMover b, KeplerOrbitData transitionOrbit, double departureTime, double duration, double eccAnomalyDeparture,
+			double                                                            eccAnomalyArrival)
 		{
 			var aMeanAnomalyAtDeparture = a.OrbitData.MeanAnomaly + a.OrbitData.MeanMotion * departureTime;
-			var aEccAnomAtDeparture = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(aMeanAnomalyAtDeparture, a.OrbitData.Eccentricity);
-			var aVelocityAtDeparture = a.OrbitData.GetVelocityAtEccentricAnomaly(aEccAnomAtDeparture);
+			var aEccAnomAtDeparture     = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(aMeanAnomalyAtDeparture, a.OrbitData.Eccentricity);
+			var aVelocityAtDeparture    = a.OrbitData.GetVelocityAtEccentricAnomaly(aEccAnomAtDeparture);
 
 			var bMeanAnomalyAtArrival = b.OrbitData.MeanAnomaly + b.OrbitData.MeanMotion * (departureTime + duration);
-			var bEccAnomAtArrival = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(aMeanAnomalyAtDeparture, a.OrbitData.Eccentricity);
-			var bVelocityAtArrival = a.OrbitData.GetVelocityAtEccentricAnomaly(aEccAnomAtDeparture);
+			var bEccAnomAtArrival     = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(aMeanAnomalyAtDeparture, a.OrbitData.Eccentricity);
+			var bVelocityAtArrival    = a.OrbitData.GetVelocityAtEccentricAnomaly(aEccAnomAtDeparture);
 
 			var transitionVeloctyStart = transitionOrbit.GetVelocityAtEccentricAnomaly(eccAnomalyDeparture);
-			var transitionVelcityEnd = transitionOrbit.GetVelocityAtEccentricAnomaly(eccAnomalyArrival);
+			var transitionVelcityEnd   = transitionOrbit.GetVelocityAtEccentricAnomaly(eccAnomalyArrival);
 
 			var result = new List<Vector3d>();
 			result.Add(transitionVeloctyStart - aVelocityAtDeparture);
@@ -175,13 +182,15 @@ namespace SimpleKeplerOrbits
 			var refs = GetBodiesReferences();
 			if (refs.Attractor != null)
 			{
-				Vector3 startPoint = GetPositionAtGivenTime(refs.Origin, (float)(StartTimeOffset), refs.OriginAttractorsChain);
-				Vector3 endPoint = GetPositionAtGivenTime(refs.Target, (float)(StartTimeOffset + TargetDuration), refs.TargetAttractorsChain);
-				var hyperbola = new HyperbolaData(startPoint, endPoint, refs.Attractor.position);
+				Vector3d startPoint       = GetPositionAtGivenTime(refs.Origin, (StartTimeOffset),                  refs.OriginAttractorsChain);
+				Vector3d endPoint         = GetPositionAtGivenTime(refs.Target, (StartTimeOffset + TargetDuration), refs.TargetAttractorsChain);
+				var      attractorPosHalf = refs.Attractor.position;
+				var      attractorPos     = new Vector3d(attractorPosHalf.x, attractorPosHalf.y, attractorPosHalf.z);
+				var      hyperbola        = new HyperbolaData(new Vector3d(startPoint.x, startPoint.y, startPoint.z), endPoint, attractorPos);
 				var trajectory = CalcTransitionTrajectory(
-					new Vector3d(startPoint),
-					new Vector3d(endPoint),
-					new Vector3d(refs.Attractor.position),
+					startPoint,
+					endPoint,
+					attractorPos,
 					hyperbola,
 					this.TargetDuration,
 					isReverseOrbit: this.IsTransitionPassBehindAttractor,
@@ -190,23 +199,24 @@ namespace SimpleKeplerOrbits
 					precision: this.TargetDurationPrecision,
 					semiMajorAxisUpperLimit: this.MaxTransitionSemiMajorAxis);
 
-				var velocityDiff = CalculateVelocityDifference(refs.Origin, refs.Target, trajectory.orbit, StartTimeOffset, trajectory.Duration, trajectory.EccAnomStart, trajectory.EccAnomEnd);
-				var totalDeltaV = 0.0;
-				for (int i = 0; i < velocityDiff.Count; i++)
+				if (trajectory.orbit != null && trajectory.orbit.IsValidOrbit && trajectory.Duration > 0 && !double.IsInfinity(trajectory.Duration))
 				{
-					totalDeltaV += velocityDiff[i].magnitude;
-				}
-				if (trajectory.orbit.IsValidOrbit && trajectory.Duration > 0 && !double.IsInfinity(trajectory.Duration))
-				{
+					var velocityDiff = CalculateVelocityDifference(refs.Origin, refs.Target, trajectory.orbit, StartTimeOffset, trajectory.Duration, trajectory.EccAnomStart, trajectory.EccAnomEnd);
+					var totalDeltaV  = 0.0;
+					for (int i = 0; i < velocityDiff.Count; i++)
+					{
+						totalDeltaV += velocityDiff[i].magnitude;
+					}
+
 					_currentTransition = new TransitionOrbitData()
 					{
-						Attractor = refs.Attractor,
-						Duration = (float)trajectory.Duration,
-						EccAnomalyStart = (float)trajectory.EccAnomStart,
-						EccAnomalyEnd = (float)trajectory.EccAnomEnd,
+						Attractor          = refs.Attractor,
+						Duration           = (float)trajectory.Duration,
+						EccAnomalyStart    = (float)trajectory.EccAnomStart,
+						EccAnomalyEnd      = (float)trajectory.EccAnomEnd,
 						ImpulseDifferences = velocityDiff,
-						Orbit = trajectory.orbit,
-						TotalDeltaV = (float)totalDeltaV,
+						Orbit              = trajectory.orbit,
+						TotalDeltaV        = (float)totalDeltaV,
 					};
 				}
 				else
@@ -232,15 +242,17 @@ namespace SimpleKeplerOrbits
 			{
 				_orbitMover = GetComponent<KeplerOrbitMover>();
 			}
+
 			if (_orbitMover == null || Target == null || _orbitMover == Target)
 			{
 				return default(BodiesReferencesData);
 			}
+
 			List<KeplerOrbitMover> attractorsA = new List<KeplerOrbitMover>();
 			List<KeplerOrbitMover> attractorsB = new List<KeplerOrbitMover>();
-			double mass = 0;
-			double g = 0;
-			Transform mutualAttractor = KeplerOrbitUtils.FindMutualAttractor(
+			double                 mass        = 0;
+			double                 g           = 0;
+			Transform mutualAttractor = FindMutualAttractor(
 				a: _orbitMover,
 				b: Target,
 				isGetFullChain: false,
@@ -253,15 +265,16 @@ namespace SimpleKeplerOrbits
 			{
 				return new BodiesReferencesData()
 				{
-					Origin = _orbitMover,
-					Target = Target,
-					Attractor = mutualAttractor,
+					Origin                = _orbitMover,
+					Target                = Target,
+					Attractor             = mutualAttractor,
 					OriginAttractorsChain = attractorsA.ToArray(),
 					TargetAttractorsChain = attractorsB.ToArray(),
-					AttractorMass = mass,
-					GConst = g,
+					AttractorMass         = mass,
+					GConst                = g,
 				};
 			}
+
 			return default(BodiesReferencesData);
 		}
 
@@ -278,33 +291,38 @@ namespace SimpleKeplerOrbits
 		/// This method allows to progress orbit in time forward (or backward, if passed time is negative) and get position of body at that time.
 		/// If attractors collection is not null or empty, then evaluation process will propagate through all attractors, which will affect result.
 		/// </remarks>
-		public static Vector3 GetPositionAtGivenTime(KeplerOrbitMover target, float time, KeplerOrbitMover[] attractorsChain = null)
+		public static Vector3d GetPositionAtGivenTime(KeplerOrbitMover target, double time, KeplerOrbitMover[] attractorsChain = null)
 		{
 			if (target == null)
 			{
-				return new Vector3();
+				return new Vector3d();
 			}
+
 			if (!target.OrbitData.IsValidOrbit || target.AttractorSettings.AttractorObject == null)
 			{
-				return target.transform.position;
+				var result = target.transform.position;
+				return new Vector3d(result.x, result.y, result.z);
 			}
+
 			if (attractorsChain == null || attractorsChain.Length == 0)
 			{
 				if (!target.enabled || target.TimeScale == 0f)
 				{
-					return target.transform.position;
+					var result = target.transform.position;
+					return new Vector3d(result.x, result.y, result.z);
 				}
 				else
 				{
 					var finalMeanAnom = target.OrbitData.MeanAnomaly + target.OrbitData.MeanMotion * time;
-					var finalEccAnom = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(finalMeanAnom, target.OrbitData.Eccentricity);
-					var result = target.AttractorSettings.AttractorObject.transform.position + (Vector3)target.OrbitData.GetFocalPositionAtEccentricAnomaly(finalEccAnom);
+					var finalEccAnom  = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(finalMeanAnom, target.OrbitData.Eccentricity);
+					var pos           = target.AttractorSettings.AttractorObject.transform.position;
+					var result        = new Vector3d(pos.x, pos.y, pos.z) + target.OrbitData.GetFocalPositionAtEccentricAnomaly(finalEccAnom);
 					return result;
 				}
 			}
 			else
 			{
-				var relativePosition = new Vector3();
+				var relativePosition = new Vector3d();
 				for (int i = 0; i < attractorsChain.Length; i++)
 				{
 					bool isLast = i == attractorsChain.Length - 1;
@@ -313,40 +331,47 @@ namespace SimpleKeplerOrbits
 						if (attractorsChain[i].enabled)
 						{
 							var attrMeanAnom = attractorsChain[i].OrbitData.MeanAnomaly + attractorsChain[i].OrbitData.MeanMotion * attractorsChain[i].TimeScale * time;
-							var attrEccAnom = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(attrMeanAnom, attractorsChain[i].OrbitData.Eccentricity);
-							relativePosition += (Vector3)attractorsChain[i].OrbitData.GetFocalPositionAtEccentricAnomaly(attrEccAnom);
+							var attrEccAnom  = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(attrMeanAnom, attractorsChain[i].OrbitData.Eccentricity);
+							relativePosition += attractorsChain[i].OrbitData.GetFocalPositionAtEccentricAnomaly(attrEccAnom);
 						}
 						else
 						{
-							relativePosition += attractorsChain[i].transform.position - attractorsChain[i].AttractorSettings.AttractorObject.transform.position;
+							var pos = attractorsChain[i].transform.position - attractorsChain[i].AttractorSettings.AttractorObject.transform.position;
+							relativePosition += new Vector3d(pos.x, pos.y, pos.z);
 						}
+
 						if (isLast)
 						{
-							relativePosition += attractorsChain[i].AttractorSettings.AttractorObject.position;
+							var pos = attractorsChain[i].AttractorSettings.AttractorObject.position;
+							relativePosition += new Vector3d(pos.x, pos.y, pos.z);
 						}
 					}
 					else
 					{
 						if (isLast || attractorsChain[i].AttractorSettings.AttractorObject == null)
 						{
-							relativePosition += attractorsChain[i].transform.position;
+							var pos = attractorsChain[i].transform.position;
+							relativePosition += new Vector3d(pos.x, pos.y, pos.z);
 						}
 						else
 						{
-							relativePosition += (Vector3)attractorsChain[i].OrbitData.Position;
+							relativePosition += attractorsChain[i].OrbitData.Position;
 						}
 					}
 				}
+
 				if (!target.enabled || target.TimeScale == 0f)
 				{
-					relativePosition += target.transform.position - target.AttractorSettings.AttractorObject.position;
+					var pos = target.transform.position - target.AttractorSettings.AttractorObject.position;
+					relativePosition += new Vector3d(pos.x, pos.y, pos.z);
 				}
 				else
 				{
 					var finalMeanAnom = target.OrbitData.MeanAnomaly + target.OrbitData.MeanMotion * time;
-					var finalEccAnom = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(finalMeanAnom, target.OrbitData.Eccentricity);
-					relativePosition += (Vector3)target.OrbitData.GetFocalPositionAtEccentricAnomaly(finalEccAnom);
+					var finalEccAnom  = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(finalMeanAnom, target.OrbitData.Eccentricity);
+					relativePosition += target.OrbitData.GetFocalPositionAtEccentricAnomaly(finalEccAnom);
 				}
+
 				return relativePosition;
 			}
 		}
@@ -384,16 +409,17 @@ namespace SimpleKeplerOrbits
 		/// Because time of transition is depending from second focus point F2 (which is parametric), it is possible to set some specific transition time value
 		/// and then adjust F2 to match target time as close as possible.
 		/// </remarks>
-		public static TrajectoryData CalcTransitionTrajectory(Vector3d p0, Vector3d p1, Vector3d f0, HyperbolaData hyperbola, double targetDuration, bool isReverseOrbit, double attrMass, double g, double precision, double semiMajorAxisUpperLimit)
+		public static TrajectoryData CalcTransitionTrajectory(Vector3d p0,        Vector3d p1, Vector3d f0, HyperbolaData hyperbola, double targetDuration, bool isReverseOrbit, double attrMass, double g,
+			double                                                       precision, double   semiMajorAxisUpperLimit)
 		{
-			TrajectoryData result = new TrajectoryData();
-			double hyperbolaValue = 0.0;
-			int lastDeltaSign = 0;
-			int changedDeltaSignCount = 0;
-			float delta = 0.8f;
-			double lastDuration = 0;
-			int tmp = 0;
-			Vector3d ellipseSecondFocus = new Vector3d();
+			TrajectoryData result                = new TrajectoryData();
+			double         hyperbolaValue        = 0.0;
+			int            lastDeltaSign         = 0;
+			int            changedDeltaSignCount = 0;
+			float          delta                 = 0.8f;
+			double         lastDuration          = 0;
+			int            tmp                   = 0;
+			Vector3d       ellipseSecondFocus    = new Vector3d();
 
 			// Calculate transition multiple times until optimal transition duration not found.
 			// Usually steps count is not larger than a hundred, so 1000 iterations limit is for fail checking.
@@ -403,18 +429,21 @@ namespace SimpleKeplerOrbits
 				bool isBranch0 = (p0 - f0).magnitude < (p1 - f0).magnitude;
 				ellipseSecondFocus = hyperbola.GetSamplePointOnBranch(hyperbolicCoordinate: hyperbolaValue, isMainBranch: isBranch0);
 				var transitionOrbitEllipse = new EllipseData(focus0: f0, focus1: ellipseSecondFocus, p0: p0);
-				if (KeplerOrbitUtils.DotProduct(transitionOrbitEllipse.Normal, hyperbola.Normal) <= 0)
+				if (Vector3d.Dot(transitionOrbitEllipse.Normal, hyperbola.Normal) <= 0)
 				{
 					transitionOrbitEllipse.AxisSecondary *= -1;
 				}
+
 				if (transitionOrbitEllipse.A > semiMajorAxisUpperLimit)
 				{
 					break;
 				}
+
 				if (isReverseOrbit)
 				{
 					transitionOrbitEllipse.AxisSecondary = -transitionOrbitEllipse.AxisSecondary;
 				}
+
 				result.orbit = new KeplerOrbitData(
 					eccentricity: transitionOrbitEllipse.Eccentricity,
 					semiMajorAxis: transitionOrbitEllipse.AxisMain * transitionOrbitEllipse.A,
@@ -423,7 +452,7 @@ namespace SimpleKeplerOrbits
 					attractorMass: attrMass,
 					gConst: g);
 				result.EccAnomStart = transitionOrbitEllipse.GetEccentricAnomalyForPoint(p0);
-				result.EccAnomEnd = transitionOrbitEllipse.GetEccentricAnomalyForPoint(p1);
+				result.EccAnomEnd   = transitionOrbitEllipse.GetEccentricAnomalyForPoint(p1);
 
 				if (result.EccAnomStart > result.EccAnomEnd)
 				{
@@ -431,8 +460,8 @@ namespace SimpleKeplerOrbits
 				}
 
 				var meanAnomStart = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(result.EccAnomStart, eccentricity: result.orbit.Eccentricity);
-				var meanAnomEnd = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(result.EccAnomEnd, eccentricity: result.orbit.Eccentricity);
-				var meanAnomDiff = meanAnomEnd - meanAnomStart;
+				var meanAnomEnd   = KeplerOrbitUtils.ConvertEccentricToMeanAnomaly(result.EccAnomEnd,   eccentricity: result.orbit.Eccentricity);
+				var meanAnomDiff  = meanAnomEnd - meanAnomStart;
 				result.Duration = meanAnomEnd <= meanAnomStart ? 0.0 : meanAnomDiff / result.orbit.MeanMotion;
 				var diff = result.Duration - targetDuration;
 				int sign = diff >= 0 ? -1 : 1;
@@ -440,25 +469,209 @@ namespace SimpleKeplerOrbits
 				{
 					break;
 				}
+
 				if (sign != lastDeltaSign)
 				{
 					lastDeltaSign = sign;
 					changedDeltaSignCount++;
 				}
+
 				if (changedDeltaSignCount >= 2)
 				{
 					delta *= 0.5f;
 				}
-				int conicShapeAligmentSign = KeplerOrbitUtils.DotProduct(transitionOrbitEllipse.Normal, hyperbola.Normal) >= 0 ? 1 : -1;
+
+				int conicShapeAligmentSign = Vector3d.Dot(transitionOrbitEllipse.Normal, hyperbola.Normal) >= 0 ? 1 : -1;
 				hyperbolaValue += delta * sign * conicShapeAligmentSign;
 				var stepDurationDiff = result.Duration - lastDuration;
 				if (KeplerOrbitUtils.Abs(stepDurationDiff) < precision)
 				{
 					break;
 				}
+
 				lastDuration = result.Duration;
 			}
+
 			return result;
+		}
+
+		/// <summary>
+		/// Find attractor transform, which is parent for both A and B.
+		/// If mutual attractor is not direct parent of both A and B, then look in upper hierarchy of attractors.
+		/// </summary>
+		/// <param name="a">Body A.</param>
+		/// <param name="b">Body B.</param>
+		/// <param name="isGetFullChain">If true, attractors chains will include full hierarchy. In opposite case, chains will end before mutual attractor.</param>
+		/// <param name="attractorsAChain">Chain of parent attractors for A.</param>
+		/// <param name="attractorsBChain">Chain of parent attractors for B.</param>
+		/// <param name="gConst">Attractor gravity const.</param>
+		/// <param name="mass">Attractor mass.</param>
+		/// <returns>Mutual attractor transform or null if not found.</returns>
+		/// <remarks>
+		/// Chain of attractors is constructed from attractors transforms, which also have own KeplerOrbitMover component.
+		/// 
+		/// Note: this method also retreaving g and mass of attractor. Because these values can be different for any KeplerOrbitMover, those, what belong to body A are preffered.
+		/// </remarks>
+		public static Transform FindMutualAttractor(KeplerOrbitMover a, KeplerOrbitMover b, bool isGetFullChain, ref List<KeplerOrbitMover> attractorsAChain, ref List<KeplerOrbitMover> attractorsBChain,
+			ref double                                                 mass, ref double gConst)
+		{
+			if (attractorsAChain == null)
+			{
+				attractorsAChain = new List<KeplerOrbitMover>();
+			}
+			else
+			{
+				attractorsAChain.Clear();
+			}
+
+			if (attractorsBChain == null)
+			{
+				attractorsBChain = new List<KeplerOrbitMover>();
+			}
+			else
+			{
+				attractorsBChain.Clear();
+			}
+
+			int       maxChainLen     = 1000;
+			Transform mutualAttractor = null;
+			if (a != null && b != null && a != b)
+			{
+				var attrTransform = a.AttractorSettings.AttractorObject;
+				while (attrTransform != null && attractorsAChain.Count < maxChainLen)
+				{
+					var attrOrbitMover = attrTransform.GetComponent<KeplerOrbitMover>();
+					attrTransform = null;
+					if (attrOrbitMover != null && !attractorsAChain.Contains(attrOrbitMover))
+					{
+						attrTransform = attrOrbitMover.AttractorSettings.AttractorObject;
+						attractorsAChain.Add(attrOrbitMover);
+					}
+				}
+
+				attrTransform = b.AttractorSettings.AttractorObject;
+				while (attrTransform != null && attractorsBChain.Count < maxChainLen)
+				{
+					var attrOrbitMover = attrTransform.GetComponent<KeplerOrbitMover>();
+					attrTransform = null;
+					if (attrOrbitMover != null && !attractorsBChain.Contains(attrOrbitMover))
+					{
+						attrTransform = attrOrbitMover.AttractorSettings.AttractorObject;
+						attractorsBChain.Add(attrOrbitMover);
+					}
+				}
+
+				if (a.AttractorSettings.AttractorObject == b.AttractorSettings.AttractorObject)
+				{
+					mutualAttractor = a.AttractorSettings.AttractorObject;
+					gConst          = a.AttractorSettings.GravityConstant;
+					mass            = a.AttractorSettings.AttractorMass;
+				}
+				else
+				{
+					for (int i = 0; i < attractorsAChain.Count && mutualAttractor == null; i++)
+					{
+						for (int n = 0; n < attractorsBChain.Count; n++)
+						{
+							if (attractorsAChain[i].AttractorSettings.AttractorObject == attractorsBChain[n].transform ||
+							    attractorsAChain[i].AttractorSettings.AttractorObject == attractorsBChain[i].AttractorSettings.AttractorObject)
+							{
+								mutualAttractor = attractorsAChain[i].AttractorSettings.AttractorObject;
+								gConst          = attractorsAChain[i].AttractorSettings.GravityConstant;
+								mass            = attractorsAChain[i].AttractorSettings.AttractorMass;
+							}
+							else if (attractorsBChain[i].AttractorSettings.AttractorObject == attractorsAChain[i].transform)
+							{
+								mutualAttractor = attractorsBChain[i].AttractorSettings.AttractorObject;
+								gConst          = attractorsAChain[i].AttractorSettings.GravityConstant;
+								mass            = attractorsAChain[i].AttractorSettings.AttractorMass;
+							}
+							else
+							{
+								continue;
+							}
+
+							break;
+						}
+					}
+				}
+
+				if (!isGetFullChain && mutualAttractor != null)
+				{
+					int mutualAttractorIndex = -1;
+					for (int i = 0; i < attractorsAChain.Count; i++)
+					{
+						if (attractorsAChain[i].transform == mutualAttractor)
+						{
+							mutualAttractorIndex = i;
+							break;
+						}
+					}
+
+					if (mutualAttractorIndex >= 0)
+					{
+						//mutualAttractorIndex++;
+						while (attractorsAChain.Count > mutualAttractorIndex)
+						{
+							attractorsAChain.RemoveAt(attractorsAChain.Count - 1);
+						}
+					}
+
+					mutualAttractorIndex = -1;
+					for (int i = 0; i < attractorsBChain.Count; i++)
+					{
+						if (attractorsBChain[i].transform == mutualAttractor)
+						{
+							mutualAttractorIndex = i;
+							break;
+						}
+					}
+
+					if (mutualAttractorIndex >= 0)
+					{
+						//mutualAttractorIndex++;
+						while (attractorsBChain.Count > mutualAttractorIndex)
+						{
+							attractorsBChain.RemoveAt(attractorsBChain.Count - 1);
+						}
+					}
+				}
+
+				return mutualAttractor;
+			}
+
+			attractorsAChain.Clear();
+			attractorsBChain.Clear();
+			return null;
+		}
+
+		[ContextMenu("Spawn transfer body.")]
+		public bool TrySpawnOrbitingBodyForCurrentTrajectory()
+		{
+			if (_currentTransition == null) return false;
+			if (_currentTransition.Attractor == null) return false;
+			if (_currentTransition.Orbit == null) return false;
+			if (!_currentTransition.Orbit.IsValidOrbit) return false;
+
+			KeplerOrbitMover instance;
+			if (_instantiateBodyTemplate != null)
+			{
+				instance = Instantiate(_instantiateBodyTemplate);
+			}
+			else
+			{
+				instance = new GameObject("transition_body", new Type[] { typeof(KeplerOrbitMover), typeof(KeplerOrbitLineDisplay) }).GetComponent<KeplerOrbitMover>();
+			}
+
+			instance.AttractorSettings.AttractorMass   = (float)_currentTransition.Orbit.AttractorMass;
+			instance.AttractorSettings.AttractorObject = _currentTransition.Attractor;
+			instance.AttractorSettings.GravityConstant = (float)_currentTransition.Orbit.GravConst;
+			instance.OrbitData                         = _currentTransition.Orbit.CloneOrbit();
+			instance.LockOrbitEditing                  = true;
+			instance.OrbitData.SetEccentricAnomaly(_currentTransition.EccAnomalyStart);
+			instance.ForceUpdateViewFromInternalState();
+			_spawnNotifier.NotifyBodySpawned(instance);
+			return true;
 		}
 	}
 }
