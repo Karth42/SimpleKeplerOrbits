@@ -27,6 +27,8 @@ namespace SimpleKeplerOrbits
 				EditorGUILayout.LabelField("Departure delta-v required", (_target.CurrentTransition == null || _target.CurrentTransition.ImpulseDifferences == null || _target.CurrentTransition.ImpulseDifferences.Count < 1 ? "-" : _target.CurrentTransition.ImpulseDifferences[0].magnitude.ToString()));
 				EditorGUILayout.LabelField("Arrival delta-v required", (_target.CurrentTransition == null || _target.CurrentTransition.ImpulseDifferences == null || _target.CurrentTransition.ImpulseDifferences.Count < 1 ? "-" : _target.CurrentTransition.ImpulseDifferences[1].magnitude.ToString()));
 				EditorGUILayout.LabelField("Total delta-v required", (_target.CurrentTransition == null ? "0" : _target.CurrentTransition.TotalDeltaV.ToString()));
+				EditorGUILayout.LabelField("Eccentricity", (_target.CurrentTransition == null || _target.CurrentTransition.Orbit == null  ? "0" : _target.CurrentTransition.Orbit.Eccentricity.ToString()));
+				EditorGUILayout.LabelField("SemiMajor axis", (_target.CurrentTransition == null || _target.CurrentTransition.Orbit == null  ? "0" : _target.CurrentTransition.Orbit.SemiMajorAxis.ToString()));
 			}
 			GUILayout.EndVertical();
 			if (_target.CurrentTransition == null)

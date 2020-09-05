@@ -11,8 +11,9 @@ namespace SimpleKeplerOrbits.Examples
 	/// </summary>
 	/// <remarks>
 	/// Only uses one epoch for orbits state calculations
-	/// which is fine enough for demonstration purposes. 
+	/// which is fine enough for demonstration purposes.
 	/// </remarks>
+	[RequireComponent(typeof(SpawnNotifier))]
 	public class TimeController : MonoBehaviour
 	{
 		private struct BodyTimeData
@@ -41,8 +42,9 @@ namespace SimpleKeplerOrbits.Examples
 
 		private float _currentTimeScale = 1f;
 
-		private DateTime _epochDate;
-		private DateTime _currentTime;
+		private SpawnNotifier _spawnNotifier;
+		private DateTime      _epochDate;
+		private DateTime      _currentTime;
 
 		public DateTime CurrentTime
 		{
@@ -51,11 +53,8 @@ namespace SimpleKeplerOrbits.Examples
 
 		private void Awake()
 		{
-			var spawner = GetComponent<ISpawner>();
-			if (spawner != null)
-			{
-				spawner.OnBodySpawnedEvent += OnBodySpawned;
-			}
+			_spawnNotifier                    =  GetComponent<SpawnNotifier>();
+			_spawnNotifier.onBodySpawnedEvent += OnBodySpawned;
 
 			var instances = GameObject.FindObjectsOfType<KeplerOrbitMover>();
 			foreach (var item in instances)
@@ -64,6 +63,14 @@ namespace SimpleKeplerOrbits.Examples
 			}
 
 			_epochDate = new DateTime(_epochYear, _epochMonth, _epochDay, _epochHour, _epochMinute, 0, DateTimeKind.Utc);
+		}
+
+		private void OnDestroy()
+		{
+			if (_spawnNotifier != null)
+			{
+				_spawnNotifier.onBodySpawnedEvent -= OnBodySpawned;
+			}
 		}
 
 		private IEnumerator Start()

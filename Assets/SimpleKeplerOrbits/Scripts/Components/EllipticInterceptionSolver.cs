@@ -15,6 +15,7 @@ namespace SimpleKeplerOrbits
 	/// only one revolution around attractor is supported.
 	/// </summary>
 	[RequireComponent(typeof(KeplerOrbitMover))]
+	[RequireComponent(typeof(SpawnNotifier))]
 	[ExecuteInEditMode]
 	public class EllipticInterceptionSolver : MonoBehaviour
 	{
@@ -97,6 +98,8 @@ namespace SimpleKeplerOrbits
 
 		private KeplerOrbitMover _orbitMover;
 
+		private SpawnNotifier _spawnNotifier;
+
 		private TransitionOrbitData _currentTransition;
 
 		[SerializeField]
@@ -115,7 +118,8 @@ namespace SimpleKeplerOrbits
 
 		private void Awake()
 		{
-			_orbitMover = GetComponent<KeplerOrbitMover>();
+			_orbitMover    = GetComponent<KeplerOrbitMover>();
+			_spawnNotifier = GetComponent<SpawnNotifier>();
 		}
 
 		private void Update()
@@ -195,15 +199,15 @@ namespace SimpleKeplerOrbits
 					precision: this.TargetDurationPrecision,
 					semiMajorAxisUpperLimit: this.MaxTransitionSemiMajorAxis);
 
-				var velocityDiff = CalculateVelocityDifference(refs.Origin, refs.Target, trajectory.orbit, StartTimeOffset, trajectory.Duration, trajectory.EccAnomStart, trajectory.EccAnomEnd);
-				var totalDeltaV  = 0.0;
-				for (int i = 0; i < velocityDiff.Count; i++)
+				if (trajectory.orbit != null && trajectory.orbit.IsValidOrbit && trajectory.Duration > 0 && !double.IsInfinity(trajectory.Duration))
 				{
-					totalDeltaV += velocityDiff[i].magnitude;
-				}
+					var velocityDiff = CalculateVelocityDifference(refs.Origin, refs.Target, trajectory.orbit, StartTimeOffset, trajectory.Duration, trajectory.EccAnomStart, trajectory.EccAnomEnd);
+					var totalDeltaV  = 0.0;
+					for (int i = 0; i < velocityDiff.Count; i++)
+					{
+						totalDeltaV += velocityDiff[i].magnitude;
+					}
 
-				if (trajectory.orbit.IsValidOrbit && trajectory.Duration > 0 && !double.IsInfinity(trajectory.Duration))
-				{
 					_currentTransition = new TransitionOrbitData()
 					{
 						Attractor          = refs.Attractor,
@@ -646,6 +650,7 @@ namespace SimpleKeplerOrbits
 		{
 			if (_currentTransition == null) return false;
 			if (_currentTransition.Attractor == null) return false;
+			if (_currentTransition.Orbit == null) return false;
 			if (!_currentTransition.Orbit.IsValidOrbit) return false;
 
 			KeplerOrbitMover instance;
@@ -661,10 +666,12 @@ namespace SimpleKeplerOrbits
 			instance.AttractorSettings.AttractorMass   = (float)_currentTransition.Orbit.AttractorMass;
 			instance.AttractorSettings.AttractorObject = _currentTransition.Attractor;
 			instance.AttractorSettings.GravityConstant = (float)_currentTransition.Orbit.GravConst;
-			instance.OrbitData                         = _currentTransition.Orbit;
+			instance.OrbitData                         = _currentTransition.Orbit.CloneOrbit();
+			instance.LockOrbitEditing                  = true;
+			instance.OrbitData.SetEccentricAnomaly(_currentTransition.EccAnomalyStart);
 			instance.ForceUpdateViewFromInternalState();
-
-			return false;
+			_spawnNotifier.NotifyBodySpawned(instance);
+			return true;
 		}
 	}
 }

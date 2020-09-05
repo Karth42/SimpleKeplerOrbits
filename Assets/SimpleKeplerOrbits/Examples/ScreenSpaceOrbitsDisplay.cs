@@ -12,6 +12,7 @@ namespace SimpleKeplerOrbits.Examples
 	///
 	/// Orbit lines intersection with sides of the screen will have small blinking gaps which caused by intentional flaw in the algorithm.
 	/// </remarks>
+	[RequireComponent(typeof(SpawnNotifier))]
 	public class ScreenSpaceOrbitsDisplay : MonoBehaviour
 	{
 		public class TargetItem
@@ -29,19 +30,25 @@ namespace SimpleKeplerOrbits.Examples
 		private List<TargetItem>    _targets   = new List<TargetItem>(20);
 		private List<List<Vector3>> _paths     = new List<List<Vector3>>();
 		private List<List<Vector3>> _pool      = new List<List<Vector3>>();
+		private SpawnNotifier       _spawnerNotifier;
 
 		private void Awake()
 		{
-			var spawner = GetComponent<ISpawner>();
-			if (spawner != null)
-			{
-				spawner.OnBodySpawnedEvent += AddTargetBody;
-			}
+			_spawnerNotifier                    =  GetComponent<SpawnNotifier>();
+			_spawnerNotifier.onBodySpawnedEvent += AddTargetBody;
 
 			var bodies = GameObject.FindObjectsOfType<KeplerOrbitMover>();
 			foreach (var item in bodies)
 			{
 				AddTargetBody(item);
+			}
+		}
+
+		private void OnDestroy()
+		{
+			if (_spawnerNotifier != null)
+			{
+				_spawnerNotifier.onBodySpawnedEvent -= AddTargetBody;
 			}
 		}
 

@@ -5,15 +5,11 @@ using UnityEngine;
 
 namespace SimpleKeplerOrbits.Examples
 {
-	public interface ISpawner
-	{
-		event Action<KeplerOrbitMover> OnBodySpawnedEvent;
-	}
-
 	/// <summary>
 	/// Controller for spawning bodies by orbital elements values. Supports JPL database input.
 	/// </summary>
-	public class JPLOrbitsLoader : MonoBehaviour, ISpawner
+	[RequireComponent(typeof(SpawnNotifier))]
+	public class JPLOrbitsLoader : MonoBehaviour
 	{
 		[Serializable]
 		public class JPLListContainer
@@ -134,11 +130,11 @@ namespace SimpleKeplerOrbits.Examples
 		public Material MainAttractorMaterial;
 
 		private readonly List<KeplerOrbitMover> _spawnedInstances = new List<KeplerOrbitMover>(20);
-
-		public event Action<KeplerOrbitMover> OnBodySpawnedEvent;
+		private SpawnNotifier _spawnNotifier;
 
 		private void Start()
 		{
+			_spawnNotifier = GetComponent<SpawnNotifier>();
 			switch (LoadingDataSource)
 			{
 				case LoadingType.Json:
@@ -220,7 +216,7 @@ namespace SimpleKeplerOrbits.Examples
 						spawnOrder.RemoveAt(0);
 						i--;
 						_spawnedInstances.Add(body);
-						OnBodySpawnedEvent?.Invoke(body);
+						_spawnNotifier.NotifyBodySpawned(body);
 						isAnySpawned = true;
 					}
 					else

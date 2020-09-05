@@ -3,7 +3,7 @@
 namespace SimpleKeplerOrbits.Examples
 {
 	/// <summary>
-	/// Simple camera controller the for example scene.
+	/// Simple camera controller for the example scene.
 	/// </summary>
 	public class CameraController : MonoBehaviour
 	{

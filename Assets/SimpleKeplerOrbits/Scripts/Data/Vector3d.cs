@@ -8,7 +8,7 @@ namespace SimpleKeplerOrbits
 		public double x;
 		public double y;
 		public double z;
-		private const double EPSILON = 9.99999974737875E-06f;
+		private const double EPSILON = 1.401298E-45;
 
 		public Vector3d normalized
 		{

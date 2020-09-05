@@ -359,6 +359,8 @@ GameObject:
   - component: {fileID: 142333819}
   - component: {fileID: 142333820}
   - component: {fileID: 142333822}
+  - component: {fileID: 142333824}
+  - component: {fileID: 142333823}
   m_Layer: 0
   m_Name: BodyTemplate
   m_TagString: Untagged
@@ -450,9 +452,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OrbitPointsCount: 150
   MaxOrbitWorldUnitsDistance: 10000
-  LineRendererReference: {fileID: 142333822}
+  LineRendererReference: {fileID: 0}
   ShowOrbitGizmoInEditor: 1
-  ShowOrbitGizmoWhileInPlayMode: 0
+  ShowOrbitGizmoWhileInPlayMode: 1
   ShowVelocityGizmoInEditor: 1
   ShowPeriapsisApoapsisGizmosInEditor: 0
   ShowAscendingNodeInEditor: 0
@@ -482,7 +484,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 142333818}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -570,6 +572,38 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!114 &142333823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 142333818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44309764af7c34446ae26191ac908466, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}
+  StartTimeOffset: 0
+  TargetDuration: 0
+  IsTransitionPassBehindAttractor: 0
+  MaxTransitionSemiMajorAxis: 100000000
+  TargetDurationPrecision: 0.0001
+  IsEnabledDrawTrajectoryInEditor: 1
+  _instantiateBodyTemplate: {fileID: 0}
+--- !u!114 &142333824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 142333818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6bb8a87d1861946a3e3a7e77046a3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &146596697
 GameObject:
   m_ObjectHideFlags: 0
@@ -1542,6 +1576,7 @@ GameObject:
   - component: {fileID: 446493817}
   - component: {fileID: 446493819}
   - component: {fileID: 446493820}
+  - component: {fileID: 446493821}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -2009,6 +2044,18 @@ MonoBehaviour:
   _targetCamera: {fileID: 139608334}
   _lineTemplate: {fileID: 485453330}
   _camDistance: 0.5
+--- !u!114 &446493821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446493816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6bb8a87d1861946a3e3a7e77046a3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &485453328
 GameObject:
   m_ObjectHideFlags: 0

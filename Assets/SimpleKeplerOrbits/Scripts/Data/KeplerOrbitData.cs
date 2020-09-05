@@ -103,8 +103,8 @@ namespace SimpleKeplerOrbits
 			get
 			{
 				var ascNodeDir = Vector3d.Cross(EclipticNormal, OrbitNormal).normalized;
-				var dot = Vector3d.Dot(ascNodeDir, EclipticRight);
-				var angle = Math.Acos(dot);
+				var dot        = Vector3d.Dot(ascNodeDir, EclipticRight);
+				var angle      = Math.Acos(dot);
 				if (Vector3d.Dot(Vector3d.Cross(ascNodeDir, EclipticRight), EclipticNormal) >= 0)
 				{
 					angle = KeplerOrbitUtils.PI_2 - angle;
@@ -123,7 +123,7 @@ namespace SimpleKeplerOrbits
 			{
 				var ascNodeDir = Vector3d.Cross(EclipticNormal, OrbitNormal).normalized;
 				var dot        = Vector3d.Dot(ascNodeDir, SemiMajorAxisBasis.normalized);
-				var angle = Math.Acos(dot);
+				var angle      = Math.Acos(dot);
 				if (Vector3d.Dot(Vector3d.Cross(ascNodeDir, SemiMajorAxisBasis), OrbitNormal) < 0)
 				{
 					angle = KeplerOrbitUtils.PI_2 - angle;
@@ -291,13 +291,14 @@ namespace SimpleKeplerOrbits
 				SemiMajorAxis         = FocalParameter / OrbitCompressionRatio;
 				SemiMinorAxis         = SemiMajorAxis * Math.Sqrt(OrbitCompressionRatio);
 				CenterPoint           = -SemiMajorAxis * eccVector;
-				Period                = KeplerOrbitUtils.PI_2 * Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
-				MeanMotion            = KeplerOrbitUtils.PI_2 / Period;
-				Apoapsis              = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
-				Periapsis             = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
-				PeriapsisDistance     = Periapsis.magnitude;
-				ApoapsisDistance      = Apoapsis.magnitude;
-				TrueAnomaly           = Vector3d.Angle(Position, SemiMajorAxisBasis) * KeplerOrbitUtils.Deg2Rad;
+				var p = Math.Sqrt(Math.Pow(SemiMajorAxis, 3) / MG);
+				Period            = KeplerOrbitUtils.PI_2 * p;
+				MeanMotion        = 1d / p;
+				Apoapsis          = CenterPoint - SemiMajorAxisBasis * SemiMajorAxis;
+				Periapsis         = CenterPoint + SemiMajorAxisBasis * SemiMajorAxis;
+				PeriapsisDistance = Periapsis.magnitude;
+				ApoapsisDistance  = Apoapsis.magnitude;
+				TrueAnomaly       = Vector3d.Angle(Position, SemiMajorAxisBasis) * KeplerOrbitUtils.Deg2Rad;
 				if (Vector3d.Dot(Vector3d.Cross(Position, -SemiMajorAxisBasis), OrbitNormal) < 0)
 				{
 					TrueAnomaly = KeplerOrbitUtils.PI_2 - TrueAnomaly;
@@ -996,6 +997,16 @@ namespace SimpleKeplerOrbits
 
 			SetPositionByCurrentAnomaly();
 			SetVelocityByCurrentAnomaly();
+		}
+
+		public object Clone()
+		{
+			return MemberwiseClone();
+		}
+
+		public KeplerOrbitData CloneOrbit()
+		{
+			return (KeplerOrbitData)MemberwiseClone();
 		}
 	}
 }
