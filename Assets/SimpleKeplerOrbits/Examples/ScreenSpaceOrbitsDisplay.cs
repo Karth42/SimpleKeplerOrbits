@@ -20,20 +20,6 @@ namespace SimpleKeplerOrbits.Examples
 			public Vector3d[]             OrbitPoints;
 		}
 
-		private struct SegmentPointData
-		{
-			public Vector3 worldPoint;
-			public bool    isVisible;
-			public bool    isProcessed;
-
-			public SegmentPointData(Vector3 worldPoint, bool isVisible, bool isProcessed)
-			{
-				this.worldPoint  = worldPoint;
-				this.isVisible   = isVisible;
-				this.isProcessed = isProcessed;
-			}
-		}
-
 		[SerializeField] private Camera       _targetCamera;
 		[SerializeField] private LineRenderer _lineTemplate;
 		[SerializeField] private float        _camDistance;
@@ -44,7 +30,6 @@ namespace SimpleKeplerOrbits.Examples
 		private Dictionary<string, List<List<Vector3>>> _paths     = new Dictionary<string, List<List<Vector3>>>();
 		private List<List<Vector3>>                     _pool      = new List<List<Vector3>>();
 		private SpawnNotifier                           _spawnerNotifier;
-		private List<SegmentPointData>                  _tempPoints = new List<SegmentPointData>(150);
 
 		private void Awake()
 		{
@@ -110,24 +95,29 @@ namespace SimpleKeplerOrbits.Examples
 				item.Body.OrbitData.GetOrbitPointsNoAlloc(ref orbitPoints, item.LineDisplay.OrbitPointsCount, new Vector3d(), item.LineDisplay.MaxOrbitWorldUnitsDistance);
 				item.OrbitPoints = orbitPoints;
 				var attrPos         = item.Body.AttractorSettings.AttractorObject.position;
-				var projectedPoints = _tempPoints;
-
-				// Project all orbit points onto current camera view plane and assign isVisible flag for each point.
+				var projectedPoints = GetListFromPool();
 				ConvertOrbitPointsToProjectedPoints(orbitPoints, attrPos, _targetCamera, _camDistance, projectedPoints);
-
-				// Mark isVisible to all not visible points at distance 1 from nearest initially visible point.
-				ExpandVisibleSegmentsSizeByOne(projectedPoints);
-
 				var bodyName = _isDebugMode ? item.Body.name : "";
 
-				// Convert set of projected points (visible and not visible) into list of unbroken visible segments. 
-				ExtractVisibleSegmentsFromProjectedOrbitPoints(bodyName, allVisibleSegments, projectedPoints);
+				List<List<Vector3>> segments;
+				if (allVisibleSegments.ContainsKey(bodyName))
+				{
+					segments = allVisibleSegments[bodyName];
+				}
+				else
+				{
+					Debug.Log("New lists");
+					segments = new List<List<Vector3>>();
+					allVisibleSegments[bodyName] = segments;
+				}
+
+				segments.Add(projectedPoints);
 			}
 
 			RefreshLineRenderersForCurrentSegments(_isDebugMode, allVisibleSegments, _instances);
 		}
 
-		private static void ConvertOrbitPointsToProjectedPoints(Vector3d[] orbitPoints, Vector3 attractorPos, Camera targetCamera, float camDistance, List<SegmentPointData> projectedPoints)
+		private static void ConvertOrbitPointsToProjectedPoints(Vector3d[] orbitPoints, Vector3 attractorPos, Camera targetCamera, float camDistance, List<Vector3> projectedPoints)
 		{
 			projectedPoints.Clear();
 			if (projectedPoints.Capacity < orbitPoints.Length)
@@ -144,146 +134,25 @@ namespace SimpleKeplerOrbits.Examples
 				if (screenPoint.z > 0)
 				{
 					screenPoint.z = camDistance;
-					var projectedPoint = targetCamera.ScreenToWorldPoint(screenPoint);
-					var isVisible      = IsPointInsideScreen(screenPoint);
-					projectedPoints.Add(new SegmentPointData(projectedPoint, isVisible, isProcessed: false));
 				}
 				else
 				{
-					projectedPoints.Add(new SegmentPointData(new Vector3(), false, false));
+					screenPoint.z = -camDistance;
 				}
 
-				var diff = projectedPoints[projectedPoints.Count - 1].worldPoint - projectedPoints[0].worldPoint;
+				var projectedPoint = targetCamera.ScreenToWorldPoint(screenPoint);
+				projectedPoints.Add(projectedPoint);
+				var diff = projectedPoints[projectedPoints.Count - 1] - projectedPoints[0];
 
 				if (diff.x > maxDistance.x) maxDistance.x = diff.x;
 				if (diff.y > maxDistance.y) maxDistance.y = diff.y;
 				if (diff.z > maxDistance.z) maxDistance.z = diff.z;
 			}
 
-			if (maxDistance.magnitude < 0.001f)
+			const float minOrbitLinearSize = 0.001f;
+			if (maxDistance.magnitude < minOrbitLinearSize)
 			{
 				projectedPoints.Clear();
-			}
-		}
-
-		private static void ExpandVisibleSegmentsSizeByOne(List<SegmentPointData> projectedPoints)
-		{
-			int segmentCount = 0;
-			for (var i = 0; i < projectedPoints.Count; i++)
-			{
-				var pointData = projectedPoints[i];
-				if (pointData.isProcessed)
-				{
-					segmentCount = 0;
-					continue;
-				}
-
-				if (pointData.isVisible)
-				{
-					if (segmentCount == 0)
-					{
-						if (i > 0)
-						{
-							var prevPointData = projectedPoints[i - 1];
-							if (prevPointData.worldPoint != Vector3.zero)
-							{
-								segmentCount++;
-								prevPointData.isVisible   = true;
-								prevPointData.isProcessed = true;
-								projectedPoints[i - 1]    = prevPointData;
-							}
-						}
-					}
-
-					segmentCount++;
-					pointData.isProcessed = true;
-					projectedPoints[i]    = pointData;
-				}
-				else
-				{
-					if (segmentCount > 0)
-					{
-						if (pointData.worldPoint != Vector3.zero)
-						{
-							pointData.isVisible   = true;
-							pointData.isProcessed = true;
-							projectedPoints[i]    = pointData;
-						}
-
-						segmentCount = 0;
-					}
-				}
-			}
-
-			for (var i = 0; i < projectedPoints.Count; i++)
-			{
-				var pointData = projectedPoints[i];
-				pointData.isProcessed = false;
-				projectedPoints[i]    = pointData;
-			}
-		}
-
-		private void ExtractVisibleSegmentsFromProjectedOrbitPoints(
-			string                                  bodyName,
-			Dictionary<string, List<List<Vector3>>> allProjectedPaths,
-			List<SegmentPointData>                  projectedPoints)
-		{
-			List<Vector3> currentSegment = null;
-
-			for (var i = 0; i < projectedPoints.Count; i++)
-			{
-				var pointData = projectedPoints[i];
-				if (pointData.isVisible && !pointData.isProcessed)
-				{
-					if (currentSegment == null)
-					{
-						currentSegment = GetListFromPool();
-					}
-
-					if (currentSegment.Capacity < projectedPoints.Count)
-					{
-						currentSegment.Capacity = projectedPoints.Count;
-					}
-
-					currentSegment.Add(pointData.worldPoint);
-					pointData.isProcessed = true;
-					projectedPoints[i]    = pointData;
-				}
-				else
-				{
-					FinilizeCurrentSegment(bodyName, ref currentSegment, allProjectedPaths);
-				}
-			}
-
-			FinilizeCurrentSegment(bodyName, ref currentSegment, allProjectedPaths);
-		}
-
-		private void FinilizeCurrentSegment(string bodyName, ref List<Vector3> currentSegment, Dictionary<string, List<List<Vector3>>> targetPaths)
-		{
-			if (currentSegment != null)
-			{
-				if (currentSegment.Count > 1)
-				{
-					List<List<Vector3>> list = null;
-
-					if (targetPaths.ContainsKey(bodyName))
-					{
-						list = targetPaths[bodyName];
-					}
-					else
-					{
-						list                  = new List<List<Vector3>>();
-						targetPaths[bodyName] = list;
-					}
-
-					list.Add(currentSegment);
-				}
-				else
-				{
-					ReleaseList(currentSegment);
-				}
-
-				currentSegment = null;
 			}
 		}
 
@@ -362,11 +231,6 @@ namespace SimpleKeplerOrbits.Examples
 		private void ReleaseList(List<Vector3> list)
 		{
 			_pool.Add(list);
-		}
-
-		private static bool IsPointInsideScreen(Vector3 p)
-		{
-			return p.x >= 0 && p.x < Screen.width && p.y >= 0 && p.y < Screen.height;
 		}
 	}
 }
