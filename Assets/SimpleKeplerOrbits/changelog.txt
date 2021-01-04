@@ -1,3 +1,7 @@
+version 1.0.6
+- Minor stability fixes.
+- Screen space orbits demo script refactor.
+
 version 1.0.5
 - Added support for parabolic orbits.
 - Updated and expanded sample scenes.

@@ -106,7 +106,6 @@ namespace SimpleKeplerOrbits.Examples
 				}
 				else
 				{
-					Debug.Log("New lists");
 					segments = new List<List<Vector3>>();
 					allVisibleSegments[bodyName] = segments;
 				}
