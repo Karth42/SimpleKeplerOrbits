@@ -27,7 +27,7 @@ namespace SimpleKeplerOrbits
 		public static readonly Vector3d EclipticRight = new Vector3d(1, 0, 0);
 
 		/// <summary>
-		/// Body position relatve to attractor or Focal Position.
+		/// Body position relative to attractor or Focal Position.
 		/// </summary>
 		/// <remarks>
 		/// Attractor (focus) is local center of orbit system.
@@ -215,12 +215,12 @@ namespace SimpleKeplerOrbits
 			if (argOfPerifocusDeg > 180) argOfPerifocusDeg -= 360;
 
 			ascendingNode = KeplerOrbitUtils.RotateVectorByAngle(ascendingNode, ascendingNodeDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
-			normal        = KeplerOrbitUtils.RotateVectorByAngle(normal, inclinationDeg * KeplerOrbitUtils.Deg2Rad, ascendingNode).normalized;
-			var periapsis = ascendingNode;
-			periapsis = KeplerOrbitUtils.RotateVectorByAngle(periapsis, argOfPerifocusDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
+			normal        = KeplerOrbitUtils.RotateVectorByAngle(normal,        inclinationDeg * KeplerOrbitUtils.Deg2Rad,   ascendingNode).normalized;
+			Periapsis     = ascendingNode;
+			Periapsis     = KeplerOrbitUtils.RotateVectorByAngle(Periapsis, argOfPerifocusDeg * KeplerOrbitUtils.Deg2Rad, normal).normalized;
 
-			this.SemiMajorAxisBasis = periapsis;
-			this.SemiMinorAxisBasis = Vector3d.Cross(periapsis, normal);
+			this.SemiMajorAxisBasis = Periapsis;
+			this.SemiMinorAxisBasis = Vector3d.Cross(Periapsis, normal);
 
 			this.MeanAnomaly      = meanAnomalyDeg * KeplerOrbitUtils.Deg2Rad;
 			this.EccentricAnomaly = KeplerOrbitUtils.ConvertMeanToEccentricAnomaly(this.MeanAnomaly, this.Eccentricity);
@@ -511,7 +511,7 @@ namespace SimpleKeplerOrbits
 		}
 
 		/// <summary>
-		/// Gets calculated orbit points with defined precision.
+		/// Gets orbit sample points with defined precision.
 		/// </summary>
 		/// <param name="pointsCount">The points count.</param>
 		/// <param name="maxDistance">The maximum distance of points.</param>
@@ -522,7 +522,7 @@ namespace SimpleKeplerOrbits
 		}
 
 		/// <summary>
-		/// Gets calculated orbit points with defined precision.
+		/// Gets orbit sample points with defined precision.
 		/// </summary>
 		/// <param name="pointsCount">The points count.</param>
 		/// <param name="origin">The origin.</param>
@@ -581,7 +581,7 @@ namespace SimpleKeplerOrbits
 		}
 
 		/// <summary>
-		/// Gets the orbit points without unnecessary memory alloc for resulting array.
+		/// Gets the orbit sample points without unnecessary memory alloc for resulting array.
 		/// However, memory allocation may occur if resulting array has not correct lenght.
 		/// </summary>
 		/// <param name="orbitPoints">The orbit points.</param>

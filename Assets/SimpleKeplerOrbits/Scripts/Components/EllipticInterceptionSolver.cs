@@ -670,7 +670,7 @@ namespace SimpleKeplerOrbits
 			instance.LockOrbitEditing                  = true;
 			instance.OrbitData.SetEccentricAnomaly(_currentTransition.EccAnomalyStart);
 			instance.ForceUpdateViewFromInternalState();
-			_spawnNotifier.NotifyBodySpawned(instance);
+			if (_spawnNotifier != null) _spawnNotifier.NotifyBodySpawned(instance);
 			return true;
 		}
 	}

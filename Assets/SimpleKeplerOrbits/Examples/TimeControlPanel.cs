@@ -21,7 +21,7 @@ namespace SimpleKeplerOrbits.Examples
 		[SerializeField] private InputField     _inputMin;
 		[SerializeField] private InputField     _inputSec;
 		[SerializeField] private Button         _buttonSetNow;
-		[SerializeField] private float          _maxTimeScale = 5000000;
+		[SerializeField] private float          _maxTimeScale = 5e7f;
 
 		private bool _isRefreshing;
 
