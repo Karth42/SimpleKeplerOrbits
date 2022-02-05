@@ -26,11 +26,11 @@ namespace SimpleKeplerOrbits
 		public Transform VelocityHandle;
 
 		/// <summary>
-		/// The velocity handle lenght scale parameter.
+		/// The velocity handle length scale parameter.
 		/// </summary>
 		[Range(0f, 10f)]
 		[Tooltip("Velocity handle scale parameter.")]
-		public float VelocityHandleLenghtScale = 0f;
+		public float VelocityHandleLengthScale = 0f;
 
 		/// <summary>
 		/// The time scale multiplier.
@@ -238,9 +238,9 @@ namespace SimpleKeplerOrbits
 			if (VelocityHandle != null)
 			{
 				Vector3 velocityRelativePosition = new Vector3((float)OrbitData.Velocity.x, (float)OrbitData.Velocity.y, (float)OrbitData.Velocity.z);
-				if (VelocityHandleLenghtScale > 0 && !float.IsNaN(VelocityHandleLenghtScale) && !float.IsInfinity(VelocityHandleLenghtScale))
+				if (VelocityHandleLengthScale > 0 && !float.IsNaN(VelocityHandleLengthScale) && !float.IsInfinity(VelocityHandleLengthScale))
 				{
-					velocityRelativePosition *= VelocityHandleLenghtScale;
+					velocityRelativePosition *= VelocityHandleLengthScale;
 				}
 
 				VelocityHandle.position = transform.position + velocityRelativePosition;
@@ -257,9 +257,9 @@ namespace SimpleKeplerOrbits
 			if (VelocityHandle != null)
 			{
 				Vector3 velocity = VelocityHandle.position - transform.position;
-				if (VelocityHandleLenghtScale > 0 && !float.IsNaN(VelocityHandleLenghtScale) && !float.IsInfinity(VelocityHandleLenghtScale))
+				if (VelocityHandleLengthScale > 0 && !float.IsNaN(VelocityHandleLengthScale) && !float.IsInfinity(VelocityHandleLengthScale))
 				{
-					velocity /= VelocityHandleLenghtScale;
+					velocity /= VelocityHandleLengthScale;
 				}
 
 				return velocity;

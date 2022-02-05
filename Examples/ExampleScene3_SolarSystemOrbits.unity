@@ -263,7 +263,7 @@ MonoBehaviour:
   _inputMin: {fileID: 158338149}
   _inputSec: {fileID: 2135890056}
   _buttonSetNow: {fileID: 2134891584}
-  _maxTimeScale: 5000000
+  _maxTimeScale: 50000000
 --- !u!1 &139608332
 GameObject:
   m_ObjectHideFlags: 0
@@ -1492,7 +1492,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 42
     m_FontStyle: 0
     m_BestFit: 0
@@ -2044,6 +2044,7 @@ MonoBehaviour:
   _targetCamera: {fileID: 139608334}
   _lineTemplate: {fileID: 485453330}
   _camDistance: 0.5
+  _isDebugMode: 0
 --- !u!114 &446493821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2241,7 +2242,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 42
     m_FontStyle: 0
     m_BestFit: 0
@@ -2475,7 +2476,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 42
     m_FontStyle: 0
     m_BestFit: 0
@@ -2710,7 +2711,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 42
     m_FontStyle: 0
     m_BestFit: 0
@@ -3813,7 +3814,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 42
     m_FontStyle: 0
     m_BestFit: 0
@@ -4127,7 +4128,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 42
     m_FontStyle: 0
     m_BestFit: 0
@@ -4513,7 +4514,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 418e5ee9e6a59d94fae09a3d0e50ee6c, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 60
     m_FontStyle: 0
     m_BestFit: 0
