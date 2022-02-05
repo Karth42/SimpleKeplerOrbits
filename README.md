@@ -12,7 +12,7 @@ This repository contains the entire Unity Project for basic demo setup.
 There are several ways to import the project:
 - Manually copy all files from Asset directory to your unity project directory;
 - Import asset store package;
-- Import of the 'src' branch as submodule, which contains only Assets folder content.
+- Import of the 'src' branch as [embedded package](https://docs.unity3d.com/Manual/CustomPackages.html#EmbedMe).
 
 ## Usage
 

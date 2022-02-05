@@ -1,3 +1,6 @@
+version 1.0.7
+- Few minor fixes.
+
 version 1.0.6
 - Minor stability fixes.
 - Screen space orbits demo script refactor.

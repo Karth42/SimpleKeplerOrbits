@@ -150,9 +150,9 @@ namespace SimpleKeplerOrbits
 			if (GizmosAlphaSecondary <= 0) return;
 			Gizmos.color = new Color(1, 1, 1, GizmosAlphaSecondary);
 			var velocity = _moverReference.OrbitData.GetVelocityAtEccentricAnomaly(_moverReference.OrbitData.EccentricAnomaly);
-			if (_moverReference.VelocityHandleLenghtScale > 0)
+			if (_moverReference.VelocityHandleLengthScale > 0)
 			{
-				velocity *= _moverReference.VelocityHandleLenghtScale;
+				velocity *= _moverReference.VelocityHandleLengthScale;
 			}
 
 			var pos = transform.position;
@@ -199,8 +199,8 @@ namespace SimpleKeplerOrbits
 			if (LineRendererReference == null)
 			{
 				LineRendererReference = GetComponent<LineRenderer>();
-#endif
 			}
 		}
+#endif
 	}
 }

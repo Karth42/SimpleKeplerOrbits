@@ -582,7 +582,7 @@ namespace SimpleKeplerOrbits
 
 		/// <summary>
 		/// Gets the orbit sample points without unnecessary memory alloc for resulting array.
-		/// However, memory allocation may occur if resulting array has not correct lenght.
+		/// However, memory allocation may occur if resulting array has not correct length.
 		/// </summary>
 		/// <param name="orbitPoints">The orbit points.</param>
 		/// <param name="pointsCount">The points count.</param>
